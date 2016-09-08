@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "633314864235",
+    "firebase_url": "https://pops-ed39c.firebaseio.com",
+    "project_id": "pops-ed39c",
+    "storage_bucket": "pops-ed39c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:633314864235:android:dbff1559cdb4e7c0",
+        "android_client_info": {
+          "package_name": "com.madmensoftware.www.pops"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "633314864235-37v504dartdnj5e63oooqhd7skg9f529.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRBQFthGiYttcmtPVpU1x5cLOs6Z3uhvQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

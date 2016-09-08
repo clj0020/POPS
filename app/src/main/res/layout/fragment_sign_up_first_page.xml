@@ -1,0 +1,26 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white">
+
+    <Button
+        android:id="@+id/popperBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Popper"/>
+
+    <Button
+        android:id="@+id/parentBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Parent"/>
+
+    <Button
+        android:id="@+id/neighborBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Neighbor"/>
+
+</LinearLayout>

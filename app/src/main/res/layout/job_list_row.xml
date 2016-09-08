@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="16dp">
+
+    <RelativeLayout
+        android:id="@+id/job_list_top_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/job_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Mowing the Lawn"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+
+            <TextView
+                android:id="@+id/job_budget"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="$50.00"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/job_poster_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/job_list_top_row"
+        tools:text="Carson Jones"
+        android:textSize="17sp" />
+
+
+    <TextView
+        android:id="@+id/job_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Just need someone to come mow my lawn on Sunday"
+        android:layout_below="@id/job_poster_name"/>
+
+
+
+
+
+
+</RelativeLayout>
