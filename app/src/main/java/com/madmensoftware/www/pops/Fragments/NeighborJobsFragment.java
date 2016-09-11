@@ -3,30 +3,23 @@ package com.madmensoftware.www.pops.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.TextView;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.madmensoftware.www.pops.Adapters.JobRecyclerViewAdapter;
+import com.madmensoftware.www.pops.Adapters.JobAdapter;
+import com.madmensoftware.www.pops.Adapters.JobViewHolder;
 import com.madmensoftware.www.pops.Models.Job;
 import com.madmensoftware.www.pops.R;
-
-import org.w3c.dom.Comment;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,9 +31,22 @@ public class NeighborJobsFragment extends Fragment {
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth auth;
 
-    private List<Job> jobList = new ArrayList<>();
-    private RecyclerView recyclerView;
-    private JobRecyclerViewAdapter mAdapter;
+//    private Query jobQuery;
+//
+    private LinearLayoutManager linearLayoutManager;
+    private RecyclerView jobRecyclerview;
+
+    private JobAdapter mJobAdapter;
+    private DatabaseReference mRef;
+    private DatabaseReference mJobRef;
+
+
+    // Firebase instance variables
+    private DatabaseReference mFirebaseDatabaseReference;
+    private FirebaseRecyclerAdapter<Job, JobViewHolder>
+            mFirebaseAdapter;
+
+
 
     public NeighborJobsFragment() {
         // Required empty public constructor
@@ -48,86 +54,87 @@ public class NeighborJobsFragment extends Fragment {
 
     public static NeighborJobsFragment newInstance(String userId) {
         NeighborJobsFragment fragment = new NeighborJobsFragment();
+        Log.i("Jobs", "Attached the jobs fragment");
         Bundle args = new Bundle();
         args.putSerializable(EXTRA_USER_ID, userId);
         fragment.setArguments(args);
         return fragment;
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_neighbor_jobs, container, false);
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.neighbor_jobs_recycler_view);
+//        jobRecyclerview = (RecyclerView) view.findViewById(R.id.neighbor_jobs_recycler_view);
 
-        mAdapter = new JobRecyclerViewAdapter(jobList);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(mAdapter);
+//
+//        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+//        mFirebaseAdapter = new FirebaseRecyclerAdapter<Job,
+//                JobViewHolder>(
+//                Job.class,
+//                R.layout.job_list_row,
+//                JobViewHolder.class,
+//                mFirebaseDatabaseReference.child("jobs").child(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+//
+//            @Override
+//            protected void populateViewHolder(JobViewHolder viewHolder,
+//                                              Job job, int position) {
+//                viewHolder.jobTitle.setText(job.getTitle());
+//                viewHolder.jobDescription.setText(job.getDescription());
+//                viewHolder.jobBudget.setText(job.getBudget() + "");
+//                viewHolder.jobPosterName.setText(job.getPosterName());
+//            }
+//        };
+//
+//        mFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+//            @Override
+//            public void onItemRangeInserted(int positionStart, int itemCount) {
+//                super.onItemRangeInserted(positionStart, itemCount);
+//                int friendlyMessageCount = mFirebaseAdapter.getItemCount();
+//                int lastVisiblePosition =
+//                        linearLayoutManager.findLastCompletelyVisibleItemPosition();
+//                // If the recycler view is initially being loaded or the
+//                // user is at the bottom of the list, scroll to the bottom
+//                // of the list to show the newly added message.
+//                if (lastVisiblePosition == -1 ||
+//                        (positionStart >= (friendlyMessageCount - 1) &&
+//                                lastVisiblePosition == (positionStart - 1))) {
+//                    jobRecyclerview.scrollToPosition(positionStart);
+//                }
+//            }
+//        });
+//
+//        jobRecyclerview.setLayoutManager(linearLayoutManager);
+//        jobRecyclerview.setAdapter(mFirebaseAdapter);
 
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-        Query myTopPostsQuery = databaseReference.child("jobs").child(uid);
-        myTopPostsQuery.addChildEventListener(new ChildEventListener() {
+
+
+        jobRecyclerview = (RecyclerView) view.findViewById(R.id.neighbor_jobs_recycler_view);
+        jobRecyclerview.setHasFixedSize(true);
+        linearLayoutManager = new LinearLayoutManager(getActivity());
+        mRef = FirebaseDatabase.getInstance().getReference();
+        mJobRef = mRef.child("jobs").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        mJobAdapter = new JobAdapter(Job.class, R.layout.job_list_row, JobViewHolder.class, mJobRef, getContext());
+        mJobAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-                
-                // A new comment has been added, add it to the displayed list
-                Comment comment = dataSnapshot.getValue(Comment.class);
-
-                // ...
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                int friendlyMessageCount = mJobAdapter.getItemCount();
+                int lastVisiblePosition =
+                        linearLayoutManager.findLastCompletelyVisibleItemPosition();
+                if (lastVisiblePosition == -1 ||
+                        (positionStart >= (friendlyMessageCount - 1) &&
+                                lastVisiblePosition == (positionStart - 1))) {
+                    jobRecyclerview.scrollToPosition(positionStart);
+                }
             }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
-
-                // A comment has changed, use the key to determine if we are displaying this
-                // comment and if so displayed the changed comment.
-                Comment newComment = dataSnapshot.getValue(Comment.class);
-                String commentKey = dataSnapshot.getKey();
-
-                // ...
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                // A comment has changed, use the key to determine if we are displaying this
-                // comment and if so remove it.
-                String commentKey = dataSnapshot.getKey();
-
-                // ...
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
-
-                // A comment has changed position, use the key to determine if we are
-                // displaying this comment and if so move it.
-                Comment movedComment = dataSnapshot.getValue(Comment.class);
-                String commentKey = dataSnapshot.getKey();
-
-                // ...
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(getActivity(), "Failed to load jobs.",
-                        Toast.LENGTH_SHORT).show();
-            }
-
         });
 
+        jobRecyclerview.setLayoutManager(linearLayoutManager);
+        jobRecyclerview.setAdapter(mJobAdapter);
 
-//        prepareJobData();
         return view;
     }
-
-
-
 }

@@ -50,6 +50,7 @@ public class SignUpPopperFragment extends Fragment implements View.OnClickListen
     private int mYear, mMonth, mDay;
 
     public Date goalDate;
+    private long goalDateLong;
 
     public String uid;
 
@@ -60,7 +61,7 @@ public class SignUpPopperFragment extends Fragment implements View.OnClickListen
      */
     public interface SignUpPopperCallbacks {
         void onPopperBackButton();
-        void onPopperNextButton(String userId, String name, int age, int zip_code, String transportation, int radius, double goal, Date goalDate);
+        void onPopperNextButton(String userId, String name, int age, int zip_code, String transportation, int radius, double goal, long goalDateLong);
     }
 
     public SignUpPopperFragment() {
@@ -184,7 +185,7 @@ public class SignUpPopperFragment extends Fragment implements View.OnClickListen
                 int radius = mRadiusSeekbar.getProgress();
                 double goal = Double.parseDouble(mGoal.getText().toString());
 
-                mCallbacks.onPopperNextButton(uid, name, age, zip_code, transportation, radius, goal, goalDate);
+                mCallbacks.onPopperNextButton(uid, name, age, zip_code, transportation, radius, goal, goalDateLong);
                 break;
             case R.id.goal_due_date:
 
@@ -204,6 +205,7 @@ public class SignUpPopperFragment extends Fragment implements View.OnClickListen
                                                   int monthOfYear, int dayOfMonth) {
 
                                 goalDate = new Date(year - 1900, monthOfYear, dayOfMonth);
+                                goalDateLong = goalDate.getTime();
                             }
                         }, mYear, mMonth, mDay);
                 datePickerDialog.show();

@@ -2,6 +2,8 @@ package com.madmensoftware.www.pops.Models;
 
 import android.util.Log;
 
+import org.parceler.Parcel;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -12,25 +14,27 @@ import java.util.UUID;
 /**
  * Created by carsonjones on 8/29/16.
  */
+@Parcel
 public class User {
 
-    private String uid;
-    private String name;
-    private String address;
-    private int age;
-    private int zipCode;
-    private String type;
-    private String transportationType;
-    private Date goalDate;
-    private double goal;
-    private String email;
-    private int radius;
-    private double earned;
-    private int organizationCode;
+    String uid;
+    String name;
+    String address;
+    int age;
+    int zipCode;
+    String type;
+    String transportationType;
+//    Date goalDate;
+    long goalDate;
+    double goal;
+    String email;
+    int radius;
+    double earned;
+    int organizationCode;
 
 
     public User() {
-        goalDate = new Date();
+        //goalDate = new Date();
     }
 
     public String getUid() {
@@ -89,16 +93,16 @@ public class User {
         this.type = type;
     }
 
-    public Date getGoalDate() {
+    public long getGoalDate() {
         return goalDate;
     }
 
-    public void setGoalDate(Date goalDate) {
+    public void setGoalDate(long goalDate) {
         this.goalDate = goalDate;
     }
 
     public int getDaysUntilGoalDate() {
-        Calendar eDate = toCalendar(this.goalDate.getTime());
+        Calendar eDate = toCalendar(this.goalDate);
         Calendar sDate = toCalendar(System.currentTimeMillis());
 
         // Get the represented date in milliseconds

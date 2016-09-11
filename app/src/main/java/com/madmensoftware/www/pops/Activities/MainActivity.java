@@ -29,6 +29,8 @@ import com.madmensoftware.www.pops.Fragments.PopperMapFragment;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 
+import org.parceler.Parcels;
+
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth.AuthStateListener authListener;
@@ -36,11 +38,41 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseUser mFirebaseUser;
     private String uid;
     private String type;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+//        Bundle b = this.getIntent().getExtras();
+//        if (b != null) {
+//            user = Parcels.unwrap(b.getParcelable("User"));
+//
+//            type = user.getType();
+//
+//            switch (type) {
+//                case "Popper":
+//                    Intent popperIntent = new Intent(MainActivity.this, PopperActivity.class);
+//                    Bundle popperBundle = new Bundle();
+//                    popperBundle.putParcelable("User", Parcels.wrap(user));
+//                    popperIntent.putExtras(popperBundle);
+//                    startActivity(popperIntent);
+//                    break;
+//                case "Parent":
+//                    break;
+//                case "Neighbor":
+//                    Intent neighborIntent = new Intent(MainActivity.this, NeighborActivity.class);
+//                    Bundle neighborBundle = new Bundle();
+//                    neighborBundle.putParcelable("User", Parcels.wrap(user));
+//                    neighborIntent.putExtras(neighborBundle);
+//                    startActivity(neighborIntent);
+//                    break;
+//                default:
+//                    break;
+//            }
+//
+//        }
 
         //get firebase auth instance
         auth = FirebaseAuth.getInstance();
@@ -49,13 +81,13 @@ public class MainActivity extends AppCompatActivity {
         authListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user == null) {
+                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                if (firebaseUser == null) {
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                     finish();
                 }
                 else {
-                    mFirebaseUser = user;
+                    mFirebaseUser = firebaseUser;
                     uid = mFirebaseUser.getUid();
 
                     // Write a message to the database
@@ -76,12 +108,20 @@ public class MainActivity extends AppCompatActivity {
 
                                 switch (type) {
                                     case "Popper":
-                                        startActivity(new Intent(MainActivity.this, PopperActivity.class));
+                                        Intent popperIntent = new Intent(MainActivity.this, PopperActivity.class);
+                                        Bundle popperBundle = new Bundle();
+                                        popperBundle.putParcelable("User", Parcels.wrap(mUser));
+                                        popperIntent.putExtras(popperBundle);
+                                        startActivity(popperIntent);
                                         break;
                                     case "Parent":
                                         break;
                                     case "Neighbor":
-                                        startActivity(new Intent(MainActivity.this, NeighborActivity.class));
+                                        Intent neighborIntent = new Intent(MainActivity.this, NeighborActivity.class);
+                                        Bundle neighborBundle = new Bundle();
+                                        neighborBundle.putParcelable("User", Parcels.wrap(mUser));
+                                        neighborIntent.putExtras(neighborBundle);
+                                        startActivity(neighborIntent);
                                         break;
                                     default:
                                         break;
