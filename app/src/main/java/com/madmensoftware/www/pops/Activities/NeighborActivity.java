@@ -16,10 +16,18 @@ import android.view.MenuItem;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Fragments.NeighborJobsFragment;
 import com.madmensoftware.www.pops.Fragments.NeighborNotificationsFragment;
 import com.madmensoftware.www.pops.Helpers.NonSwipeableViewPager;
+import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
+
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +49,9 @@ public class NeighborActivity extends AppCompatActivity {
                 R.mipmap.ic_notifications
         };
 
-        public FirebaseUser mUser;
+        public FirebaseUser mFirebaseUser;
+
+        private User user;
         public String uid;
 
         @Override
@@ -69,28 +79,60 @@ public class NeighborActivity extends AppCompatActivity {
             viewPager = (NonSwipeableViewPager) findViewById(R.id.neighbor_viewpager);
             tabLayout = (TabLayout) findViewById(R.id.neighbor_tabs);
 
+
+            Bundle b = this.getIntent().getExtras();
+            if (b != null) {
+                user = Parcels.unwrap(b.getParcelable("User"));
+            }
+
+
             auth = FirebaseAuth.getInstance();
 
             authListener = new FirebaseAuth.AuthStateListener() {
                 @Override
                 public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                    FirebaseUser user = firebaseAuth.getCurrentUser();
-                    if (user == null) {
+                    FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                    if (firebaseUser == null) {
                         Log.i("Auth", "User is null");
                         startActivity(new Intent(NeighborActivity.this, LoginActivity.class));
                         finish();
                     }
                     else {
-                        mUser = user;
-                        uid = mUser.getUid();
+                        mFirebaseUser = firebaseUser;
+                        uid = mFirebaseUser.getUid();
 
                         setupViewPager(viewPager, uid);
                         tabLayout.setupWithViewPager(viewPager);
                         setupTabIcons();
+
+                        // Write a message to the database
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        DatabaseReference ref = database.getReference("users/" + uid);
+
+
+                        // Read from the database
+                        ref.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if(dataSnapshot.exists()) {
+                                    User mUser = dataSnapshot.getValue(User.class);
+                                    user = mUser;
+
+                                }
+                                else {
+                                    auth.signOut();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError error) {
+
+                            }
+
+                        });
                     }
                 }
             };
-
         }
 
 
@@ -111,13 +153,17 @@ public class NeighborActivity extends AppCompatActivity {
                     auth.signOut();
                     return true;
                 case R.id.action_add_job:
-                    startActivity(new Intent(NeighborActivity.this, AddJobActivity.class));
+                    Intent neighborIntent = new Intent(NeighborActivity.this, AddJobActivity.class);
+                    Bundle neighborBundle = new Bundle();
+                    neighborBundle.putParcelable("User", Parcels.wrap(user));
+                    neighborIntent.putExtras(neighborBundle);
+                    startActivity(neighborIntent);
                 default:
                     // If we got here, the user's action was not recognized.
                     // Invoke the superclass to handle it.
                     return super.onOptionsItemSelected(item);
+            }
         }
-    }
 
         private void setupTabIcons() {
             tabLayout.getTabAt(0).setIcon(tabIcons[0]);

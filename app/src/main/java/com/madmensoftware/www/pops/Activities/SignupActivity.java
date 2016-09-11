@@ -2,6 +2,7 @@ package com.madmensoftware.www.pops.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,6 +24,8 @@ import com.madmensoftware.www.pops.R;
 import com.madmensoftware.www.pops.Fragments.SignUpFirstPageFragment;
 import com.madmensoftware.www.pops.Fragments.SignUpPopperFragment;
 import com.madmensoftware.www.pops.Fragments.SignUpSecondPageFragment;
+
+import org.parceler.Parcels;
 
 import java.util.Date;
 
@@ -106,7 +109,7 @@ public class SignupActivity extends SingleFragmentActivity implements SignUpFirs
     }
 
     @Override
-    public void onPopperNextButton(String userId, String name, int age, int zip_code, String transportation, int radius, double goal, Date goalDate) {
+    public void onPopperNextButton(String userId, String name, int age, int zip_code, String transportation, int radius, double goal, long goalDateLong) {
         User user = new User();
 
         user.setName(name);
@@ -115,7 +118,7 @@ public class SignupActivity extends SingleFragmentActivity implements SignUpFirs
         user.setTransportationType(transportation);
         user.setRadius(radius);
         user.setGoal(goal);
-        user.setGoalDate(goalDate);
+        user.setGoalDate(goalDateLong);
         user.setEarned(0);
         user.setType("Popper");
 
@@ -138,6 +141,9 @@ public class SignupActivity extends SingleFragmentActivity implements SignUpFirs
         writeNewUser(user);
 
         Intent intent = new Intent(SignupActivity.this, MainActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("User", Parcels.wrap(user));
+        intent.putExtras(bundle);
         startActivity(intent);
     }
 

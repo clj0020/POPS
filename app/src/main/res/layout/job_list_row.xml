@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@android:color/black">
 
     <RelativeLayout
         android:id="@+id/job_list_top_row"
@@ -11,7 +12,7 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/job_title"
+            android:id="@+id/job_list_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Mowing the Lawn"
@@ -20,7 +21,7 @@
 
 
             <TextView
-                android:id="@+id/job_budget"
+                android:id="@+id/job_list_budget"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="$50.00"
@@ -30,7 +31,7 @@
     </RelativeLayout>
 
     <TextView
-        android:id="@+id/job_poster_name"
+        android:id="@+id/job_list_poster_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/job_list_top_row"
@@ -39,11 +40,11 @@
 
 
     <TextView
-        android:id="@+id/job_description"
+        android:id="@+id/job_list_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="Just need someone to come mow my lawn on Sunday"
-        android:layout_below="@id/job_poster_name"/>
+        android:layout_below="@id/job_list_poster_name"/>
 
 
 
