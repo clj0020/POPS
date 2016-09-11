@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.madmensoftware.www.pops.Fragments.SignUpNeighborFragment;
+import com.madmensoftware.www.pops.Fragments.SignUpParentFragment;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 import com.madmensoftware.www.pops.Fragments.SignUpFirstPageFragment;
@@ -29,7 +30,9 @@ import org.parceler.Parcels;
 
 import java.util.Date;
 
-public class SignupActivity extends SingleFragmentActivity implements SignUpFirstPageFragment.SignUpFirstPageCallbacks, SignUpSecondPageFragment.SignUpSecondPageCallbacks, SignUpPopperFragment.SignUpPopperCallbacks, SignUpNeighborFragment.SignUpNeighborCallbacks {
+public class SignupActivity extends SingleFragmentActivity implements SignUpFirstPageFragment.SignUpFirstPageCallbacks,
+        SignUpSecondPageFragment.SignUpSecondPageCallbacks, SignUpPopperFragment.SignUpPopperCallbacks,
+        SignUpNeighborFragment.SignUpNeighborCallbacks, SignUpParentFragment.SignUpParentCallbacks {
     public final static String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
 
 
@@ -37,11 +40,6 @@ public class SignupActivity extends SingleFragmentActivity implements SignUpFirs
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
 
-
-    private void writeNewUser(User mUser) {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        mDatabase.child("users").child(firebaseUser.getUid()).setValue(mUser);
-    }
 
     @Override
     protected Fragment createFragment() {
@@ -66,7 +64,6 @@ public class SignupActivity extends SingleFragmentActivity implements SignUpFirs
                     .add(R.id.fragment_container, fragment)
                     .commit();
         }
-
     }
 
     @Override
@@ -110,19 +107,24 @@ public class SignupActivity extends SingleFragmentActivity implements SignUpFirs
 
     @Override
     public void onPopperNextButton(String userId, String name, int age, int zip_code, String transportation, int radius, double goal, long goalDateLong) {
-        User user = new User();
+        FirebaseUser firebasePopper = FirebaseAuth.getInstance().getCurrentUser();
+        String email = firebasePopper.getEmail();
 
-        user.setName(name);
-        user.setAge(age);
-        user.setZipCode(zip_code);
-        user.setTransportationType(transportation);
-        user.setRadius(radius);
-        user.setGoal(goal);
-        user.setGoalDate(goalDateLong);
-        user.setEarned(0);
-        user.setType("Popper");
+        User popper = new User();
 
-        writeNewUser(user);
+        popper.setName(name);
+        popper.setEmail(email);
+        popper.setAge(age);
+        popper.setZipCode(zip_code);
+        popper.setTransportationType(transportation);
+        popper.setRadius(radius);
+        popper.setGoal(goal);
+        popper.setGoalDate(goalDateLong);
+        popper.setEarned(0);
+        popper.setType("Popper");
+
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        mDatabase.child("users").child(firebaseUser.getUid()).setValue(popper);
 
         Intent intent = new Intent(SignupActivity.this, MainActivity.class);
         startActivity(intent);
@@ -130,20 +132,43 @@ public class SignupActivity extends SingleFragmentActivity implements SignUpFirs
 
     @Override
     public void onNeighborSubmit(String name, String address, int zip_code, int organizationCode) {
-        User user = new User();
+        FirebaseUser firebaseNeighbor = FirebaseAuth.getInstance().getCurrentUser();
+        String email = firebaseNeighbor.getEmail();
 
-        user.setName(name);
-        user.setAddress(address);
-        user.setZipCode(zip_code);
-        user.setOrganizationCode(organizationCode);
-        user.setType("Neighbor");
+        User neighbor = new User();
 
-        writeNewUser(user);
+        neighbor.setName(name);
+        neighbor.setEmail(email);
+        neighbor.setAddress(address);
+        neighbor.setZipCode(zip_code);
+        neighbor.setOrganizationCode(organizationCode);
+        neighbor.setType("Neighbor");
+
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        mDatabase.child("users").child(firebaseUser.getUid()).setValue(neighbor);
+
 
         Intent intent = new Intent(SignupActivity.this, MainActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("User", Parcels.wrap(user));
-        intent.putExtras(bundle);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onParentSubmit(String name, int phone) {
+        FirebaseUser firebaseParent = FirebaseAuth.getInstance().getCurrentUser();
+        String email = firebaseParent.getEmail();
+
+        User parent = new User();
+
+        parent.setName(name);
+        parent.setPhone(phone);
+        parent.setEmail(email);
+        parent.setType("Parent");
+
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        mDatabase.child("users").child(firebaseUser.getUid()).setValue(parent);
+
+
+        Intent intent = new Intent(SignupActivity.this, MainActivity.class);
         startActivity(intent);
     }
 
@@ -215,7 +240,20 @@ public class SignupActivity extends SingleFragmentActivity implements SignUpFirs
 
                                             break;
                                         case "Parent":
+                                            FirebaseUser firebaseParent = FirebaseAuth.getInstance().getCurrentUser();
+                                            if (firebaseParent != null) {
+                                                String email = firebaseParent.getEmail();
+                                                String uid = firebaseParent.getUid();
+                                                User user = new User();
+                                                user.setEmail(email);
+                                                user.setType("Parent");
+                                                user.setUid(uid);
 
+                                                fragment = SignUpParentFragment.newInstance(user.getUid());
+                                                fm.beginTransaction()
+                                                        .replace(R.id.fragment_container, fragment)
+                                                        .commit();
+                                            }
                                             break;
                                         case "Neighbor":
                                             FirebaseUser firebaseNeighbor = FirebaseAuth.getInstance().getCurrentUser();
