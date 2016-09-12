@@ -12,13 +12,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.madmensoftware.www.pops.R;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SignUpParentFragment extends Fragment implements View.OnClickListener {
+public class AddDetailsParentFragment extends Fragment implements View.OnClickListener {
 
     private static final String USER_ID = "user_id";
 
@@ -39,7 +40,7 @@ public class SignUpParentFragment extends Fragment implements View.OnClickListen
         void onParentSubmit(String name, int phone);
     }
 
-    public SignUpParentFragment() {
+    public AddDetailsParentFragment() {
         // Required empty public constructor
     }
 
@@ -66,24 +67,21 @@ public class SignUpParentFragment extends Fragment implements View.OnClickListen
         }
     }
 
-    public static SignUpParentFragment newInstance(String userId) {
-        SignUpParentFragment fragment = new SignUpParentFragment();
-        Bundle args = new Bundle();
-        args.putString(USER_ID, userId);
-        fragment.setArguments(args);
+    public static AddDetailsParentFragment newInstance() {
+        AddDetailsParentFragment fragment = new AddDetailsParentFragment();
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        uid = getArguments().getString(USER_ID);
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_sign_up_parent, container, false);
+        View view = inflater.inflate(R.layout.fragment_add_details_parent, container, false);
 
 
         mNameEditText = (EditText) view.findViewById(R.id.parent_name);
@@ -106,14 +104,24 @@ public class SignUpParentFragment extends Fragment implements View.OnClickListen
             case R.id.backBtn:
                 break;
             case R.id.nextBtn:
-                String name = mNameEditText.getText().toString();
-                int phone = Integer.parseInt(mPhoneEditText.getText().toString());
 
-                mCallbacks.onParentSubmit(name, phone);
+                if(isEmpty(mNameEditText) || isEmpty(mPhoneEditText)) {
+                    Toast.makeText(getActivity(), "Please fill out all fields.", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    String name = mNameEditText.getText().toString();
+                    int phone = Integer.parseInt(mPhoneEditText.getText().toString());
+
+                    mCallbacks.onParentSubmit(name, phone);
+                }
                 break;
             default:
                 break;
         }
 
+    }
+
+    private boolean isEmpty(EditText etText) {
+        return etText.getText().toString().trim().length() == 0;
     }
 }

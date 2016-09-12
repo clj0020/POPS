@@ -18,9 +18,11 @@
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#a9a9a9"
+        android:background="@color/colorPrimary"
         app:tabMode="fixed"
         app:tabGravity="fill"
-        android:layout_weight="8"/>
+        android:layout_weight="8"
+        app:tabTextColor="@color/colorPrimaryDark"
+        app:tabSelectedTextColor="@color/black"/>
 
 </LinearLayout>

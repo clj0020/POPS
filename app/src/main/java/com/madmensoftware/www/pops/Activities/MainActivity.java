@@ -104,14 +104,14 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                             else {
-                                auth.signOut();
+                                Intent intent = new Intent(MainActivity.this, AddUserDetails.class);
+                                startActivity(intent);
                             }
 
                         }
 
                         @Override
                         public void onCancelled(DatabaseError error) {
-
 
                         }
                     });

@@ -49,6 +49,8 @@ dependencies {
     compile 'com.firebaseui:firebase-ui-database:0.5.3'
     compile 'com.jakewharton:butterknife:8.4.0'
     compile 'com.google.android.gms:play-services-maps:9.4.0'
+    compile 'com.google.android.gms:play-services-auth:9.4.0'
+    compile 'com.google.code.gson:gson:2.7'
 }
 
 

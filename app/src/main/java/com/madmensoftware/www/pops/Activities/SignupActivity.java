@@ -2,7 +2,6 @@ package com.madmensoftware.www.pops.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,23 +15,22 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.madmensoftware.www.pops.Fragments.SignUpNeighborFragment;
-import com.madmensoftware.www.pops.Fragments.SignUpParentFragment;
+import com.google.firebase.database.ValueEventListener;
+import com.madmensoftware.www.pops.Fragments.AddDetailsNeighborFragment;
+import com.madmensoftware.www.pops.Fragments.AddDetailsParentFragment;
+import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 import com.madmensoftware.www.pops.Fragments.SignUpFirstPageFragment;
-import com.madmensoftware.www.pops.Fragments.SignUpPopperFragment;
+import com.madmensoftware.www.pops.Fragments.AddDetailsPopperFragment;
 import com.madmensoftware.www.pops.Fragments.SignUpSecondPageFragment;
 
-import org.parceler.Parcels;
-
-import java.util.Date;
-
 public class SignupActivity extends SingleFragmentActivity implements SignUpFirstPageFragment.SignUpFirstPageCallbacks,
-        SignUpSecondPageFragment.SignUpSecondPageCallbacks, SignUpPopperFragment.SignUpPopperCallbacks,
-        SignUpNeighborFragment.SignUpNeighborCallbacks, SignUpParentFragment.SignUpParentCallbacks {
+        SignUpSecondPageFragment.SignUpSecondPageCallbacks {
     public final static String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
 
 
@@ -40,12 +38,10 @@ public class SignupActivity extends SingleFragmentActivity implements SignUpFirs
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
 
-
     @Override
     protected Fragment createFragment() {
         return new SignUpFirstPageFragment();
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +64,6 @@ public class SignupActivity extends SingleFragmentActivity implements SignUpFirs
 
     @Override
     public void onTypeSelected(String type) {
-
         FragmentManager fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
 
@@ -106,80 +101,7 @@ public class SignupActivity extends SingleFragmentActivity implements SignUpFirs
     }
 
     @Override
-    public void onPopperNextButton(String userId, String name, int age, int zip_code, String transportation, int radius, double goal, long goalDateLong) {
-        FirebaseUser firebasePopper = FirebaseAuth.getInstance().getCurrentUser();
-        String email = firebasePopper.getEmail();
-
-        User popper = new User();
-
-        popper.setName(name);
-        popper.setEmail(email);
-        popper.setAge(age);
-        popper.setZipCode(zip_code);
-        popper.setTransportationType(transportation);
-        popper.setRadius(radius);
-        popper.setGoal(goal);
-        popper.setGoalDate(goalDateLong);
-        popper.setEarned(0);
-        popper.setType("Popper");
-
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        mDatabase.child("users").child(firebaseUser.getUid()).setValue(popper);
-
-        Intent intent = new Intent(SignupActivity.this, MainActivity.class);
-        startActivity(intent);
-    }
-
-    @Override
-    public void onNeighborSubmit(String name, String address, int zip_code, int organizationCode) {
-        FirebaseUser firebaseNeighbor = FirebaseAuth.getInstance().getCurrentUser();
-        String email = firebaseNeighbor.getEmail();
-
-        User neighbor = new User();
-
-        neighbor.setName(name);
-        neighbor.setEmail(email);
-        neighbor.setAddress(address);
-        neighbor.setZipCode(zip_code);
-        neighbor.setOrganizationCode(organizationCode);
-        neighbor.setType("Neighbor");
-
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        mDatabase.child("users").child(firebaseUser.getUid()).setValue(neighbor);
-
-
-        Intent intent = new Intent(SignupActivity.this, MainActivity.class);
-        startActivity(intent);
-    }
-
-    @Override
-    public void onParentSubmit(String name, int phone) {
-        FirebaseUser firebaseParent = FirebaseAuth.getInstance().getCurrentUser();
-        String email = firebaseParent.getEmail();
-
-        User parent = new User();
-
-        parent.setName(name);
-        parent.setPhone(phone);
-        parent.setEmail(email);
-        parent.setType("Parent");
-
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        mDatabase.child("users").child(firebaseUser.getUid()).setValue(parent);
-
-
-        Intent intent = new Intent(SignupActivity.this, MainActivity.class);
-        startActivity(intent);
-    }
-
-    @Override
-    public void onPopperBackButton() {
-
-    }
-
-    @Override
-    public void onNextButton(String email, String password, String type) {
-
+    public void onSubmitButton(String email, String password, String type) {
         final ProgressBar progressBar;
         final String mType = type;
 
@@ -217,62 +139,14 @@ public class SignupActivity extends SingleFragmentActivity implements SignUpFirs
                                             Toast.LENGTH_SHORT).show();
                                 }
                                 else {
-                                    FragmentManager fm = getSupportFragmentManager();
-                                    Fragment fragment = fm.findFragmentById(R.id.fragment_container);
+                                    TinyDB tinydb = new TinyDB(getApplicationContext());
+                                    tinydb.putString("userType", mType);
 
-                                    switch (mType) {
-                                        case "Popper":
-                                            FirebaseUser firebasePopper = FirebaseAuth.getInstance().getCurrentUser();
-                                            if (firebasePopper != null) {
-                                                String email = firebasePopper.getEmail();
-                                                String uid = firebasePopper.getUid();
-                                                User user = new User();
-                                                user.setEmail(email);
-                                                user.setType("Popper");
-                                                user.setUid(uid);
+                                    Toast.makeText(getApplicationContext(), "Success!",
+                                            Toast.LENGTH_LONG).show();
 
-
-                                                fragment = SignUpPopperFragment.newInstance(user.getUid());
-                                                fm.beginTransaction()
-                                                        .replace(R.id.fragment_container, fragment)
-                                                        .commit();
-                                            }
-
-                                            break;
-                                        case "Parent":
-                                            FirebaseUser firebaseParent = FirebaseAuth.getInstance().getCurrentUser();
-                                            if (firebaseParent != null) {
-                                                String email = firebaseParent.getEmail();
-                                                String uid = firebaseParent.getUid();
-                                                User user = new User();
-                                                user.setEmail(email);
-                                                user.setType("Parent");
-                                                user.setUid(uid);
-
-                                                fragment = SignUpParentFragment.newInstance(user.getUid());
-                                                fm.beginTransaction()
-                                                        .replace(R.id.fragment_container, fragment)
-                                                        .commit();
-                                            }
-                                            break;
-                                        case "Neighbor":
-                                            FirebaseUser firebaseNeighbor = FirebaseAuth.getInstance().getCurrentUser();
-                                            if (firebaseNeighbor != null) {
-                                                String email = firebaseNeighbor.getEmail();
-                                                String uid = firebaseNeighbor.getUid();
-                                                User user = new User();
-                                                user.setEmail(email);
-                                                user.setType("Neighbor");
-                                                user.setUid(uid);
-
-                                                fragment = SignUpNeighborFragment.newInstance(user.getUid());
-                                                fm.beginTransaction()
-                                                        .replace(R.id.fragment_container, fragment)
-                                                        .commit();
-                                            }
-
-                                            break;
-                                    }
+                                    Intent intent = new Intent(SignupActivity.this, AddUserDetails.class);
+                                    startActivity(intent);
                                 }
                             }
                         });

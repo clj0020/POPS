@@ -22,23 +22,23 @@ public class SignUpSecondPageFragment extends Fragment implements View.OnClickLi
     private ProgressBar progressBar;
 
     private Button backBtn;
-    private Button nextBtn;
+    private Button submitBtn;
 
     private SignUpSecondPageCallbacks mCallbacks;
+
+    public String type;
 
     /**
      * Required interface for hosting activities
      */
     public interface SignUpSecondPageCallbacks {
         void onBackButton();
-        void onNextButton(String email, String password, String type);
+        void onSubmitButton(String email, String password, String type);
     }
 
 
-    public String type;
-
     public SignUpSecondPageFragment() {
-        // Required empty public constructor
+
     }
 
 
@@ -92,10 +92,10 @@ public class SignUpSecondPageFragment extends Fragment implements View.OnClickLi
 //        btnSignIn = (Button) view.findViewById(R.id.sign_in_button);
 
         backBtn = (Button) view.findViewById(R.id.backBtn);
-        nextBtn = (Button) view.findViewById(R.id.nextBtn);
+        submitBtn = (Button) view.findViewById(R.id.nextBtn);
 
         backBtn.setOnClickListener(this);
-        nextBtn.setOnClickListener(this);
+        submitBtn.setOnClickListener(this);
 
 
         inputEmail = (EditText) view.findViewById(R.id.email);
@@ -129,7 +129,7 @@ public class SignUpSecondPageFragment extends Fragment implements View.OnClickLi
             case R.id.nextBtn:
                 String email = inputEmail.getText().toString().trim();
                 String password = inputPassword.getText().toString().trim();
-                mCallbacks.onNextButton(email, password, type);
+                mCallbacks.onSubmitButton(email, password, type);
 
                 break;
             default:

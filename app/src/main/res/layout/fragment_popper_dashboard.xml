@@ -97,14 +97,16 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:text="Goal" />
+                        android:text="Goal"
+                        android:textColor="@color/colorPrimaryDark"/>
 
                     <TextView
                         android:id="@+id/popper_dash_goal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        tools:text="$300.00"/>
+                        tools:text="$300.00"
+                        android:textColor="@color/colorPrimaryDark"/>
 
                 </LinearLayout>
 
@@ -122,14 +124,16 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:text="Earned"
-                        android:layout_marginTop="2dp"/>
+                        android:layout_marginTop="2dp"
+                        android:textColor="@color/colorPrimaryDark"/>
 
                     <TextView
                         android:id="@+id/popper_dash_earned"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        tools:text="$100.00"/>
+                        tools:text="$100.00"
+                        android:textColor="@color/colorPrimaryDark"/>
 
                 </LinearLayout>
 
@@ -146,14 +150,16 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:text="Due" />
+                        android:text="Due"
+                        android:textColor="@color/colorPrimaryDark"/>
 
                     <TextView
                         android:id="@+id/popper_dash_goal_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        tools:text="4 days"/>
+                        tools:text="4 days"
+                        android:textColor="@color/colorPrimaryDark"/>
 
                 </LinearLayout>
 

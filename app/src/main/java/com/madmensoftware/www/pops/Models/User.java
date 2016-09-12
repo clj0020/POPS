@@ -31,6 +31,7 @@ public class User {
     double earned;
     int organizationCode;
     int phone;
+    int accessCode;
 
 
     public User() {
@@ -166,6 +167,15 @@ public class User {
     public void setPhone(int phone) {
         this.phone = phone;
     }
+
+    public int getAccessCode() {
+        return accessCode;
+    }
+
+    public void setAccessCode(int accessCode) {
+        this.accessCode = accessCode;
+    }
+
 
 
     // Helper methods

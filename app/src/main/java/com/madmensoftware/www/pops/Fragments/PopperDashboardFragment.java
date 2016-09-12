@@ -151,13 +151,11 @@ public class PopperDashboardFragment extends Fragment {
                 // whenever data at this location is updated.
                 User mUser = dataSnapshot.getValue(User.class);
 
-
                 mNameTextView.setText(mUser.getName());
                 mAgeTextView.setText(mUser.getAge() + " years old");
                 mGoalTextView.setText("$" + mUser.getGoal());
                 mEarnedTextView.setText("$" + mUser.getEarned());
                 mGoalDateTextView.setText(mUser.getDaysUntilGoalDate() + " days");
-
             }
 
             @Override

@@ -2,7 +2,6 @@ package com.madmensoftware.www.pops.Fragments;
 
 
 import android.app.Activity;
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,29 +9,17 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.madmensoftware.www.pops.R;
-
-import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SignUpNeighborFragment extends Fragment implements View.OnClickListener {
-
-    private static final String USER_ID = "user_id";
+public class AddDetailsNeighborFragment extends Fragment implements View.OnClickListener {
 
     private ProgressBar progressBar;
 
@@ -53,7 +40,7 @@ public class SignUpNeighborFragment extends Fragment implements View.OnClickList
         void onNeighborSubmit(String name, String address, int zip_code, int organization_code);
     }
 
-    public SignUpNeighborFragment() {
+    public AddDetailsNeighborFragment() {
         // Required empty public constructor
     }
 
@@ -80,24 +67,20 @@ public class SignUpNeighborFragment extends Fragment implements View.OnClickList
         }
     }
 
-    public static SignUpNeighborFragment newInstance(String userId) {
-        SignUpNeighborFragment fragment = new SignUpNeighborFragment();
-        Bundle args = new Bundle();
-        args.putString(USER_ID, userId);
-        fragment.setArguments(args);
+    public static AddDetailsNeighborFragment newInstance() {
+        AddDetailsNeighborFragment fragment = new AddDetailsNeighborFragment();
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        uid = getArguments().getString(USER_ID);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_sign_up_neighbor, container, false);
+        View view = inflater.inflate(R.layout.fragment_add_details_neighbor, container, false);
 
 
         mNameEditText = (EditText) view.findViewById(R.id.neighbor_name);
@@ -121,17 +104,33 @@ public class SignUpNeighborFragment extends Fragment implements View.OnClickList
             case R.id.backBtn:
                 break;
             case R.id.nextBtn:
-                String name = mNameEditText.getText().toString();
-                String address = mAddressEditText.getText().toString();
-                int zip_code = Integer.parseInt(mZipCodeEditText.getText().toString());
-                int organizationCode = Integer.parseInt(mOrganizationCode.getText().toString());
+                if (isEmpty(mNameEditText) || isEmpty(mAddressEditText) || isEmpty(mZipCodeEditText) || isEmpty(mOrganizationCode)) {
+                    Toast.makeText(getActivity(), "Please fill in all fields.", Toast.LENGTH_LONG).show();
+                }
+                else if (mZipCodeEditText.getText().toString().length() != 5) {
+                    Toast.makeText(getActivity(), "Zip code must be 5 digits.", Toast.LENGTH_LONG).show();
+                }
+                else if (mOrganizationCode.getText().toString().length() != 4) {
+                    Toast.makeText(getActivity(), "Organization code must be 4 digits.", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    String name = mNameEditText.getText().toString();
+                    String address = mAddressEditText.getText().toString();
+                    int zip_code = Integer.parseInt(mZipCodeEditText.getText().toString());
+                    int organizationCode = Integer.parseInt(mOrganizationCode.getText().toString());
 
-                mCallbacks.onNeighborSubmit(name, address, zip_code, organizationCode);
+                    mCallbacks.onNeighborSubmit(name, address, zip_code, organizationCode);
+                }
+
                 break;
             default:
                 break;
         }
 
+    }
+
+    private boolean isEmpty(EditText etText) {
+        return etText.getText().toString().trim().length() == 0;
     }
 
 }

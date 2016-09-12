@@ -5,11 +5,32 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".Activities.MainActivity">
+    tools:context=".Activities.MainActivity"
+    android:background="@drawable/login_gradient">
+
+   <ImageView
+       android:layout_width="match_parent"
+       android:layout_height="100dp"
+       android:src="@drawable/pops_logo"
+       android:layout_marginLeft="10dp"
+       android:layout_marginRight="10dp"
+       android:layout_marginTop="100dp"
+       android:layout_alignParentTop="true"/>
 
    <ProgressBar
-       android:layout_width="match_parent"
-       android:layout_height="match_parent"
-       android:layout_centerInParent="true"/>
+       android:layout_width="100dp"
+       android:layout_height="100dp"
+       android:layout_centerInParent="true" />
+
+   <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentBottom="true"
+       android:text="Customizing user experience..."
+       android:layout_centerHorizontal="true"
+       android:textColor="@color/colorPrimaryDark"
+       android:textSize="25sp"
+       android:textAlignment="center"
+       android:layout_marginBottom="20dp" />
 
 </RelativeLayout>
