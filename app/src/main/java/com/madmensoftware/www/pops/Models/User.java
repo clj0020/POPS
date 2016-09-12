@@ -24,13 +24,13 @@ public class User {
     int zipCode;
     String type;
     String transportationType;
-//    Date goalDate;
     long goalDate;
     double goal;
     String email;
     int radius;
     double earned;
     int organizationCode;
+    int phone;
 
 
     public User() {
@@ -157,6 +157,14 @@ public class User {
 
     public void setOrganizationCode(int organizationCode) {
         this.organizationCode = organizationCode;
+    }
+
+    public int getPhone() {
+        return phone;
+    }
+
+    public void setPhone(int phone) {
+        this.phone = phone;
     }
 
 

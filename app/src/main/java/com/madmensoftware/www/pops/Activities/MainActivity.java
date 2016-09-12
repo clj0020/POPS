@@ -45,35 +45,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        Bundle b = this.getIntent().getExtras();
-//        if (b != null) {
-//            user = Parcels.unwrap(b.getParcelable("User"));
-//
-//            type = user.getType();
-//
-//            switch (type) {
-//                case "Popper":
-//                    Intent popperIntent = new Intent(MainActivity.this, PopperActivity.class);
-//                    Bundle popperBundle = new Bundle();
-//                    popperBundle.putParcelable("User", Parcels.wrap(user));
-//                    popperIntent.putExtras(popperBundle);
-//                    startActivity(popperIntent);
-//                    break;
-//                case "Parent":
-//                    break;
-//                case "Neighbor":
-//                    Intent neighborIntent = new Intent(MainActivity.this, NeighborActivity.class);
-//                    Bundle neighborBundle = new Bundle();
-//                    neighborBundle.putParcelable("User", Parcels.wrap(user));
-//                    neighborIntent.putExtras(neighborBundle);
-//                    startActivity(neighborIntent);
-//                    break;
-//                default:
-//                    break;
-//            }
-//
-//        }
-
         //get firebase auth instance
         auth = FirebaseAuth.getInstance();
         //auth.signOut();
@@ -115,6 +86,11 @@ public class MainActivity extends AppCompatActivity {
                                         startActivity(popperIntent);
                                         break;
                                     case "Parent":
+                                        Intent parentIntent = new Intent(MainActivity.this, ParentActivity.class);
+                                        Bundle parentBundle = new Bundle();
+                                        parentBundle.putParcelable("User", Parcels.wrap(mUser));
+                                        parentIntent.putExtras(parentBundle);
+                                        startActivity(parentIntent);
                                         break;
                                     case "Neighbor":
                                         Intent neighborIntent = new Intent(MainActivity.this, NeighborActivity.class);
