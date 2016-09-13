@@ -27,7 +27,6 @@ public class AddDetailsParentFragment extends Fragment implements View.OnClickLi
 
     private EditText mNameEditText;
     private EditText mPhoneEditText;
-    private Button mBackButton;
     private Button mNextButton;
     public String uid;
 
@@ -87,11 +86,9 @@ public class AddDetailsParentFragment extends Fragment implements View.OnClickLi
         mNameEditText = (EditText) view.findViewById(R.id.parent_name);
         mPhoneEditText = (EditText) view.findViewById(R.id.parent_phone);
 
-        mBackButton = (Button) view.findViewById(R.id.backBtn);
         mNextButton = (Button) view.findViewById(R.id.nextBtn);
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
 
-        mBackButton.setOnClickListener(this);
         mNextButton.setOnClickListener(this);
 
         return view;
@@ -101,8 +98,6 @@ public class AddDetailsParentFragment extends Fragment implements View.OnClickLi
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
-            case R.id.backBtn:
-                break;
             case R.id.nextBtn:
 
                 if(isEmpty(mNameEditText) || isEmpty(mPhoneEditText)) {

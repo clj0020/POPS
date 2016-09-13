@@ -3,19 +3,24 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
-    android:padding="16dp"
-    android:background="@android:color/black">
+    android:background="@color/colorPrimaryDark"
+    android:paddingRight="20dp"
+    android:paddingLeft="20dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
 
     <RelativeLayout
         android:id="@+id/job_list_top_row"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
 
         <TextView
             android:id="@+id/job_list_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Mowing the Lawn"
+            android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -25,6 +30,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="$50.00"
+                android:textColor="@color/white"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"/>
 
@@ -36,19 +42,31 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/job_list_top_row"
         tools:text="Carson Jones"
-        android:textSize="17sp" />
+        android:textSize="17sp"
+        android:textColor="@color/white"
+        android:layout_marginTop="5dp" />
 
 
     <TextView
         android:id="@+id/job_list_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="Just need someone to come mow my lawn on Sunday"
-        android:layout_below="@id/job_list_poster_name"/>
+        tools:text="Just need someone to come mow my lawn on Sunday. Will provide snacks and lemonade as well as all equipment for the job"
+        android:layout_below="@id/job_list_poster_name"
+        android:textColor="@color/white"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="40dp" />
 
-
-
-
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:layout_centerVertical="true"
+        android:scaleY="-1"
+        android:background="@mipmap/ic_back"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"/>
 
 
 </RelativeLayout>

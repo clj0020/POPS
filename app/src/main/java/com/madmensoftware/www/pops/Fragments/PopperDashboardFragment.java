@@ -1,6 +1,7 @@
 package com.madmensoftware.www.pops.Fragments;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -42,6 +44,7 @@ public class PopperDashboardFragment extends Fragment {
     private TextView mEarnedTextView;
     private TextView mGoalDateTextView;
     private ImageButton mSettingsButton;
+    private ProgressBar mGoalProgressBar;
 
     private PopperDashCallbacks mCallbacks;
 
@@ -105,6 +108,9 @@ public class PopperDashboardFragment extends Fragment {
         mGoalTextView = (TextView) view.findViewById(R.id.popper_dash_goal);
         mEarnedTextView = (TextView) view.findViewById(R.id.popper_dash_earned);
         mGoalDateTextView = (TextView) view.findViewById(R.id.popper_dash_goal_date);
+        mGoalProgressBar = (ProgressBar) view.findViewById(R.id.popper_dash_goal_progress_bar);
+
+
 
         mSettingsButton = (ImageButton) view.findViewById(R.id.popper_menu_btn);
 

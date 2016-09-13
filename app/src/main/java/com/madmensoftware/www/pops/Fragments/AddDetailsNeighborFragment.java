@@ -27,7 +27,6 @@ public class AddDetailsNeighborFragment extends Fragment implements View.OnClick
     private EditText mAddressEditText;
     private EditText mZipCodeEditText;
     private EditText mOrganizationCode;
-    private Button mBackButton;
     private Button mNextButton;
     public String uid;
 
@@ -87,11 +86,9 @@ public class AddDetailsNeighborFragment extends Fragment implements View.OnClick
         mAddressEditText = (EditText) view.findViewById(R.id.neighbor_address);
         mZipCodeEditText = (EditText) view.findViewById(R.id.neighbor_zip_code);
         mOrganizationCode = (EditText) view.findViewById(R.id.neighbor_organization_code);
-        mBackButton = (Button) view.findViewById(R.id.backBtn);
         mNextButton = (Button) view.findViewById(R.id.nextBtn);
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
 
-        mBackButton.setOnClickListener(this);
         mNextButton.setOnClickListener(this);
 
         return view;
@@ -101,8 +98,6 @@ public class AddDetailsNeighborFragment extends Fragment implements View.OnClick
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
-            case R.id.backBtn:
-                break;
             case R.id.nextBtn:
                 if (isEmpty(mNameEditText) || isEmpty(mAddressEditText) || isEmpty(mZipCodeEditText) || isEmpty(mOrganizationCode)) {
                     Toast.makeText(getActivity(), "Please fill in all fields.", Toast.LENGTH_LONG).show();

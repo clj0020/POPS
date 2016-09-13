@@ -1,20 +1,21 @@
 
-    <android.support.design.widget.CoordinatorLayout
+    <ScrollView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/white"
         tools:context="com.madmensoftware.www.pops.Fragments.PopperDashboardFragment">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
             <RelativeLayout
+                android:id="@+id/popper_dash_top_relative_layout"
                 android:layout_width="match_parent"
                 android:layout_height="200dp">
-
 
                 <ImageView
                     android:layout_width="match_parent"
@@ -80,6 +81,8 @@
             </RelativeLayout>
 
             <LinearLayout
+                android:id="@+id/popper_dash_stats_linear_layout"
+                android:layout_below="@id/popper_dash_top_relative_layout"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:orientation="horizontal">
@@ -165,21 +168,97 @@
 
             </LinearLayout>
 
-            <ProgressBar
-                android:id="@+id/popper_dash_goal_progress_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="20dp" />
+            <RelativeLayout
+                android:id="@+id/popper_dash_goal_progress_bar_container"
+                android:layout_below="@id/popper_dash_stats_linear_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ProgressBar
+                    android:theme="@style/LinearProgress"
+                    android:id="@+id/popper_dash_goal_progress_bar"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="false"
+                    android:max="500"
+                    android:progress="100"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="5dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:text="You have completed 25% of your Goal!"
+                    android:layout_below="@id/popper_dash_goal_progress_bar"
+                    android:textSize="18sp"
+                    android:textColor="@color/black"/>
+
+                <TextView
+                    android:id="@+id/goal_progress_horizontal_percentage"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/popper_dash_goal_progress_bar"
+                    android:background="@android:color/transparent"
+                    android:gravity="center"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp" />
+
+            </RelativeLayout>
+
 
             <TextView
+                android:id="@+id/popper_dash_skills_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="10dp"
                 android:text="Skills"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="15dp" />
+                android:textColor="@android:color/white"
+                android:background="@android:color/darker_gray"
+                android:layout_below="@id/popper_dash_goal_progress_bar_container"
+                android:textSize="17sp"
+                android:layout_marginTop="10dp" />
+
+            <RelativeLayout
+                android:layout_below="@id/popper_dash_skills_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/popper_dash_skill_communication_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Communication"
+                    android:textColor="@color/black"
+                    android:layout_centerVertical="true"
+                    android:textSize="25sp"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignRight="@id/popper_dash_skill_communication_label"
+                    android:orientation="vertical">
+
+                </LinearLayout>
+
+                <RatingBar
+                    android:id="@+id/ratingBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="4"
+                    android:stepSize="0.5"
+                    android:rating="2.0"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
 
 
-        </LinearLayout>
+            </RelativeLayout>
+
+        </RelativeLayout>
 
 
-    </android.support.design.widget.CoordinatorLayout>
+    </ScrollView>

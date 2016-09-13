@@ -1,7 +1,133 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.madmensoftware.www.pops.Fragments.PopperCheckInFragment">
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white">
 
-</FrameLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/popper_next_check_in_time_relative_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark">
+
+        <TextView
+            android:id="@+id/popper_next_check_in_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3:30 PM"
+            android:layout_centerHorizontal="true"
+            android:textSize="50sp"
+            android:textColor="@color/white"
+            android:layout_marginTop="20dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next Check In"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/popper_next_check_in_time"
+            android:textSize="20sp"
+            android:layout_marginBottom="10dp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/popper_next_check_in_time_relative_layout">
+
+        <TextView
+            android:id="@+id/popper_check_in_details_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Details"
+            android:textColor="@android:color/white"
+            android:background="@android:color/darker_gray"
+            android:textSize="17sp" />
+
+        <LinearLayout
+            android:id="@+id/popper_check_in_last_check_in_linear_layout"
+            android:layout_below="@id/popper_check_in_details_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:background="@drawable/popper_check_in_linear_layout_bg"
+            android:gravity="center_vertical|center_horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Last Check In"
+                android:textSize="20sp"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="11:00am"
+                android:textSize="25sp"
+                android:layout_marginLeft="35dp"
+                android:textColor="@android:color/darker_gray"/>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/popper_check_in_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Check In"
+            android:background="@drawable/login_button"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_below="@id/popper_check_in_last_check_in_linear_layout"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:layout_marginTop="20dp" />
+
+
+        <TextView
+            android:id="@+id/popper_check_in_last_location_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Location"
+            android:textColor="@android:color/white"
+            android:background="@android:color/darker_gray"
+            android:layout_below="@id/popper_check_in_button"
+            android:textSize="17sp"
+            android:layout_marginTop="20dp" />
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/popper_check_in_last_location"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_below="@id/popper_check_in_last_location_label"
+            map:liteMode="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="20dp" />
+
+        <TextView
+            android:id="@+id/popper_check_in_last_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/popper_check_in_last_location"
+            android:text="512 Harper Avenue"
+            android:textColor="@color/black"
+            android:textSize="20sp" />
+
+
+    </RelativeLayout>
+
+    </RelativeLayout>
+
+
+</ScrollView>

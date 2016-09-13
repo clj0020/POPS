@@ -221,7 +221,7 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
 
     private void writeNewJob(Job mJob) {
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        mDatabase.child("jobs").child(firebaseUser.getUid()).push().setValue(mJob);
+        mDatabase.child("jobs").push().setValue(mJob);
     }
 
     private boolean isEmpty(EditText myeditText) {

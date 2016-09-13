@@ -7,6 +7,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.madmensoftware.www.pops.R;
 
 import java.util.UUID;
@@ -14,9 +23,11 @@ import java.util.UUID;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PopperCheckInFragment extends Fragment {
+public class PopperCheckInFragment extends Fragment implements OnMapReadyCallback {
 
     private static final String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
+
+    MapView mMapView;
 
     public PopperCheckInFragment() {
         // Required empty public constructor
@@ -35,8 +46,40 @@ public class PopperCheckInFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_popper_check_in, container, false);
+        View view = inflater.inflate(R.layout.fragment_popper_check_in, container, false);
+
+        mMapView = (MapView) view.findViewById(R.id.popper_check_in_last_location);
+
+        mMapView.onCreate(savedInstanceState);
+        mMapView.onResume(); // needed to get the map to display immediately
+
+        try {
+            MapsInitializer.initialize(getActivity().getApplicationContext());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        mMapView.getMapAsync(this);
+
+        return view;
+    }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        // create marker
+        MarkerOptions marker = new MarkerOptions().position(
+                new LatLng(32.610362, -85.472567)).title("Job Location");
+        // Changing marker icon
+        marker.icon(BitmapDescriptorFactory
+                .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+
+        // adding marker
+        map.addMarker(marker);
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng(32.610362, -85.472567)).zoom(12).build();
+        map.animateCamera(CameraUpdateFactory
+                .newCameraPosition(cameraPosition));
     }
 
 }

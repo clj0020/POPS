@@ -7,10 +7,16 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    <LinearLayout
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+            android:background="@color/colorPrimary">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -45,6 +51,7 @@
                     android:layout_height="wrap_content"
                     tools:text="Carson Jones"
                     android:layout_gravity="center_horizontal"
+                    android:textColor="@color/black"
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
@@ -54,6 +61,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
+                    android:textColor="@color/black"
                     android:text="Neighbor"/>
 
             </LinearLayout>
@@ -70,7 +78,7 @@
                 android:layout_height="wrap_content"
                 tools:text="Mowing the Lawn"
                 android:textSize="30sp"
-                android:textColor="@android:color/white"
+                android:textColor="@color/black"
                 android:layout_marginTop="10dp"
                 android:layout_centerHorizontal="true"/>
 
@@ -82,7 +90,8 @@
                 android:textSize="20sp"
                 android:layout_marginTop="5dp"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@id/job_detail_title"/>
+                android:layout_below="@id/job_detail_title"
+                android:textColor="@color/black" />
 
             <TextView
                 android:id="@+id/job_detail_description"
@@ -90,7 +99,7 @@
                 android:layout_height="wrap_content"
                 tools:text="Just need someone to come mow my lawn on Sunday. Can do pickup"
                 android:layout_centerHorizontal="true"
-                android:textColor="@android:color/white"
+                android:textColor="@color/black"
                 android:layout_below="@id/job_detail_category"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="56dp"
@@ -104,7 +113,7 @@
                 android:text="Details"
                 android:layout_marginTop="15dp"
                 android:textColor="@android:color/white"
-                android:background="@android:color/darker_gray"
+                android:background="@color/colorPrimaryDark"
                 android:layout_below="@id/job_detail_description"
                 android:textSize="17sp" />
 
@@ -126,7 +135,8 @@
                     android:textSize="20sp"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
-                    android:layout_marginLeft="10dp"/>
+                    android:layout_marginLeft="10dp"
+                    android:textColor="@color/black" />
 
                 <TextView
                     android:id="@+id/job_detail_budget"
@@ -136,7 +146,8 @@
                     android:textSize="20sp"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true"
-                    android:layout_marginRight="10dp"/>
+                    android:layout_marginRight="10dp"
+                    android:textColor="@color/black" />
 
             </RelativeLayout>
 
@@ -157,7 +168,8 @@
                     android:textSize="20sp"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
-                    android:layout_marginLeft="10dp"/>
+                    android:layout_marginLeft="10dp"
+                    android:textColor="@color/black" />
 
                 <TextView
                     android:id="@+id/job_detail_time"
@@ -187,7 +199,8 @@
                     android:textSize="20sp"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
-                    android:layout_marginLeft="10dp"/>
+                    android:layout_marginLeft="10dp"
+                    android:textColor="@color/black" />
 
                 <TextView
                     android:id="@+id/job_detail_date"
@@ -222,6 +235,8 @@
         </RelativeLayout>
 
     </LinearLayout>
+
+    </RelativeLayout>
 
     </ScrollView>
 

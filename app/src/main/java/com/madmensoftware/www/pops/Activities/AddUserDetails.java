@@ -32,6 +32,9 @@ import org.parceler.Parcels;
 public class AddUserDetails extends AppCompatActivity implements AddDetailsPopperFragment.SignUpPopperCallbacks,
         AddDetailsNeighborFragment.SignUpNeighborCallbacks, AddDetailsParentFragment.SignUpParentCallbacks {
 
+    private static final String TAG = "AddUserDetails:";
+
+
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
@@ -52,11 +55,9 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
                     finish();
                 }
                 else {
-
                 }
             }
         };
-
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -102,34 +103,6 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
 
         final User popper = new User();
 
-        Query parentCodeQuery = FirebaseDatabase.getInstance().getReference().child("parent-codes").equalTo(parentCode);
-        parentCodeQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    Log.i("AddUserDetails", dataSnapshot.getKey());
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        Query organizationCodeQuery = FirebaseDatabase.getInstance().getReference().child("organization-codes").equalTo(organizationCode);
-        organizationCodeQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    Log.i("AddUserDetails", dataSnapshot.getKey());
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
             popper.setName(name);
             popper.setEmail(email);
             popper.setAge(age);
@@ -141,14 +114,57 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
             popper.setEarned(0);
             popper.setType("Popper");
 
-            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-            mDatabase.child("users").child(firebaseUser.getUid()).setValue(popper);
 
-            Intent intent = new Intent(AddUserDetails.this, MainActivity.class);
-            startActivity(intent);
+        final Query organizationCodeQuery = mDatabase.child("organizations").child(organizationCode + "");
+        Query parentcodeQuery = mDatabase.child("users").orderByChild("accessCode").equalTo(parentCode);
+        parentcodeQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getChildrenCount() == 1) {
+                    for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        String parentUid = child.getKey();
+                        popper.setParentUid(parentUid);
+                        mDatabase.child("users").child(parentUid).child("childUid").setValue(auth.getCurrentUser().getUid());
+                        Log.i(TAG + "Parent: ", parentUid);
+                    }
 
 
 
+                    organizationCodeQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.getChildrenCount() == 1) {
+                                popper.setOrganizationName(dataSnapshot.child("name").getValue().toString());
+
+                                Log.i(TAG + "Org: ", dataSnapshot.child("name").getValue().toString());
+
+                                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                                mDatabase.child("users").child(firebaseUser.getUid()).setValue(popper);
+
+                                Intent intent = new Intent(AddUserDetails.this, MainActivity.class);
+                                startActivity(intent);
+                            }
+                            else {
+                                Toast.makeText(AddUserDetails.this, "Organization Code not found.", Toast.LENGTH_LONG).show();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+                else {
+                    Toast.makeText(AddUserDetails.this, "Parent Code not found.", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override
@@ -225,5 +241,4 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
 
         return randomPIN;
     }
-
 }

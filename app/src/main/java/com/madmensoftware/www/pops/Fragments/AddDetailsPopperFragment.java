@@ -202,8 +202,8 @@ public class AddDetailsPopperFragment extends Fragment implements View.OnClickLi
                     int parentCode = Integer.parseInt(mParentCode.getText().toString());
                     int organizationCode = Integer.parseInt(mOrganizationCode.getText().toString());
 
-                    final double goal = Double.parseDouble(mGoal.getText().toString().substring(1, mGoal.getText().toString().length()));
-                    Log.i("AddDetailsPopper", goal + "");
+
+                    double goal = convertDollarToDouble(mGoal.getText().toString());
 
                     if (radius == 0) {
                         Toast.makeText(getActivity(), "Please set your radius.", Toast.LENGTH_LONG).show();
@@ -232,7 +232,6 @@ public class AddDetailsPopperFragment extends Fragment implements View.OnClickLi
 
                 DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(),
                         new DatePickerDialog.OnDateSetListener() {
-
                             @Override
                             public void onDateSet(DatePicker view, int year,
                                                   int monthOfYear, int dayOfMonth) {
@@ -242,7 +241,6 @@ public class AddDetailsPopperFragment extends Fragment implements View.OnClickLi
                             }
                         }, mYear, mMonth, mDay);
                 datePickerDialog.show();
-
                 break;
             default:
                 break;
@@ -280,6 +278,26 @@ public class AddDetailsPopperFragment extends Fragment implements View.OnClickLi
 
     private boolean isEmpty(EditText etText) {
         return etText.getText().toString().trim().length() == 0;
+    }
+
+    public double convertDollarToDouble(String dollar) {
+        double dbl = 0;
+        NumberFormat nf = new DecimalFormat("$#,###.00");
+
+        try {
+            dbl = nf.parse(dollar).doubleValue();
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return dbl;
+    }
+
+    public String convertDoubleToDollar(double dbl) {
+        String dollar = "";
+        NumberFormat nf = new DecimalFormat("$#,###.00");
+        return nf.format(dbl);
     }
 
     public class CurrencyTextWatcher implements TextWatcher {

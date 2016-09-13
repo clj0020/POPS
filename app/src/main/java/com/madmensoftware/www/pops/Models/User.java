@@ -32,6 +32,9 @@ public class User {
     int organizationCode;
     int phone;
     int accessCode;
+    String parentUid;
+    String childUid;
+    String organizationName;
 
 
     public User() {
@@ -176,6 +179,29 @@ public class User {
         this.accessCode = accessCode;
     }
 
+    public String getParentUid() {
+        return parentUid;
+    }
+
+    public void setParentUid(String parentUid) {
+        this.parentUid = parentUid;
+    }
+
+    public String getChildUid() {
+        return childUid;
+    }
+
+    public void setChildUid(String childUid) {
+        this.childUid = childUid;
+    }
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
 
 
     // Helper methods
