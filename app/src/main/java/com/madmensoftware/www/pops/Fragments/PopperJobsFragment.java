@@ -53,7 +53,6 @@ public class PopperJobsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_popper_jobs, container, false);
-        setHasOptionsMenu(true);
 
         ViewPager viewPager = (ViewPager) view.findViewById(R.id.popper_job_viewpager);
         if (viewPager != null) {
