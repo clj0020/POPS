@@ -14,17 +14,12 @@ import com.madmensoftware.www.pops.R;
  */
 public class PopperCurrentJobsFragment extends Fragment {
 
-    private static final String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
-
     public PopperCurrentJobsFragment() {
         // Required empty public constructor
     }
 
-    public static PopperCurrentJobsFragment newInstance(String userId) {
+    public static PopperCurrentJobsFragment newInstance() {
         PopperCurrentJobsFragment fragment = new PopperCurrentJobsFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(EXTRA_USER_ID, userId);
-        fragment.setArguments(args);
         return fragment;
     }
 

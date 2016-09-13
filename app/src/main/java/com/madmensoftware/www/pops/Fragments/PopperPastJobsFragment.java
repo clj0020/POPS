@@ -22,11 +22,8 @@ public class PopperPastJobsFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static PopperPastJobsFragment newInstance(String userId) {
+    public static PopperPastJobsFragment newInstance() {
         PopperPastJobsFragment fragment = new PopperPastJobsFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(EXTRA_USER_ID, userId);
-        fragment.setArguments(args);
         return fragment;
     }
 

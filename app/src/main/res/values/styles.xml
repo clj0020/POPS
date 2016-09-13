@@ -15,6 +15,20 @@
 
     <style name="LinearProgress" parent="Theme.AppCompat.Light">
         <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="android:minHeight">10dip</item>
+        <item name="android:maxHeight">20dip</item>
+    </style>
+
+    <style name="PopperDashHorizontalProgressBar" parent="android:Widget.ProgressBar.Horizontal">
+        <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="android:minHeight">20dip</item>
+        <item name="android:maxHeight">30dip</item>
+    </style>
+
+    <style name="CustomRatingBar" parent="@android:style/Widget.RatingBar">
+        <item name="android:progressDrawable">@drawable/skill_rating_bar</item>
+        <item name="android:minHeight">20dp</item>
+        <item name="android:maxHeight">40dp</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

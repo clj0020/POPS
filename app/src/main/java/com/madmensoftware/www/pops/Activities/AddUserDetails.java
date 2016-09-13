@@ -26,14 +26,12 @@ import com.madmensoftware.www.pops.Fragments.SignUpSecondPageFragment;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
-
 import org.parceler.Parcels;
 
 public class AddUserDetails extends AppCompatActivity implements AddDetailsPopperFragment.SignUpPopperCallbacks,
         AddDetailsNeighborFragment.SignUpNeighborCallbacks, AddDetailsParentFragment.SignUpParentCallbacks {
 
     private static final String TAG = "AddUserDetails:";
-
 
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -203,7 +201,6 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
 
         int parentCode = generateUniqueCode();
         parent.setAccessCode(parentCode);
-
 
         parent.setType("Parent");
 

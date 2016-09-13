@@ -3,6 +3,9 @@ package com.madmensoftware.www.pops.Fragments;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -16,6 +19,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -26,6 +30,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Date;
 
 
@@ -39,12 +45,14 @@ public class PopperDashboardFragment extends Fragment {
 
     private TextView mNameTextView;
     private TextView mAgeTextView;
-    private TextView mOrganizationTextView;
+    private TextView mOrganizationNameTextView;
     private TextView mGoalTextView;
     private TextView mEarnedTextView;
     private TextView mGoalDateTextView;
     private ImageButton mSettingsButton;
     private ProgressBar mGoalProgressBar;
+
+    private RatingBar mSkillCommunicationStars;
 
     private PopperDashCallbacks mCallbacks;
 
@@ -104,13 +112,19 @@ public class PopperDashboardFragment extends Fragment {
 
         mNameTextView = (TextView) view.findViewById(R.id.popper_dash_name);
         mAgeTextView = (TextView) view.findViewById(R.id.popper_dash_age);
-        mOrganizationTextView = (TextView) view.findViewById(R.id.popper_dash_organization);
+        mOrganizationNameTextView = (TextView) view.findViewById(R.id.popper_dash_organization);
         mGoalTextView = (TextView) view.findViewById(R.id.popper_dash_goal);
         mEarnedTextView = (TextView) view.findViewById(R.id.popper_dash_earned);
         mGoalDateTextView = (TextView) view.findViewById(R.id.popper_dash_goal_date);
         mGoalProgressBar = (ProgressBar) view.findViewById(R.id.popper_dash_goal_progress_bar);
 
+        mSkillCommunicationStars = (RatingBar) view.findViewById(R.id.popper_dash_skill_rating_communication);
 
+        LayerDrawable stars = (LayerDrawable) mSkillCommunicationStars.getProgressDrawable();
+
+        stars.getDrawable(2).setColorFilter(Color.parseColor("#0076B2"), PorterDuff.Mode.SRC_ATOP); // for filled stars
+        stars.getDrawable(1).setColorFilter(Color.parseColor("#D3D3D3"), PorterDuff.Mode.SRC_ATOP); // for half filled stars
+        stars.getDrawable(0).setColorFilter(Color.parseColor("#D3D3D3"), PorterDuff.Mode.SRC_ATOP); // for empty stars
 
         mSettingsButton = (ImageButton) view.findViewById(R.id.popper_menu_btn);
 
@@ -159,8 +173,9 @@ public class PopperDashboardFragment extends Fragment {
 
                 mNameTextView.setText(mUser.getName());
                 mAgeTextView.setText(mUser.getAge() + " years old");
-                mGoalTextView.setText("$" + mUser.getGoal());
-                mEarnedTextView.setText("$" + mUser.getEarned());
+                mOrganizationNameTextView.setText(mUser.getOrganizationName());
+                mGoalTextView.setText(convertDoubleToDollar(mUser.getGoal()));
+                mEarnedTextView.setText(convertDoubleToDollar(mUser.getEarned()));
                 mGoalDateTextView.setText(mUser.getDaysUntilGoalDate() + " days");
             }
 
@@ -198,5 +213,11 @@ public class PopperDashboardFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+    }
+
+    public String convertDoubleToDollar(double dbl) {
+        String dollar = "";
+        NumberFormat nf = new DecimalFormat("$#,###.00");
+        return nf.format(dbl);
     }
 }

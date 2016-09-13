@@ -220,7 +220,6 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void writeNewJob(Job mJob) {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         mDatabase.child("jobs").push().setValue(mJob);
     }
 
