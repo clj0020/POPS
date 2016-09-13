@@ -2,6 +2,7 @@ package com.madmensoftware.www.pops.Fragments;
 
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
@@ -19,6 +20,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -35,7 +40,25 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.google.maps.android.SphericalUtil;
+import com.madmensoftware.www.pops.Activities.AddUserDetails;
+import com.madmensoftware.www.pops.Activities.NeighborActivity;
+import com.madmensoftware.www.pops.Activities.ParentActivity;
+import com.madmensoftware.www.pops.Activities.PopperActivity;
+import com.madmensoftware.www.pops.Helpers.TinyDB;
+import com.madmensoftware.www.pops.Models.Job;
+import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
+
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,38 +78,31 @@ public class PopperMapFragment extends Fragment implements OnMapReadyCallback, G
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
+    private DatabaseReference mDatabase;
+    private FirebaseAuth auth;
+    private GeoFire geoFire;
+    private GeoLocation currentGeoLocation;
 
     private GoogleMap mGoogleMap;
     private MapView mapView;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
 
-    private LocationManager locationManager;
-    public Criteria criteria;
-    public String bestProvider;
-    public double latitude;
-    public double longitude;
-    private LocationListener listener;
     public LocationRequest mLocationRequest;
     public Marker mCurrLocationMarker;
 
-    private Double mLatitudeText;
-    private Double mLongitudeText;
+    private User mUser;
 
     View mView;
 
-
     public static PopperMapFragment newInstance(String userId) {
         PopperMapFragment fragment = new PopperMapFragment();
-
         return fragment;
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //mGoogleApiClient.connect();
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
                     .addConnectionCallbacks(this)
@@ -94,14 +110,8 @@ public class PopperMapFragment extends Fragment implements OnMapReadyCallback, G
                     .addApi(LocationServices.API)
                     .build();
         }
-        listener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
 
-            }
-        };
-        MapsInitializer.initialize(getContext());
-
+        MapsInitializer.initialize(getActivity());
     }
 
     @Override
@@ -119,8 +129,41 @@ public class PopperMapFragment extends Fragment implements OnMapReadyCallback, G
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-//        Inflate the layout for this fragment
         mView = inflater.inflate(R.layout.fragment_popper_map, container, false);
+
+        auth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        TinyDB tinyDb = new TinyDB(getActivity());
+        mUser = (User) tinyDb.getObject("User", User.class);
+
+
+        Log.i("User", mUser.getName());
+
+        geoFire = new GeoFire(mDatabase.child("jobs_location"));
+        GeoQuery geoQuery = geoFire.queryAtLocation(currentGeoLocation, mUser.getRadius());
+        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, GeoLocation location) {
+                Log.i("Location", "Lat: " + location.latitude + " Long: " + location.longitude);
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+            }
+        });
 
         checkLocationPermission();
 
@@ -135,12 +178,10 @@ public class PopperMapFragment extends Fragment implements OnMapReadyCallback, G
             // Initialise the MapView
             mapView.onCreate(null);
             mapView.onResume();
+
             // Set the map ready callback to receive the GoogleMap object
-
             mapView.getMapAsync(this);
-
         }
-
     }
 
     @Override
@@ -158,13 +199,10 @@ public class PopperMapFragment extends Fragment implements OnMapReadyCallback, G
         }
     }
 
-
-
     @Override
     public void onConnectionSuspended(int i) {
 
     }
-
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -203,8 +241,9 @@ public class PopperMapFragment extends Fragment implements OnMapReadyCallback, G
     }
 
     @Override
-    public void onLocationChanged(Location location)
-    {
+    public void onLocationChanged(Location location) {
+
+        currentGeoLocation = new GeoLocation(location.getLatitude(), location.getLongitude());
         mLastLocation = location;
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
@@ -220,21 +259,19 @@ public class PopperMapFragment extends Fragment implements OnMapReadyCallback, G
 
         Circle circle = mGoogleMap.addCircle(new CircleOptions()
                 .center(new LatLng(-33.87365, 151.20689))
-                .radius(10000)
+                .radius(convertRadiusToMeters(mUser.getRadius()))
                 .strokeColor(Color.RED)
-                .fillColor(Color.CYAN));
+                .fillColor(Color.argb(100, 83, 83, 83)));
         circle.setCenter(latLng);
 
-        addMarkersToMap();
-
-        //move map camera
-        //mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        //mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+//        move map camera
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
 
         //stop location updates
-//        if (mGoogleApiClient != null) {
-//            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-//        }
+        if (mGoogleApiClient != null) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
     }
 
     public boolean checkLocationPermission(){
@@ -298,82 +335,59 @@ public class PopperMapFragment extends Fragment implements OnMapReadyCallback, G
         }
     }
 
+    public void addJobToMap(Job job) {
+        LatLng jobLocation = new LatLng(job.getLatitude(), job.getLongitude());
+
+        mGoogleMap.addMarker(new MarkerOptions()
+                .position(jobLocation)
+                .title(job.getTitle())
+                .snippet(job.getDescription())
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                .alpha(0.7f));
+    }
+
     // convert address to lng lat and add markers to map
     public void addMarkersToMap() {
-        double[] latitude = {32.6085256, 32.6105717,32.6105385, 32.735118};
-        double[] longitude = {-85.4746521, -85.4726629, -85.4724567,-85.576729};
-        String[] title = {"LandScaping", "Cleaning", "Arson","Clean Garage"};
-        String[] discription = {"Mow The Lawn", "Clean out my Garage", "Burn Down Neighbors House","With a broom and shovel"};
-        List<LatLng> points = filterMap(latitude,longitude);
-        if (latitude.length > 0 && longitude.length > 0) {
-            for (int i = 0; i < latitude.length; i++) {
-                try {
+        List<LatLng> jobLocations = new ArrayList<LatLng>();
+        jobLocations.add(new LatLng(32.6085256, -85.4746521));
+        jobLocations.add(new LatLng(32.6105717, -85.4726629));
+        jobLocations.add(new LatLng(32.6105385, -85.4746521));
+        jobLocations.add(new LatLng(32.735118, -85.576729));
+        jobLocations.add(new LatLng(72.6085256, -25.4746521));
 
-                    if(points.distanceTo(curr)){
-                    System.out.println("latitude = " + latitude[i] + " longitude = " + longitude[i]);
-                    mGoogleMap.addMarker(new MarkerOptions()
-                            .position(points.get(i))
-                            .title(title[i])
-                            .snippet(discription[i])
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                            .alpha(0.7f));
-                    }
+        String[] title = {"LandScaping", "Cleaning", "Arson", "Clean Garage"};
+        String[] discription = {"Mow The Lawn", "Clean out my Garage", "Burn Down Neighbors House", "With a broom and shovel"};
 
-                  
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } // end catch
+        List<LatLng> nearbyJobs = getNearbyJobs(jobLocations, mUser.getRadius());
+
+        if(nearbyJobs.size() == 0) {
+            Toast.makeText(getActivity(), "No Jobs Near You.", Toast.LENGTH_LONG).show();
+        }
+        else {
+            for (int i = 0; i < nearbyJobs.size(); i++) {
+                mGoogleMap.addMarker(new MarkerOptions()
+                    .position(nearbyJobs.get(i))
+                    .title(title[i])
+                    .snippet(discription[i])
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                    .alpha(0.7f));
             }
         }
     } //end addMarkersToMap
 
-    public List<LatLng> filterMap(double[] x , double[] y){
-
-        List<LatLng> points=new ArrayList<LatLng>();
-
-        if(x.length == 0) {
-            Toast.makeText(getActivity(), "No Jobs Near You.", Toast.LENGTH_LONG).show();
-        }
-        else {
-            for(int i = 0; i < x.length; i++){
-                Toast.makeText(getActivity(), "filtering", Toast.LENGTH_LONG).show();
-                if (InRadius(mLastLocation.getLatitude(), mLastLocation.getLongitude(), 5, x[i],y[i])) {
-                    points.add(new LatLng(x[i],y[i]));
-                }
+    public List<LatLng> getNearbyJobs(List<LatLng> jobLocations, int radius){
+        List<LatLng> nearbyJobs = new ArrayList<LatLng>();
+        for(int i = 0; i < jobLocations.size(); i++){
+            double distanceBetween = SphericalUtil.computeDistanceBetween(jobLocations.get(i), new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+            if (distanceBetween < convertRadiusToMeters(radius)) {
+                nearbyJobs.add(jobLocations.get(i));
             }
         }
-        return points;
-
+        return nearbyJobs;
     }
 
-    //32.735118, -85.576729
-    public boolean InRadius(double centerX, double centerY,int  radius, double x, double y)
-    {
-        boolean check = true;
-        double c1 = toRadians(centerX);
-        double c2 = toRadians(centerY);
-        double l1 = toRadians(x);
-        double l2 = toRadians(y);
-
-        Location location1 = new Location();
-
-
-        double dist = acos(sin(c1) * sin(c2) * cos(c1) * cos(c2) * cos(l1-l2));
-
-        if(dist < 0)
-        {
-            dist = dist + Math.PI;
-        }
-        long solution = Math.round(dist * 6378100);
-
-        if(solution < (long) radius){
-            check = true;
-        }
-        else{
-            check = false;
-        }
-        Log.v("within", "index=" + dist);
-
-        return check;
+    public double convertRadiusToMeters(int miles) {
+        return miles * 1609.344;
     }
+
 }

@@ -27,6 +27,8 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -64,10 +66,12 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
+    private GeoFire geofire;
 
     private User user;
     private String uid;
     private String category;
+
 
     private EditText mJobTitleEditText, mJobDescriptionEditText, mJobDurationEditText, mJobBudgetEditText;
     private Spinner mJobCategorySpinner;
@@ -203,11 +207,12 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                     job.setBudget(budget);
                     job.setStatus("Pending");
                     job.setCategory(category);
-                    job.setLatitude(latitude);
-                    job.setLongitude(longitude);
 
+                    String jobId = mDatabase.child("jobs").push().getKey();
+                    mDatabase.child("jobs").child(jobId).setValue(job);
 
-                    writeNewJob(job);
+                    geofire = new GeoFire(mDatabase.child("jobs_location"));
+                    geofire.setLocation(jobId, new GeoLocation(latitude, longitude));
 
                     Toast.makeText(AddJobActivity.this, "Job Added Successfully", Toast.LENGTH_LONG).show();
                     startActivity(new Intent(AddJobActivity.this, NeighborActivity.class));
@@ -217,10 +222,6 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
             default:
                 break;
         }
-    }
-
-    private void writeNewJob(Job mJob) {
-        mDatabase.child("jobs").push().setValue(mJob);
     }
 
     private boolean isEmpty(EditText myeditText) {
