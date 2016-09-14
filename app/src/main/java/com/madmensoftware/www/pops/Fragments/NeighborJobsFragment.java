@@ -1,8 +1,11 @@
 package com.madmensoftware.www.pops.Fragments;
 
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -13,11 +16,15 @@ import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.madmensoftware.www.pops.Activities.LoginActivity;
+import com.madmensoftware.www.pops.Activities.NeighborActivity;
 import com.madmensoftware.www.pops.Adapters.JobAdapter;
 import com.madmensoftware.www.pops.Adapters.JobViewHolder;
+import com.madmensoftware.www.pops.Adapters.PopperJobsViewPagerAdapter;
 import com.madmensoftware.www.pops.Models.Job;
 import com.madmensoftware.www.pops.R;
 
@@ -30,8 +37,12 @@ public class NeighborJobsFragment extends Fragment {
 
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth auth;
+    private DatabaseReference mDatabase;
 
-//    private Query jobQuery;
+
+
+
+    //    private Query jobQuery;
 //
     private LinearLayoutManager linearLayoutManager;
     private RecyclerView jobRecyclerview;
@@ -39,6 +50,10 @@ public class NeighborJobsFragment extends Fragment {
     private JobAdapter mJobAdapter;
     private DatabaseReference mRef;
     private DatabaseReference mJobRef;
+
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private PopperJobsViewPagerAdapter adapter;
 
 
     // Firebase instance variables
@@ -66,48 +81,8 @@ public class NeighborJobsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_neighbor_jobs, container, false);
 
-//        jobRecyclerview = (RecyclerView) view.findViewById(R.id.neighbor_jobs_recycler_view);
-
-//
-//        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
-//        mFirebaseAdapter = new FirebaseRecyclerAdapter<Job,
-//                JobViewHolder>(
-//                Job.class,
-//                R.layout.job_list_row,
-//                JobViewHolder.class,
-//                mFirebaseDatabaseReference.child("jobs").child(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-//
-//            @Override
-//            protected void populateViewHolder(JobViewHolder viewHolder,
-//                                              Job job, int position) {
-//                viewHolder.jobTitle.setText(job.getTitle());
-//                viewHolder.jobDescription.setText(job.getDescription());
-//                viewHolder.jobBudget.setText(job.getBudget() + "");
-//                viewHolder.jobPosterName.setText(job.getPosterName());
-//            }
-//        };
-//
-//        mFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-//            @Override
-//            public void onItemRangeInserted(int positionStart, int itemCount) {
-//                super.onItemRangeInserted(positionStart, itemCount);
-//                int friendlyMessageCount = mFirebaseAdapter.getItemCount();
-//                int lastVisiblePosition =
-//                        linearLayoutManager.findLastCompletelyVisibleItemPosition();
-//                // If the recycler view is initially being loaded or the
-//                // user is at the bottom of the list, scroll to the bottom
-//                // of the list to show the newly added message.
-//                if (lastVisiblePosition == -1 ||
-//                        (positionStart >= (friendlyMessageCount - 1) &&
-//                                lastVisiblePosition == (positionStart - 1))) {
-//                    jobRecyclerview.scrollToPosition(positionStart);
-//                }
-//            }
-//        });
-//
-//        jobRecyclerview.setLayoutManager(linearLayoutManager);
-//        jobRecyclerview.setAdapter(mFirebaseAdapter);
-
+        auth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
 
 
@@ -115,8 +90,8 @@ public class NeighborJobsFragment extends Fragment {
         jobRecyclerview.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(getActivity());
         mRef = FirebaseDatabase.getInstance().getReference();
-        mJobRef = mRef.child("jobs").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        mJobAdapter = new JobAdapter(Job.class, R.layout.job_list_row, JobViewHolder.class, mJobRef, getContext());
+        Query jobQuery = mRef.child("jobs").orderByChild("posterUid").equalTo(auth.getCurrentUser().getUid());
+        mJobAdapter = new JobAdapter(Job.class, R.layout.job_list_row, JobViewHolder.class, jobQuery, getContext());
         mJobAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {

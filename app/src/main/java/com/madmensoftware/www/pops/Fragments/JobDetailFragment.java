@@ -2,12 +2,19 @@ package com.madmensoftware.www.pops.Fragments;
 
 
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
@@ -19,15 +26,24 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.madmensoftware.www.pops.Adapters.JobAdapter;
+import com.madmensoftware.www.pops.Adapters.JobViewHolder;
+import com.madmensoftware.www.pops.Adapters.PopperJobsViewPagerAdapter;
 import com.madmensoftware.www.pops.Models.Job;
 import com.madmensoftware.www.pops.R;
 
 import org.parceler.Parcels;
 
+import static android.R.id.button2;
+
 /**
  * A simple {@link Fragment} subclass.
  */
-public class JobDetailFragment extends Fragment implements View.OnClickListener, OnMapReadyCallback {
+public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
     private Job mJob;
 
@@ -39,6 +55,33 @@ public class JobDetailFragment extends Fragment implements View.OnClickListener,
 
     MapView mMapView;
 
+    private FirebaseAuth.AuthStateListener authListener;
+    private FirebaseAuth auth;
+    private DatabaseReference mDatabase;
+
+
+
+    //    private Query jobQuery;
+//
+    private LinearLayoutManager linearLayoutManager;
+    private RecyclerView jobRecyclerview;
+
+    private JobAdapter mJobAdapter;
+    private DatabaseReference mRef;
+
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private PopperJobsViewPagerAdapter adapter;
+
+
+    // Firebase instance variables
+    private DatabaseReference mFirebaseDatabaseReference;
+    private FirebaseRecyclerAdapter<Job, JobViewHolder>
+            mFirebaseAdapter;
+
+
+
+
 
     public static JobDetailFragment newInstance(Job job) {
         JobDetailFragment jobDetailFragment= new JobDetailFragment();
@@ -48,10 +91,21 @@ public class JobDetailFragment extends Fragment implements View.OnClickListener,
         return jobDetailFragment;
     }
 
+    public void ButtonOnClick()
+    {
+
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         mJob = Parcels.unwrap(getArguments().getParcelable("job"));
+
+        auth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+
     }
 
     @Override
@@ -68,20 +122,22 @@ public class JobDetailFragment extends Fragment implements View.OnClickListener,
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume(); // needed to get the map to display immediately
 
-        try {
-            MapsInitializer.initialize(getActivity().getApplicationContext());
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        auth = FirebaseAuth.getInstance();
+        mRef = FirebaseDatabase.getInstance().getReference();
+        //Query jobQuery = mRef.child("jobs").orderByChild("posterUid").orderByChild("popperUid").equalTo(auth.getCurrentUser().getUid());
 
-        mMapView.getMapAsync(this);
-        mJobNeighborName.setText(mJob.getPosterName());
-        mJobTitle.setText(mJob.getTitle());
-        mJobCategory.setText(mJob.getCategory());
-        mJobDescription.setText(mJob.getDescription());
-        mJobBudget.setText("$" + mJob.getBudget());
+        Button AcceptButton = (Button) view.findViewById(R.id.Accept);
+        AcceptButton.setOnClickListener(new View.OnClickListener() {
 
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), "Accept Clicked", Toast.LENGTH_LONG).show();
+                mDatabase.child("jobs").child("-KRYMZCx2wAHN0f7q79e").child("popperUid").setValue("ybzUIvmFTNUCdzX67dw6nPdpgtD2");
+                mDatabase.child("jobs").child("-KR_YrgH7_UH1jAU3-TX").child("status").setValue("Accepted");
+
+
+
+            }
+        });
         return view;
     }
 
@@ -102,9 +158,6 @@ public class JobDetailFragment extends Fragment implements View.OnClickListener,
                 .newCameraPosition(cameraPosition));
     }
 
-    @Override
-    public void onClick(View v) {
 
-    }
 
 }
