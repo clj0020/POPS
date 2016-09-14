@@ -309,7 +309,6 @@ public class PopperMapFragment extends Fragment implements OnMapReadyCallback, G
             for (int i = 0; i < latitude.length; i++) {
                 try {
 
-                    if(points.distanceTo(curr)){
                     System.out.println("latitude = " + latitude[i] + " longitude = " + longitude[i]);
                     mGoogleMap.addMarker(new MarkerOptions()
                             .position(points.get(i))
@@ -317,9 +316,9 @@ public class PopperMapFragment extends Fragment implements OnMapReadyCallback, G
                             .snippet(discription[i])
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
                             .alpha(0.7f));
-                    }
 
-                  
+
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 } // end catch
@@ -355,7 +354,6 @@ public class PopperMapFragment extends Fragment implements OnMapReadyCallback, G
         double l1 = toRadians(x);
         double l2 = toRadians(y);
 
-        Location location1 = new Location();
 
 
         double dist = acos(sin(c1) * sin(c2) * cos(c1) * cos(c2) * cos(l1-l2));
