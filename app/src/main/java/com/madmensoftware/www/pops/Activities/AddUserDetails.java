@@ -126,8 +126,6 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
                         Log.i(TAG + "Parent: ", parentUid);
                     }
 
-
-
                     organizationCodeQuery.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {

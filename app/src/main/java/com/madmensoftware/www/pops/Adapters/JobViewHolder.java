@@ -11,6 +11,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Activities.JobDetailActivity;
 import com.madmensoftware.www.pops.Models.Job;
@@ -46,8 +47,8 @@ public class JobViewHolder extends RecyclerView.ViewHolder implements View.OnCli
     @Override
     public void onClick(View view) {
         final ArrayList<Job> jobs = new ArrayList<>();
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("jobs").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        Query jobQuery = FirebaseDatabase.getInstance().getReference().child("jobs").orderByChild("posterUid").equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        jobQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
