@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 import com.madmensoftware.www.pops.Models.Job;
 
 /**
@@ -13,7 +14,7 @@ public class JobAdapter extends FirebaseRecyclerAdapter<Job, JobViewHolder> {
 
     private Context context;
 
-    public JobAdapter(Class<Job> modelClass, int modelLayout, Class<JobViewHolder> viewHolderClass, DatabaseReference ref, Context context) {
+    public JobAdapter(Class<Job> modelClass, int modelLayout, Class<JobViewHolder> viewHolderClass, Query ref, Context context) {
         super(modelClass, modelLayout, viewHolderClass, ref);
         this.context = context;
     }

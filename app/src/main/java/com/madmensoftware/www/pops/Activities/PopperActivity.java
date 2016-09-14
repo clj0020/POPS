@@ -19,12 +19,19 @@ import android.widget.RelativeLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Fragments.PopperCheckInFragment;
 import com.madmensoftware.www.pops.Fragments.PopperDashboardFragment;
 import com.madmensoftware.www.pops.Fragments.PopperJobsFragment;
 import com.madmensoftware.www.pops.Fragments.PopperMapFragment;
 import com.madmensoftware.www.pops.Fragments.PopperNotificationsFragment;
 import com.madmensoftware.www.pops.Helpers.NonSwipeableViewPager;
+import com.madmensoftware.www.pops.Helpers.TinyDB;
+import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 
 import java.util.ArrayList;
@@ -38,12 +45,7 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
 
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth auth;
-
-//    private RelativeLayout mDashButton;
-//    private RelativeLayout mMapButton;
-//    private RelativeLayout mJobsButton;
-//    private RelativeLayout mNotificationsButton;
-//    private RelativeLayout mCheckInButton;
+    private DatabaseReference mDatabase;
 
     private TabLayout tabLayout;
     private NonSwipeableViewPager viewPager;
@@ -78,14 +80,10 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popper);
 
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
         viewPager = (NonSwipeableViewPager) findViewById(R.id.viewpager);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
-//        mDashButton = (RelativeLayout) findViewById(R.id.dash_button);
-//        mMapButton = (RelativeLayout) findViewById(R.id.map_button);
-//        mJobsButton = (RelativeLayout) findViewById(R.id.jobs_button);
-//        mNotificationsButton = (RelativeLayout) findViewById(R.id.notifications_button);
-//        mCheckInButton = (RelativeLayout) findViewById(R.id.check_in_button);
-
 
         //get firebase auth instance
         auth = FirebaseAuth.getInstance();
@@ -103,106 +101,21 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
                     mUser = user;
                     uid = mUser.getUid();
 
+                    mDatabase.child("users").child(uid).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            TinyDB tinyDb = new TinyDB(getApplicationContext());
+                            tinyDb.putObject("User", dataSnapshot.getValue(User.class));
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError error) {
+
+                        }
+                    });
+
                     setupViewPager(viewPager, uid);
                     tabLayout.setupWithViewPager(viewPager);
                     setupTabIcons();
-//                    FragmentManager fm = getSupportFragmentManager();
-//                    Fragment mapFragment = fm.findFragmentById(R.id.popper_fragment_container);
-
-//                    if (mapFragment == null) {
-//                        mapFragment = PopperMapFragment.newInstance(uid);
-//                        fm.beginTransaction()
-//                                .add(R.id.popper_fragment_container, mapFragment)
-//                                .commit();
-//                    }
-//
-//                    mDashButton.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                            Fragment dashFragment = PopperDashboardFragment.newInstance(uid);
-//                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//
-//                            transaction.replace(R.id.popper_fragment_container, dashFragment);
-//                            transaction.commit();
-//
-//                            mDashButton.setBackgroundColor(Color.parseColor("#4d4d4d"));
-//                            mMapButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                            mJobsButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                            mNotificationsButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                            mCheckInButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//
-//                        }
-//                    });
-//
-//                    mMapButton.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                            Fragment mapFragment = PopperMapFragment.newInstance(uid);
-//                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//
-//                            transaction.replace(R.id.popper_fragment_container, mapFragment);
-//                            transaction.commit();
-//
-//                            mMapButton.setBackgroundColor(Color.parseColor("#4d4d4d"));
-//                            mDashButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                            mJobsButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                            mNotificationsButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                            mCheckInButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                        }
-//                    });
-//
-//                    mJobsButton.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                            Fragment dashFragment = PopperJobsFragment.newInstance(uid);
-//                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//
-//                            transaction.replace(R.id.popper_fragment_container, dashFragment);
-//                            transaction.commit();
-//
-//                            mJobsButton.setBackgroundColor(Color.parseColor("#4d4d4d"));
-//                            mMapButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                            mDashButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                            mNotificationsButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                            mCheckInButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                        }
-//                    });
-//
-//                    mNotificationsButton.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                            Fragment dashFragment = PopperNotificationsFragment.newInstance(uid);
-//                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//
-//                            transaction.replace(R.id.popper_fragment_container, dashFragment);
-//                            transaction.commit();
-//
-//                            mNotificationsButton.setBackgroundColor(Color.parseColor("#4d4d4d"));
-//                            mMapButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                            mJobsButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                            mDashButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                            mCheckInButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                        }
-//                    });
-//
-//                    mCheckInButton.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                            Fragment dashFragment = PopperCheckInFragment.newInstance(uid);
-//                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//
-//                            transaction.replace(R.id.popper_fragment_container, dashFragment);
-//                            transaction.commit();
-//
-//                            mCheckInButton.setBackgroundColor(Color.parseColor("#4d4d4d"));
-//                            mMapButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                            mJobsButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                            mNotificationsButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                            mDashButton.setBackgroundColor(Color.parseColor("#a9a9a9"));
-//                        }
-//                    });
-//
-
                 }
             }
         };

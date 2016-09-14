@@ -2,6 +2,9 @@ package com.madmensoftware.www.pops.Fragments;
 
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
@@ -17,25 +20,62 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.google.maps.android.SphericalUtil;
+import com.madmensoftware.www.pops.Activities.AddUserDetails;
+import com.madmensoftware.www.pops.Activities.NeighborActivity;
+import com.madmensoftware.www.pops.Activities.ParentActivity;
+import com.madmensoftware.www.pops.Activities.PopperActivity;
+import com.madmensoftware.www.pops.Adapters.MapWrapperLayout;
+import com.madmensoftware.www.pops.Adapters.OnInfoWindowElemTouchListener;
+import com.madmensoftware.www.pops.Helpers.AndroidPermissions;
+import com.madmensoftware.www.pops.Helpers.GPSTracker;
+import com.madmensoftware.www.pops.Helpers.TinyDB;
+import com.madmensoftware.www.pops.Models.Job;
+import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
+
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,255 +91,283 @@ import static java.lang.Math.toRadians;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PopperMapFragment extends Fragment implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
-
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-
+public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLocationListener, OnMapReadyCallback {
+    private DatabaseReference mDatabase;
+    private FirebaseAuth auth;
+    private GeoFire geoFire;
+    private GeoLocation currentGeoLocation;
 
     private GoogleMap mGoogleMap;
+    private GPSTracker gpsTracker;
     private MapView mapView;
-    private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
+    private Bundle mBundle;
 
-    private LocationManager locationManager;
-    public Criteria criteria;
-    public String bestProvider;
-    public double latitude;
-    public double longitude;
-    private LocationListener listener;
-    public LocationRequest mLocationRequest;
-    public Marker mCurrLocationMarker;
+    private ViewGroup infoWindow;
+    private TextView infoTitle;
+    private TextView infoSnippet;
+    private Button infoButton;
+    private OnInfoWindowElemTouchListener infoButtonListener;
+    MapWrapperLayout mapWrapperLayout;
 
-    private Double mLatitudeText;
-    private Double mLongitudeText;
-
-    View mView;
-
+    private User mUser;
 
     public static PopperMapFragment newInstance(String userId) {
         PopperMapFragment fragment = new PopperMapFragment();
-
         return fragment;
     }
 
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //mGoogleApiClient.connect();
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
-        listener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-
-            }
-        };
-        MapsInitializer.initialize(getContext());
-
-    }
-
-    @Override
-    public void onStart() {
-        mGoogleApiClient.connect();
-        super.onStart();
-    }
-
-    @Override
-    public void onStop() {
-        mGoogleApiClient.disconnect();
-        super.onStop();
-    }
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-//        Inflate the layout for this fragment
-        mView = inflater.inflate(R.layout.fragment_popper_map, container, false);
+        View view = inflater.inflate(R.layout.fragment_popper_map, container, false);
 
-        checkLocationPermission();
+        mapView = (MapView) view.findViewById(R.id.popper_map);
+        mapWrapperLayout = (MapWrapperLayout)view.findViewById(R.id.popper_map_wrapper);
 
-        return mView;
-    }
+        // We want to reuse the info window for all the markers,
+        // so let's create only one class member instance
+        infoWindow = (ViewGroup) inflater.inflate(R.layout.map_marker_layout, null);
+        infoTitle = (TextView)infoWindow.findViewById(R.id.title);
+        infoSnippet = (TextView)infoWindow.findViewById(R.id.snippet);
+        infoButton = (Button)infoWindow.findViewById(R.id.button);
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        mapView = (MapView) mView.findViewById(map);
-        if (mapView != null) {
-            // Initialise the MapView
-            mapView.onCreate(null);
-            mapView.onResume();
-            // Set the map ready callback to receive the GoogleMap object
-
-            mapView.getMapAsync(this);
-
-        }
-
-    }
-
-    @Override
-    public void onConnected(Bundle connectionHint) {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(500000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        if (ContextCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            if(mGoogleApiClient.isConnected() ) {
-                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        infoButtonListener = new OnInfoWindowElemTouchListener(infoButton, getResources().getDrawable(android.R.drawable.btn_default), getResources().getDrawable(android.R.drawable.btn_default)) {
+            @Override
+            protected void onClickConfirmed(View v, Marker marker) {
+                // Here we can perform some action triggered after clicking the button
+                Toast.makeText(getActivity(), marker.getTitle() + "'s button clicked!", Toast.LENGTH_SHORT).show();
             }
+        };
+
+        infoButton.setOnTouchListener(infoButtonListener);
+
+
+        gpsTracker = new GPSTracker(getActivity());
+        gpsTracker.setLocationListener(this);
+
+        try {
+            MapsInitializer.initialize(getActivity());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        mapView.onCreate(mBundle);
+        mapView.getMapAsync(this);
+
+        auth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        TinyDB tinyDb = new TinyDB(getActivity());
+        mUser = (User) tinyDb.getObject("User", User.class);
+
+        return view;
     }
-
-
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        MapsInitializer.initialize(getActivity());
-
         mGoogleMap = googleMap;
-        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        //Initialize Google Play Services
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(getActivity(),
-                    Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                buildGoogleApiClient();
+        // MapWrapperLayout initialization
+        // 39 - default marker height
+        // 20 - offset between the default InfoWindow bottom edge and it's content bottom edge
+        mapWrapperLayout.init(mGoogleMap, getPixelsFromDp(getActivity(), 39 + 20));
+
+        mGoogleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+                // Setting up the infoWindow with current's marker info
+                infoTitle.setText(marker.getTitle());
+                infoSnippet.setText(marker.getSnippet());
+                infoButtonListener.setMarker(marker);
+
+                // We must call this to set the current marker and infoWindow references
+                // to the MapWrapperLayout
+                mapWrapperLayout.setMarkerWithInfoWindow(marker, infoWindow);
+                return infoWindow;
+            }
+        });
+
+        if (gpsTracker.checkLocationState()) {
+            gpsTracker.startLocationUpdates();
+            setMap(googleMap);
+            LatLng latLang = new LatLng(gpsTracker.getLatitude(), gpsTracker.getLongitude());
+            //First time if you don't have latitude and longitude user default address
+            if (gpsTracker.getLatitude() == 0) {
                 mGoogleMap.setMyLocationEnabled(true);
+                latLang = new LatLng(17.3700, 78.4800);
+                gpsTracker.setDefaultAddress("Hyderabad, Telangana");
+            }
+
+            if (mGoogleMap != null) {
+                mGoogleMap.setMyLocationEnabled(true);
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLang, 20);
+                mGoogleMap.animateCamera(cameraUpdate);
+            }
+
+        }
+        else {
+            // can't get location
+            // GPS or Network is not enabled
+            // Ask user to enable GPS/network in settings_home_fragment_layout
+            gpsTracker.showSettingsAlert();
+        }
+
+    }
+
+    private void updateLocation() {
+        if (gpsTracker != null) {
+            gpsTracker.onResume();
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (!AndroidPermissions.getInstance().checkLocationPermission(getActivity())) {
+                    AndroidPermissions.getInstance().displayLocationPermissionAlert(getActivity());
+                }
+            }
+            gpsTracker.startLocationUpdates();
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if (location != null) {
+            LatLng latLng;
+            latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            updateMapWithLocationFirstTime(latLng);
+        }
+    }
+
+    private void setMap(GoogleMap mGoogleMap) {
+        if (mGoogleMap != null) {
+            mGoogleMap.clear();
+            mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
+            mGoogleMap.getUiSettings().setZoomControlsEnabled(false);
+            mGoogleMap.getUiSettings().setTiltGesturesEnabled(true);
+            mGoogleMap.getUiSettings().setCompassEnabled(false);
+            mGoogleMap.getUiSettings().setRotateGesturesEnabled(true);
+            mGoogleMap.getUiSettings().setMapToolbarEnabled(false);
+        }
+    }
+
+    //first time when fragment opened we will call this and update map with current location and marker
+    private void updateMapWithLocationFirstTime(LatLng latLang) {
+        if (gpsTracker.getLatitude() != 0) {
+            if (mGoogleMap != null) {
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLang, 20);
+                mGoogleMap.animateCamera(cameraUpdate);
+
+                Log.i("GeoFire CurrLocation", "Lat: " + gpsTracker.getLatitude() + "Long: " + gpsTracker.getLongitude());
+
+                GeoLocation currentLocation = new GeoLocation(gpsTracker.getLatitude(), gpsTracker.getLongitude());
+                Log.i("GeoFire CurrLocation", "Lat: " + currentLocation.latitude + "Long: " + currentLocation.longitude);
+
+                geoFire = new GeoFire(mDatabase.child("jobs_location"));
+                GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(gpsTracker.getLatitude(), gpsTracker.getLongitude()), mUser.getRadius());
+                geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+                    @Override
+                    public void onKeyEntered(String key, GeoLocation location) {
+                        Log.i("updateMapWithLocation", "GeoFireEntered:  Lat: " + location.latitude + " Long: " + location.longitude + " Key:" + key);
+
+                        final double latitude = location.latitude;
+                        final double longitude = location.longitude;
+
+                        mDatabase.child("jobs").child(key).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Job job = dataSnapshot.getValue(Job.class);
+
+
+                                Marker jobMarker = mGoogleMap.addMarker(new MarkerOptions()
+                                        .position(new LatLng(latitude, longitude))
+                                        .snippet(job.getDescription())
+                                        .title(job.getTitle()));
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+                    }
+
+                    @Override
+                    public void onKeyExited(String key) {
+                        Log.i("updateMapWithLocation", "GeoFireExitted: Key is no longer in the search area." + key);
+                    }
+
+                    @Override
+                    public void onKeyMoved(String key, GeoLocation location) {
+                        Log.i("updateMapWithLocation", "GeoFireMovedTo: Lat: " + location.latitude + "Long: " + location.longitude + "Key: " + key);
+
+                        final double latitude = location.latitude;
+                        final double longitude = location.longitude;
+
+                        mDatabase.child("jobs").child(key).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Job job = dataSnapshot.getValue(Job.class);
+                                Marker jobMarker = mGoogleMap.addMarker(new MarkerOptions()
+                                        .position(new LatLng(latitude, longitude))
+                                        .snippet(job.getDescription())
+                                        .title(job.getTitle()));
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onGeoQueryReady() {
+                        Log.i("updateMapWithLocation", "GeoFireReady: All initial data has been loaded and events have been fired!");
+                    }
+
+                    @Override
+                    public void onGeoQueryError(DatabaseError error) {
+                        Log.i("updateMapWithLocation", "GeoFireError: " + error + "");
+                    }
+                });
             }
         }
         else {
-            buildGoogleApiClient();
-            mGoogleMap.setMyLocationEnabled(true);
         }
-
-    }
-
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-        mGoogleApiClient.connect();
     }
 
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-    @Override
-    public void onLocationChanged(Location location)
-    {
-        mLastLocation = location;
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
-        }
-
-        //Place current location marker
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-        mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
-
-        Circle circle = mGoogleMap.addCircle(new CircleOptions()
-                .center(new LatLng(-33.87365, 151.20689))
-                .radius(10000)
-                .strokeColor(Color.RED)
-                .fillColor(Color.CYAN));
-        circle.setCenter(latLng);
-
-        addMarkersToMap();
-
-        //move map camera
-        //mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        //mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
-
-        //stop location updates
-//        if (mGoogleApiClient != null) {
-//            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-//        }
-    }
-
-    public boolean checkLocationPermission(){
-        if (ContextCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Asking user if explanation is needed
-            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-                //Prompt the user once explanation has been shown
-                ActivityCompat.requestPermissions(getActivity(),
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(getActivity(),
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-            return false;
-        } else {
-            return true;
-        }
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // Permission was granted.
-                    if (ContextCompat.checkSelfPermission(getActivity(),
-                            Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
-
-                        if (mGoogleApiClient == null) {
-                            buildGoogleApiClient();
-                        }
-                        mGoogleMap.setMyLocationEnabled(true);
-                    }
-
+            case AndroidPermissions.REQUEST_LOCATION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    updateLocation();
                 } else {
-
-                    // Permission denied, Disable the functionality that depends on this permission.
-                    Toast.makeText(getActivity(), "permission denied", Toast.LENGTH_LONG).show();
+                    AndroidPermissions.getInstance().displayAlert(getActivity(), AndroidPermissions.REQUEST_LOCATION);
                 }
+                break;
+            default: {
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
             }
-
-            // other 'case' lines to check for other permissions this app might request.
-            //You can add here other case statements according to your requirement.
         }
+    }
+
+    public void addJobToMap(Job job) {
+        LatLng jobLocation = new LatLng(job.getLatitude(), job.getLongitude());
+
+        mGoogleMap.addMarker(new MarkerOptions()
+                .position(jobLocation)
+                .title(job.getTitle())
+                .snippet(job.getDescription())
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                .alpha(0.7f));
     }
 
     // convert address to lng lat and add markers to map
     public void addMarkersToMap() {
+<<<<<<< HEAD
         double[] latitude = {32.6085256, 32.6105717,32.6105385, 32.735118};
         double[] longitude = {-85.4746521, -85.4726629, -85.4724567,-85.576729};
         String[] title = {"LandScaping", "Cleaning", "Arson","Clean Garage"};
@@ -325,53 +393,96 @@ public class PopperMapFragment extends Fragment implements OnMapReadyCallback, G
             }
         }
     } //end addMarkersToMap
+=======
+        List<LatLng> jobLocations = new ArrayList<LatLng>();
+        jobLocations.add(new LatLng(32.6085256, -85.4746521));
+        jobLocations.add(new LatLng(32.6105717, -85.4726629));
+        jobLocations.add(new LatLng(32.6105385, -85.4746521));
+        jobLocations.add(new LatLng(32.735118, -85.576729));
+        jobLocations.add(new LatLng(72.6085256, -25.4746521));
+>>>>>>> 74584079109c5d3d1b8615170b8631c1c6d965c7
 
-    public List<LatLng> filterMap(double[] x , double[] y){
+        String[] title = {"LandScaping", "Cleaning", "Arson", "Clean Garage"};
+        String[] discription = {"Mow The Lawn", "Clean out my Garage", "Burn Down Neighbors House", "With a broom and shovel"};
 
-        List<LatLng> points=new ArrayList<LatLng>();
+        List<LatLng> nearbyJobs = getNearbyJobs(jobLocations, mUser.getRadius());
 
-        if(x.length == 0) {
+        if(nearbyJobs.size() == 0) {
             Toast.makeText(getActivity(), "No Jobs Near You.", Toast.LENGTH_LONG).show();
         }
         else {
-            for(int i = 0; i < x.length; i++){
-                Toast.makeText(getActivity(), "filtering", Toast.LENGTH_LONG).show();
-                if (InRadius(mLastLocation.getLatitude(), mLastLocation.getLongitude(), 5, x[i],y[i])) {
-                    points.add(new LatLng(x[i],y[i]));
-                }
+            for (int i = 0; i < nearbyJobs.size(); i++) {
+                mGoogleMap.addMarker(new MarkerOptions()
+                    .position(nearbyJobs.get(i))
+                    .title(title[i])
+                    .snippet(discription[i])
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                    .alpha(0.7f));
             }
         }
-        return points;
+    } //end addMarkersToMap
 
+    public List<LatLng> getNearbyJobs(List<LatLng> jobLocations, int radius){
+        List<LatLng> nearbyJobs = new ArrayList<LatLng>();
+        for(int i = 0; i < jobLocations.size(); i++){
+            double distanceBetween = SphericalUtil.computeDistanceBetween(jobLocations.get(i), new LatLng(gpsTracker.getLatitude(), gpsTracker.getLongitude()));
+            if (distanceBetween < convertRadiusToMeters(radius)) {
+                nearbyJobs.add(jobLocations.get(i));
+            }
+        }
+        return nearbyJobs;
     }
 
-    //32.735118, -85.576729
-    public boolean InRadius(double centerX, double centerY,int  radius, double x, double y)
-    {
-        boolean check = true;
-        double c1 = toRadians(centerX);
-        double c2 = toRadians(centerY);
-        double l1 = toRadians(x);
-        double l2 = toRadians(y);
-
-
-
-        double dist = acos(sin(c1) * sin(c2) * cos(c1) * cos(c2) * cos(l1-l2));
-
-        if(dist < 0)
-        {
-            dist = dist + Math.PI;
-        }
-        long solution = Math.round(dist * 6378100);
-
-        if(solution < (long) radius){
-            check = true;
-        }
-        else{
-            check = false;
-        }
-        Log.v("within", "index=" + dist);
-
-        return check;
+    public double convertRadiusToMeters(int miles) {
+        return miles * 1609.344;
     }
+
+<<<<<<< HEAD
+=======
+    public static int getPixelsFromDp(Context context, float dp) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int)(dp * scale + 0.5f);
+    }
+>>>>>>> 74584079109c5d3d1b8615170b8631c1c6d965c7
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        gpsTracker.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        gpsTracker.onStop();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mapView != null) {
+            mapView.onResume();
+        }
+        updateLocation();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        gpsTracker.onPause();
+        if (mapView != null) {
+            mapView.onPause();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        if (mapView != null) {
+            mapView.onDestroy();
+        }
+        super.onDestroy();
+    }
+
+
+
 }

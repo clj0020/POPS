@@ -26,7 +26,7 @@
     </style>
 
     <style name="CustomRatingBar" parent="@android:style/Widget.RatingBar">
-        <item name="android:progressDrawable">@drawable/skill_rating_bar</item>
+       <!-- <item name="android:progressDrawable">@drawable/skill_rating_bar</item> -->
         <item name="android:minHeight">20dp</item>
         <item name="android:maxHeight">40dp</item>
     </style>
