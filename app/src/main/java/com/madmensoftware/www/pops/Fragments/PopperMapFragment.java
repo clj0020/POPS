@@ -260,6 +260,7 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
     private void updateMapWithLocationFirstTime(LatLng latLang) {
         if (gpsTracker.getLatitude() != 0) {
             if (mGoogleMap != null) {
+
                 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLang, 20);
                 mGoogleMap.animateCamera(cameraUpdate);
 

@@ -42,7 +42,6 @@ public class PopperDashboardFragment extends Fragment {
 
     public String userId;
 
-
     private TextView mNameTextView;
     private TextView mAgeTextView;
     private TextView mOrganizationNameTextView;

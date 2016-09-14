@@ -232,6 +232,7 @@
                 android:layout_height="300dp"
                 android:layout_below="@id/job_detail_location_label"
                 map:liteMode="true"/>
+
             <Button
                 android:text="Button"
                 android:layout_width="wrap_content"

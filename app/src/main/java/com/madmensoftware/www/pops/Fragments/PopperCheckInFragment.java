@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,7 +28,9 @@ public class PopperCheckInFragment extends Fragment implements OnMapReadyCallbac
 
     private static final String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
 
-    MapView mMapView;
+    private MapView mMapView;
+    private Button mCheckInButton;
+
 
     public PopperCheckInFragment() {
         // Required empty public constructor
@@ -47,6 +50,8 @@ public class PopperCheckInFragment extends Fragment implements OnMapReadyCallbac
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_popper_check_in, container, false);
+
+        mCheckInButton = (Button) view.findViewById(R.id.popper_check_in_button);
 
         mMapView = (MapView) view.findViewById(R.id.popper_check_in_last_location);
 

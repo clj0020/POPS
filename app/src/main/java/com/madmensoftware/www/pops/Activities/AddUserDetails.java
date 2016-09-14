@@ -101,17 +101,16 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
 
         final User popper = new User();
 
-            popper.setName(name);
-            popper.setEmail(email);
-            popper.setAge(age);
-            popper.setZipCode(zip_code);
-            popper.setTransportationType(transportation);
-            popper.setRadius(radius);
-            popper.setGoal(goal);
-            popper.setGoalDate(goalDateLong);
-            popper.setEarned(0);
-            popper.setType("Popper");
-
+        popper.setName(name);
+        popper.setEmail(email);
+        popper.setAge(age);
+        popper.setZipCode(zip_code);
+        popper.setTransportationType(transportation);
+        popper.setRadius(radius);
+        popper.setGoal(goal);
+        popper.setGoalDate(goalDateLong);
+        popper.setEarned(0);
+        popper.setType("Popper");
 
         final Query organizationCodeQuery = mDatabase.child("organizations").child(organizationCode + "");
         Query parentcodeQuery = mDatabase.child("users").orderByChild("accessCode").equalTo(parentCode);

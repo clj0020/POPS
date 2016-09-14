@@ -30,6 +30,12 @@ public class JobDetailActivity extends AppCompatActivity {
                         .add(R.id.job_detail_fragment_container, fragment)
                         .commit();
         }
+        else {
+            fragment = JobDetailFragment.newInstance(job);
+            fm.beginTransaction()
+                    .replace(R.id.job_detail_fragment_container, fragment)
+                    .commit();
+        }
     }
 
 }

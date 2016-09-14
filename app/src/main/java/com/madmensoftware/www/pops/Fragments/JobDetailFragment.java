@@ -59,8 +59,6 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
 
-
-
     //    private Query jobQuery;
 //
     private LinearLayoutManager linearLayoutManager;
@@ -78,9 +76,6 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseRecyclerAdapter<Job, JobViewHolder>
             mFirebaseAdapter;
-
-
-
 
 
     public static JobDetailFragment newInstance(Job job) {
@@ -104,8 +99,6 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
         auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
-
     }
 
     @Override
@@ -128,14 +121,11 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
         Button AcceptButton = (Button) view.findViewById(R.id.Accept);
         AcceptButton.setOnClickListener(new View.OnClickListener() {
-
+            @Override
             public void onClick(View v) {
                 Toast.makeText(getActivity(), "Accept Clicked", Toast.LENGTH_LONG).show();
                 mDatabase.child("jobs").child("-KRYMZCx2wAHN0f7q79e").child("popperUid").setValue("ybzUIvmFTNUCdzX67dw6nPdpgtD2");
                 mDatabase.child("jobs").child("-KR_YrgH7_UH1jAU3-TX").child("status").setValue("Accepted");
-
-
-
             }
         });
         return view;
