@@ -63,6 +63,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.SphericalUtil;
 import com.madmensoftware.www.pops.Activities.AddUserDetails;
+import com.madmensoftware.www.pops.Activities.JobDetailActivity;
 import com.madmensoftware.www.pops.Activities.NeighborActivity;
 import com.madmensoftware.www.pops.Activities.ParentActivity;
 import com.madmensoftware.www.pops.Activities.PopperActivity;
@@ -133,8 +134,12 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
         infoButtonListener = new OnInfoWindowElemTouchListener(infoButton, getResources().getDrawable(android.R.drawable.btn_default), getResources().getDrawable(android.R.drawable.btn_default)) {
             @Override
             protected void onClickConfirmed(View v, Marker marker) {
-                // Here we can perform some action triggered after clicking the button
-                Toast.makeText(getActivity(), marker.getTitle() + "'s button clicked!", Toast.LENGTH_SHORT).show();
+                Job job = (Job) marker.getTag();
+                Intent intent = new Intent(getActivity(), JobDetailActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("job", Parcels.wrap(job));
+                intent.putExtras(bundle);
+                startActivity(intent);
             }
         };
 
@@ -165,6 +170,7 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
+
         // MapWrapperLayout initialization
         // 39 - default marker height
         // 20 - offset between the default InfoWindow bottom edge and it's content bottom edge
@@ -282,7 +288,7 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
                                         .position(new LatLng(latitude, longitude))
                                         .snippet(job.getDescription())
                                         .title(job.getTitle()));
-
+                                jobMarker.setTag(job);
                             }
 
                             @Override
@@ -309,10 +315,12 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 Job job = dataSnapshot.getValue(Job.class);
+
                                 Marker jobMarker = mGoogleMap.addMarker(new MarkerOptions()
                                         .position(new LatLng(latitude, longitude))
                                         .snippet(job.getDescription())
                                         .title(job.getTitle()));
+                                jobMarker.setTag(job);
                             }
 
                             @Override
@@ -354,56 +362,6 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
         }
     }
 
-    public void addJobToMap(Job job) {
-        LatLng jobLocation = new LatLng(job.getLatitude(), job.getLongitude());
-
-        mGoogleMap.addMarker(new MarkerOptions()
-                .position(jobLocation)
-                .title(job.getTitle())
-                .snippet(job.getDescription())
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                .alpha(0.7f));
-    }
-
-    // convert address to lng lat and add markers to map
-    public void addMarkersToMap() {
-        List<LatLng> jobLocations = new ArrayList<LatLng>();
-        jobLocations.add(new LatLng(32.6085256, -85.4746521));
-        jobLocations.add(new LatLng(32.6105717, -85.4726629));
-        jobLocations.add(new LatLng(32.6105385, -85.4746521));
-        jobLocations.add(new LatLng(32.735118, -85.576729));
-        jobLocations.add(new LatLng(72.6085256, -25.4746521));
-
-        String[] title = {"LandScaping", "Cleaning", "Arson", "Clean Garage"};
-        String[] discription = {"Mow The Lawn", "Clean out my Garage", "Burn Down Neighbors House", "With a broom and shovel"};
-
-        List<LatLng> nearbyJobs = getNearbyJobs(jobLocations, mUser.getRadius());
-
-        if(nearbyJobs.size() == 0) {
-            Toast.makeText(getActivity(), "No Jobs Near You.", Toast.LENGTH_LONG).show();
-        }
-        else {
-            for (int i = 0; i < nearbyJobs.size(); i++) {
-                mGoogleMap.addMarker(new MarkerOptions()
-                    .position(nearbyJobs.get(i))
-                    .title(title[i])
-                    .snippet(discription[i])
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                    .alpha(0.7f));
-            }
-        }
-    } //end addMarkersToMap
-
-    public List<LatLng> getNearbyJobs(List<LatLng> jobLocations, int radius){
-        List<LatLng> nearbyJobs = new ArrayList<LatLng>();
-        for(int i = 0; i < jobLocations.size(); i++){
-            double distanceBetween = SphericalUtil.computeDistanceBetween(jobLocations.get(i), new LatLng(gpsTracker.getLatitude(), gpsTracker.getLongitude()));
-            if (distanceBetween < convertRadiusToMeters(radius)) {
-                nearbyJobs.add(jobLocations.get(i));
-            }
-        }
-        return nearbyJobs;
-    }
 
     public double convertRadiusToMeters(int miles) {
         return miles * 1609.344;

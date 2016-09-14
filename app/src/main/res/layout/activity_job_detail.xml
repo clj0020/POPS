@@ -6,10 +6,10 @@
     tools:context="com.madmensoftware.www.pops.Activities.JobDetailActivity">
 
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/jobDetailViewPager"
+    <FrameLayout
+        android:id="@+id/job_detail_fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"></FrameLayout>
 
 
 </RelativeLayout>
