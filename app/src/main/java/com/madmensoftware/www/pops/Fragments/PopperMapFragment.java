@@ -12,6 +12,8 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -20,6 +22,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,7 +83,9 @@ import com.madmensoftware.www.pops.R;
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.madmensoftware.www.pops.R.id.dark;
 import static com.madmensoftware.www.pops.R.id.map;
@@ -110,10 +116,13 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
     private OnInfoWindowElemTouchListener infoButtonListener;
     MapWrapperLayout mapWrapperLayout;
 
+    private Map<String,Marker> markers;
+
     private User mUser;
 
-    public static PopperMapFragment newInstance(String userId) {
+    public static PopperMapFragment newInstance() {
         PopperMapFragment fragment = new PopperMapFragment();
+        Log.i("Popper:", " PopperCheckInFragment created");
         return fragment;
     }
 
@@ -123,6 +132,8 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
 
         mapView = (MapView) view.findViewById(R.id.popper_map);
         mapWrapperLayout = (MapWrapperLayout)view.findViewById(R.id.popper_map_wrapper);
+
+        this.markers = new HashMap<String, Marker>();
 
         // We want to reuse the info window for all the markers,
         // so let's create only one class member instance
@@ -202,13 +213,27 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
             LatLng latLang = new LatLng(gpsTracker.getLatitude(), gpsTracker.getLongitude());
             //First time if you don't have latitude and longitude user default address
             if (gpsTracker.getLatitude() == 0) {
-                mGoogleMap.setMyLocationEnabled(true);
+                try {
+                    mGoogleMap.setMyLocationEnabled(true);
+                    setMap(googleMap);
+                    Log.i("PopperMap", "onMapReady: getLatitude is 0. Set my location enabled.");
+                }
+                catch (SecurityException e) {
+
+                }
                 latLang = new LatLng(17.3700, 78.4800);
                 gpsTracker.setDefaultAddress("Hyderabad, Telangana");
             }
 
             if (mGoogleMap != null) {
-                mGoogleMap.setMyLocationEnabled(true);
+                try {
+                    mGoogleMap.setMyLocationEnabled(true);
+                    setMap(googleMap);
+                    Log.i("PopperMap", "onMapReady: Google Map is not null. Set my location enabled.");
+                }
+                catch (SecurityException e) {
+
+                }
                 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLang, 20);
                 mGoogleMap.animateCamera(cameraUpdate);
             }
@@ -219,6 +244,7 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
             // GPS or Network is not enabled
             // Ask user to enable GPS/network in settings_home_fragment_layout
             gpsTracker.showSettingsAlert();
+            Log.i("PopperMap", "onMapReady: Can't get location, gps or network not enabled.");
         }
 
     }
@@ -229,9 +255,12 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
             if (Build.VERSION.SDK_INT >= 23) {
                 if (!AndroidPermissions.getInstance().checkLocationPermission(getActivity())) {
                     AndroidPermissions.getInstance().displayLocationPermissionAlert(getActivity());
+                    Log.i("PopperMap", "updateLocation: gpsTracker onResume called, location permissions are not enabled. Display location permission alert.");
                 }
             }
             gpsTracker.startLocationUpdates();
+            mapView.getMapAsync(this);
+            Log.i("PopperMap", "updateLocation: gpsTracker onResume called, startLocationUpdates.");
         }
     }
 
@@ -241,6 +270,7 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
             LatLng latLng;
             latLng = new LatLng(location.getLatitude(), location.getLongitude());
             updateMapWithLocationFirstTime(latLng);
+            Log.i("PopperMap", "onLocationChanged: location is not null. Update map with location first time.");
         }
     }
 
@@ -253,11 +283,16 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
             mGoogleMap.getUiSettings().setCompassEnabled(false);
             mGoogleMap.getUiSettings().setRotateGesturesEnabled(true);
             mGoogleMap.getUiSettings().setMapToolbarEnabled(false);
+
+            Log.i("PopperMap", "setMap: Map is not null. Clear map and set Ui settings");
+
         }
     }
 
     //first time when fragment opened we will call this and update map with current location and marker
     private void updateMapWithLocationFirstTime(LatLng latLang) {
+        Log.i("PopperMap", "updateMapWithLocationFirstTime called.");
+
         if (gpsTracker.getLatitude() != 0) {
             if (mGoogleMap != null) {
 
@@ -276,6 +311,8 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
                     public void onKeyEntered(String key, GeoLocation location) {
                         Log.i("updateMapWithLocation", "GeoFireEntered:  Lat: " + location.latitude + " Long: " + location.longitude + " Key:" + key);
 
+
+
                         final double latitude = location.latitude;
                         final double longitude = location.longitude;
 
@@ -290,6 +327,9 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
                                         .snippet(job.getDescription())
                                         .title(job.getTitle()));
                                 jobMarker.setTag(job);
+
+                                markers.put(job.getUid(), jobMarker);
+
                             }
 
                             @Override
@@ -303,6 +343,26 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
                     @Override
                     public void onKeyExited(String key) {
                         Log.i("updateMapWithLocation", "GeoFireExitted: Key is no longer in the search area." + key);
+
+
+                        mDatabase.child("jobs").child(key).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Job job = dataSnapshot.getValue(Job.class);
+
+                                Marker marker = markers.get(job.getUid());
+                                if (marker != null) {
+                                    marker.remove();
+                                    markers.remove(job.getUid());
+                                }
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
                     }
 
                     @Override
@@ -322,6 +382,11 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
                                         .snippet(job.getDescription())
                                         .title(job.getTitle()));
                                 jobMarker.setTag(job);
+
+                                Marker marker = markers.get(job.getUid());
+                                if (marker != null) {
+                                    animateMarkerTo(jobMarker, latitude, longitude);
+                                }
                             }
 
                             @Override
@@ -352,9 +417,18 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
         switch (requestCode) {
             case AndroidPermissions.REQUEST_LOCATION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    updateLocation();
+                    try {
+                        mGoogleMap.setMyLocationEnabled(true);
+                        updateLocation();
+                        Log.i("PopperMap", "onRequestPermissionsResult: Permission Granted.");
+                    }
+                    catch (SecurityException e) {
+                        Log.e("PopperMap", "onRequestPermissionsResult: SecurityException:" + e.getMessage());
+                    }
+
                 } else {
                     AndroidPermissions.getInstance().displayAlert(getActivity(), AndroidPermissions.REQUEST_LOCATION);
+                    Log.i("PopperMap", "onRequestPermissionsResult: Alert Displayed.");
                 }
                 break;
             default: {
@@ -373,40 +447,75 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
         return (int)(dp * scale + 0.5f);
     }
 
+    // Animation handler for old APIs without animation support
+    private void animateMarkerTo(final Marker marker, final double lat, final double lng) {
+        final Handler handler = new Handler();
+        final long start = SystemClock.uptimeMillis();
+        final long DURATION_MS = 3000;
+        final Interpolator interpolator = new AccelerateDecelerateInterpolator();
+        final LatLng startPosition = marker.getPosition();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                float elapsed = SystemClock.uptimeMillis() - start;
+                float t = elapsed/DURATION_MS;
+                float v = interpolator.getInterpolation(t);
+
+                double currentLat = (lat - startPosition.latitude) * v + startPosition.latitude;
+                double currentLng = (lng - startPosition.longitude) * v + startPosition.longitude;
+                marker.setPosition(new LatLng(currentLat, currentLng));
+
+                // if animation is not finished yet, repeat
+                if (t < 1) {
+                    handler.postDelayed(this, 16);
+                }
+            }
+        });
+    }
+
     @Override
     public void onStart() {
-        super.onStart();
         gpsTracker.onStart();
+
+        Log.i("PopperMap", "onStart: gpsTracker onStart called.");
+        super.onStart();
     }
 
     @Override
     public void onStop() {
-        super.onStop();
         gpsTracker.onStop();
+
+        Log.i("PopperMap", "onStop: gpsTracker onStop called.");
+        super.onStop();
     }
 
     @Override
     public void onResume() {
-        super.onResume();
         if (mapView != null) {
             mapView.onResume();
+            Log.i("PopperMap", "onResume: MapView is not null. MapView onResume called");
         }
         updateLocation();
+        Log.i("PopperMap", "onResume: updateLocation.");
+        super.onResume();
     }
 
     @Override
     public void onPause() {
-        super.onPause();
         gpsTracker.onPause();
         if (mapView != null) {
             mapView.onPause();
+            Log.i("PopperMap", "onPause: MapView is not null. MapView onPause called");
         }
+        Log.i("PopperMap", "onPause: gpsTracker onPause called");
+        super.onPause();
     }
 
     @Override
     public void onDestroy() {
         if (mapView != null) {
             mapView.onDestroy();
+            Log.i("PopperMap", "onDestroy: MapView is not null. MapView onDestroy called");
         }
         super.onDestroy();
     }

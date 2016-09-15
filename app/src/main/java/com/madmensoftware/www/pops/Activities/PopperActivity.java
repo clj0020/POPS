@@ -1,21 +1,16 @@
 package com.madmensoftware.www.pops.Activities;
 
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.RelativeLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -50,6 +45,7 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
     private TabLayout tabLayout;
     private NonSwipeableViewPager viewPager;
 
+
     private int[] tabIcons = {
             R.mipmap.ic_dashboard,
             R.mipmap.ic_jobs,
@@ -58,13 +54,11 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
             R.mipmap.ic_check_in
     };
 
-    public FirebaseUser mUser;
-    public String uid;
-
     @Override
     public void onStart() {
         super.onStart();
         auth.addAuthStateListener(authListener);
+        Log.i("Popper: ", "PopperActivity started.");
     }
 
     @Override
@@ -73,6 +67,8 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
         if (authListener != null) {
             auth.removeAuthStateListener(authListener);
         }
+
+        Log.i("Popper: ", "PopperActivity stopped.");
     }
 
     @Override
@@ -81,15 +77,14 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
         setContentView(R.layout.activity_popper);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
         viewPager = (NonSwipeableViewPager) findViewById(R.id.viewpager);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
 
-        //get firebase auth instance
-        auth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = auth.getCurrentUser();
-        uid = currentUser.getUid();
+        setupViewPager(viewPager);
+        tabLayout.setupWithViewPager(viewPager);
+        setupTabIcons();
 
+        auth = FirebaseAuth.getInstance();
         authListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -102,8 +97,7 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
             }
         };
 
-
-        mDatabase.child("users").child(uid).addValueEventListener(new ValueEventListener() {
+        mDatabase.child("users").child(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 TinyDB tinyDb = new TinyDB(getApplicationContext());
@@ -115,11 +109,22 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
             }
         });
 
-        setupViewPager(viewPager, uid);
-        tabLayout.setupWithViewPager(viewPager);
-        setupTabIcons();
+
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        Log.i("Popper: ", "PopperActivity resumed.");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        Log.i("Popper: ", "PopperActivity paused.");
+    }
 
     @Override
     public void onSignOutButton() {
@@ -134,18 +139,18 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
         tabLayout.getTabAt(4).setIcon(tabIcons[4]);
     }
 
-    private void setupViewPager(ViewPager viewPager, String uid) {
+    private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(PopperDashboardFragment.newInstance(uid), "Dash");
-        adapter.addFragment(PopperJobsFragment.newInstance(uid), "Jobs");
-        adapter.addFragment(PopperMapFragment.newInstance(uid), "Map");
-        adapter.addFragment(PopperNotificationsFragment.newInstance(uid), "Notifications");
-        adapter.addFragment(PopperCheckInFragment.newInstance(uid), "Check In");
+        adapter.addFragment(PopperDashboardFragment.newInstance(), "Dash");
+        adapter.addFragment(PopperJobsFragment.newInstance(), "Jobs");
+        adapter.addFragment(PopperMapFragment.newInstance(), "Map");
+        adapter.addFragment(PopperNotificationsFragment.newInstance(), "Notifications");
+        adapter.addFragment(PopperCheckInFragment.newInstance(), "Check In");
         viewPager.setOffscreenPageLimit(4);
         viewPager.setAdapter(adapter);
     }
 
-    class ViewPagerAdapter extends FragmentPagerAdapter {
+    public class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
 
@@ -172,6 +177,7 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
         }
+
     }
 
 }

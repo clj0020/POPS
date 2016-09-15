@@ -36,7 +36,8 @@ public class User {
     String parentUid;
     String childUid;
     String organizationName;
-    List<String> jobs;
+    String safeWord;
+    String stripeToken;
 
 
     public User() {
@@ -203,6 +204,22 @@ public class User {
 
     public void setOrganizationName(String organizationName) {
         this.organizationName = organizationName;
+    }
+
+    public String getSafeWord() {
+        return safeWord;
+    }
+
+    public void setSafeWord(String safeWord) {
+        this.safeWord = safeWord;
+    }
+
+    public String getStripeToken() {
+        return stripeToken;
+    }
+
+    public void setStripeToken(String stripeToken) {
+        this.stripeToken = stripeToken;
     }
 
 

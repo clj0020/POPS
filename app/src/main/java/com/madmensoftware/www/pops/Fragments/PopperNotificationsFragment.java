@@ -2,6 +2,7 @@ package com.madmensoftware.www.pops.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,19 +22,17 @@ public class PopperNotificationsFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static PopperNotificationsFragment newInstance(String userId) {
+    public static PopperNotificationsFragment newInstance() {
         PopperNotificationsFragment fragment = new PopperNotificationsFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(EXTRA_USER_ID, userId);
-        fragment.setArguments(args);
+        Log.i("Popper:", " PopperNotificationsFragment created");
         return fragment;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_popper_notifications, container, false);
+        View view = inflater.inflate(R.layout.fragment_popper_notifications, container, false);
+        return view;
     }
 
 }

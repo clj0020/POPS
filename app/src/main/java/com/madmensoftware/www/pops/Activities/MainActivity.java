@@ -26,6 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Fragments.PopperDashboardFragment;
 import com.madmensoftware.www.pops.Fragments.PopperMapFragment;
+import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 
@@ -75,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
 
                             if(dataSnapshot.exists()) {
                                 User mUser = dataSnapshot.getValue(User.class);
+                                TinyDB tinyDB = new TinyDB(getApplicationContext());
+                                tinyDB.putObject("User", mUser);
                                 type = mUser.getType();
 
                                 switch (type) {

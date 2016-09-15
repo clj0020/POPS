@@ -62,7 +62,9 @@
         <activity
             android:name=".Activities.JobDetailActivity"
             android:theme="@style/AppTheme" />
-        <activity android:name=".Activities.AddUserDetails"></activity>
+        <activity android:name=".Activities.AddUserDetails" />
+        <activity android:name=".Activities.ParentSettingsActivity" />
+        <activity android:name=".Activities.PopperSettingsActivity"></activity>
     </application>
 
 </manifest>

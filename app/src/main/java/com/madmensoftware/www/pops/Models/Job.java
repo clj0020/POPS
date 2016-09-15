@@ -10,6 +10,7 @@ import org.parceler.Parcel;
 @Parcel
 public class Job {
 
+    String uid;
     String title;
     String description;
     String category;
@@ -137,5 +138,12 @@ public class Job {
         this.longitude = longitude;
     }
 
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
 
 }

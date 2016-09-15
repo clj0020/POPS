@@ -1,5 +1,6 @@
 package com.madmensoftware.www.pops.Activities;
 
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ErrorDialogFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -21,17 +23,27 @@ import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Fragments.AddDetailsNeighborFragment;
 import com.madmensoftware.www.pops.Fragments.AddDetailsParentFragment;
 import com.madmensoftware.www.pops.Fragments.AddDetailsPopperFragment;
+import com.madmensoftware.www.pops.Fragments.NeighborCreditCardFormFragment;
+import com.madmensoftware.www.pops.Fragments.ParentImportantInfoFragment;
 import com.madmensoftware.www.pops.Fragments.SignUpFirstPageFragment;
 import com.madmensoftware.www.pops.Fragments.SignUpSecondPageFragment;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 import org.parceler.Parcels;
+import com.stripe.android.*;
+import com.stripe.android.model.Card;
+import com.stripe.android.model.Token;
+
+import java.util.Random;
 
 public class AddUserDetails extends AppCompatActivity implements AddDetailsPopperFragment.SignUpPopperCallbacks,
-        AddDetailsNeighborFragment.SignUpNeighborCallbacks, AddDetailsParentFragment.SignUpParentCallbacks {
+        AddDetailsNeighborFragment.SignUpNeighborCallbacks, AddDetailsParentFragment.SignUpParentCallbacks,
+        ParentImportantInfoFragment.ParentImportantInfoCallbacks, NeighborCreditCardFormFragment.NeighborCreditCardFormCallbacks {
 
     private static final String TAG = "AddUserDetails:";
+    private static final String TEST_KEY = "pk_test_9SdGQF1ZibEEnbJ3vYmBaAFj";
+    private static final String PUBLISHABLE_KEY = "";
 
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -112,29 +124,42 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
         popper.setEarned(0);
         popper.setType("Popper");
 
-        final Query organizationCodeQuery = mDatabase.child("organizations").child(organizationCode + "");
-        Query parentcodeQuery = mDatabase.child("users").orderByChild("accessCode").equalTo(parentCode);
-        parentcodeQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+        final DatabaseReference organizationRef = mDatabase.child("organizations").child(organizationCode + "");
+        mDatabase.child("parent-codes").child(parentCode + "").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getChildrenCount() == 1) {
-                    for (DataSnapshot child : dataSnapshot.getChildren()) {
-                        String parentUid = child.getKey();
-                        popper.setParentUid(parentUid);
-                        mDatabase.child("users").child(parentUid).child("childUid").setValue(auth.getCurrentUser().getUid());
-                        Log.i(TAG + "Parent: ", parentUid);
-                    }
+                if (dataSnapshot.exists()) {
+                    String parentUid = dataSnapshot.getValue().toString();
+                    mDatabase.child("users").child(parentUid).child("childUid").setValue(auth.getCurrentUser().getUid());
+                    popper.setParentUid(parentUid);
+                    Log.i("UserDetails", "ParentUid" + parentUid);
 
-                    organizationCodeQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                    mDatabase.child("users").child(parentUid).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.getChildrenCount() == 1) {
+                            User parent = dataSnapshot.getValue(User.class);
+                            popper.setSafeWord(parent.getSafeWord());
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                    organizationRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
                                 popper.setOrganizationName(dataSnapshot.child("name").getValue().toString());
 
                                 Log.i(TAG + "Org: ", dataSnapshot.child("name").getValue().toString());
 
                                 FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                                 mDatabase.child("users").child(firebaseUser.getUid()).setValue(popper);
+
+                                TinyDB tinyDB = new TinyDB(getApplicationContext());
+                                tinyDB.putObject("User", popper);
+
 
                                 Intent intent = new Intent(AddUserDetails.this, MainActivity.class);
                                 startActivity(intent);
@@ -149,6 +174,7 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
 
                         }
                     });
+
                 }
                 else {
                     Toast.makeText(AddUserDetails.this, "Parent Code not found.", Toast.LENGTH_LONG).show();
@@ -168,7 +194,6 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
         String email = firebaseNeighbor.getEmail();
 
         User neighbor = new User();
-
         neighbor.setName(name);
         neighbor.setEmail(email);
         neighbor.setAddress(address);
@@ -176,12 +201,73 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
         neighbor.setOrganizationCode(organizationCode);
         neighbor.setType("Neighbor");
 
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        mDatabase.child("users").child(firebaseUser.getUid()).setValue(neighbor);
+        TinyDB tinyDB = new TinyDB(this);
+        tinyDB.putObject("User", neighbor);
+
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentById(R.id.user_details_fragment_container);
+
+        if (fragment == null) {
+            fragment = NeighborCreditCardFormFragment.newInstance();
+            fm.beginTransaction()
+                    .add(R.id.user_details_fragment_container, fragment)
+                    .commit();
+        }
+        else {
+            fragment = NeighborCreditCardFormFragment.newInstance();
+            fm.beginTransaction()
+                    .replace(R.id.user_details_fragment_container, fragment)
+                    .commit();
+        }
+    }
+
+    @Override
+    public void onCreditCardFormSubmit(String cardNumber, String expirationMonth, String expirationYear, String ccv, String postalCode) {
+        int expMonth = Integer.parseInt(expirationMonth);
+        int expYear = Integer.parseInt(expirationYear);
+
+        Card card = new Card(
+                cardNumber,
+                expMonth,
+                expYear,
+                ccv
+        );
 
 
-        Intent intent = new Intent(AddUserDetails.this, MainActivity.class);
-        startActivity(intent);
+        boolean validation = card.validateCard();
+        if (validation) {
+            new Stripe().createToken(
+                    card,
+                    TEST_KEY,
+                    new TokenCallback() {
+                        public void onSuccess(Token token) {
+                            TinyDB tinyDB = new TinyDB(getApplicationContext());
+                            User neighbor = (User) tinyDB.getObject("User", User.class);
+
+                            neighbor.setStripeToken(token.toString());
+
+                            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                            mDatabase.child("users").child(firebaseUser.getUid()).setValue(neighbor);
+
+                            Intent intent = new Intent(AddUserDetails.this, MainActivity.class);
+                            startActivity(intent);
+                        }
+                        public void onError(Exception error) {
+                        }
+                    });
+        }
+        else if (!card.validateNumber()) {
+            Toast.makeText(this, "The card number that you entered is invalid", Toast.LENGTH_LONG).show();
+        }
+        else if (!card.validateExpiryDate()) {
+            Toast.makeText(this, "The expiration date that you entered is invalid", Toast.LENGTH_LONG).show();
+        }
+        else if (!card.validateCVC()) {
+            Toast.makeText(this, "The CVC code that you entered is invalid", Toast.LENGTH_LONG).show();
+        }
+        else {
+            Toast.makeText(this, "The card details that you entered is invalid", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -195,19 +281,43 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
         parent.setPhone(phone);
         parent.setEmail(email);
 
-
         int parentCode = generateUniqueCode();
         parent.setAccessCode(parentCode);
 
+        String safeWord = generateRandomSafeWord();
+        parent.setSafeWord(safeWord);
+
         parent.setType("Parent");
+
+        Log.i("UserDetails", "ParentAccessCode" + parent.getAccessCode());
+        Log.i("UserDetails", "ParentSafeWord" + parent.getSafeWord());
 
 
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         mDatabase.child("users").child(firebaseUser.getUid()).setValue(parent);
 
-        mDatabase.child("parent-codes").child(firebaseUser.getUid()).setValue(parentCode);
+        mDatabase.child("parent-codes").child(parentCode + "").setValue(firebaseUser.getUid());
+        mDatabase.child("safe-words").child(safeWord).setValue(firebaseUser.getUid());
 
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentById(R.id.user_details_fragment_container);
 
+        if (fragment == null) {
+            fragment = ParentImportantInfoFragment.newInstance();
+            fm.beginTransaction()
+                    .add(R.id.user_details_fragment_container, fragment)
+                    .commit();
+        }
+        else {
+            fragment = ParentImportantInfoFragment.newInstance();
+            fm.beginTransaction()
+                    .replace(R.id.user_details_fragment_container, fragment)
+                    .commit();
+        }
+    }
+
+    @Override
+    public void onImportantInfoClose() {
         Intent intent = new Intent(AddUserDetails.this, MainActivity.class);
         startActivity(intent);
     }
@@ -216,7 +326,6 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
         final int randomPIN = (int)(Math.random()*9000)+1000;
 
         Query parentCodeQuery = mDatabase.child("parent-codes").equalTo(randomPIN);
-        // My top posts by number of stars
         parentCodeQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -226,13 +335,19 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
                         }
                 }
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         });
-
         return randomPIN;
+    }
+
+    public String generateRandomSafeWord() {
+        String[] safeWords = {"FISH", "CHIP", "TACO"};
+
+        Random rand = new Random();
+        int randomNum = rand.nextInt((2 - 0) + 1) + 0;
+        return safeWords[randomNum];
     }
 }

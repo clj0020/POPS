@@ -22,6 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,6 +39,7 @@ import java.util.Date;
 public class PopperDashboardFragment extends Fragment {
     private static final String USER_ID = "user_id";
 
+    private FirebaseAuth auth;
     private DatabaseReference mDatabase;
 
     public String userId;
@@ -89,11 +91,9 @@ public class PopperDashboardFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static PopperDashboardFragment newInstance(String userId) {
+    public static PopperDashboardFragment newInstance() {
         PopperDashboardFragment fragment = new PopperDashboardFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(USER_ID, userId);
-        fragment.setArguments(args);
+        Log.i("Popper:", " PopperDashboardFragment created");
         return fragment;
     }
 
@@ -101,13 +101,15 @@ public class PopperDashboardFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        userId = getArguments().getString(USER_ID);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_popper_dashboard, container, false);
+
+        auth = FirebaseAuth.getInstance();
+
 
         mNameTextView = (TextView) view.findViewById(R.id.popper_dash_name);
         mAgeTextView = (TextView) view.findViewById(R.id.popper_dash_age);
@@ -160,7 +162,7 @@ public class PopperDashboardFragment extends Fragment {
 
         // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference ref = database.getReference("users/" + userId);
+        DatabaseReference ref = database.getReference("users/" + auth.getCurrentUser().getUid());
 
         // Read from the database
         ref.addValueEventListener(new ValueEventListener() {

@@ -39,11 +39,9 @@ public class PopperJobsFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static PopperJobsFragment newInstance(String userId) {
+    public static PopperJobsFragment newInstance() {
         PopperJobsFragment fragment = new PopperJobsFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(EXTRA_USER_ID, userId);
-        fragment.setArguments(args);
+        Log.i("Popper:", " PopperJobsFragment created");
         return fragment;
     }
 
@@ -54,16 +52,14 @@ public class PopperJobsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_popper_jobs, container, false);
 
-        ViewPager viewPager = (ViewPager) view.findViewById(R.id.popper_job_viewpager);
+        viewPager = (ViewPager) view.findViewById(R.id.popper_job_viewpager);
         if (viewPager != null) {
             setupViewPager(viewPager);
         }
 
-        Log.v("Layout","Tabs");
-        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.popper_job_tabs);
+        tabLayout = (TabLayout) view.findViewById(R.id.popper_job_tabs);
         tabLayout.setSelectedTabIndicatorColor(Color.parseColor("#FFFFFF"));
         tabLayout.setTabTextColors(Color.parseColor("#707070"), Color.parseColor("#FFFFFF"));
-        assert viewPager != null;
         tabLayout.setupWithViewPager(viewPager);
 
         return view;

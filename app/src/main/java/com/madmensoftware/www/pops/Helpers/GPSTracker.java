@@ -40,13 +40,13 @@ public class GPSTracker implements GoogleApiClient.ConnectionCallbacks,
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 180000;
+    public long UPDATE_INTERVAL_IN_MILLISECONDS = 180000;
 
     /**
      * The fastest rate for active location updates. Exact. Updates will never be more frequent
      * than this value.
      */
-    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
+    public long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
             UPDATE_INTERVAL_IN_MILLISECONDS / 2;
 
     /**
@@ -207,6 +207,10 @@ public class GPSTracker implements GoogleApiClient.ConnectionCallbacks,
         // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
         // onConnectionFailed.
         Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
+    }
+
+    public void changeUpdateInterval(long updateInterval) {
+        UPDATE_INTERVAL_IN_MILLISECONDS = updateInterval;
     }
 
 
