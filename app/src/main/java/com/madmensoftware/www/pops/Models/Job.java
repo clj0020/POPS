@@ -23,6 +23,8 @@ public class Job {
     String Uid;
     String parentUid;
     long startTime;
+    String notification;
+    String popperCache;
 
     public Job() {
 
@@ -143,6 +145,24 @@ public class Job {
 
     public void setStartTime(long startTime) {
         this.startTime = startTime;
+    }
+
+
+    public String getNotification() {
+        return notification;
+    }
+
+    public void setNotification(String notification) {
+        this.notification = notification;
+    }
+
+
+    public String getPopperCache() {
+        return popperCache;
+    }
+
+    public void setPopperCache(String popperCache) {
+        this.popperCache = popperCache;
     }
 
 }

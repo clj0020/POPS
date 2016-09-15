@@ -17,12 +17,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.madmensoftware.www.pops.Adapters.JobAdapter;
-import com.madmensoftware.www.pops.Adapters.JobViewHolder;
-import com.madmensoftware.www.pops.Adapters.ParentNotificationAdapter;
+import com.madmensoftware.www.pops.Adapters.NeighborJobAdapter;
+import com.madmensoftware.www.pops.Adapters.NeighborJobViewHolder;
 import com.madmensoftware.www.pops.Adapters.ParentNotificationViewHolder;
 import com.madmensoftware.www.pops.Models.Job;
-import com.madmensoftware.www.pops.Models.Notification;
 import com.madmensoftware.www.pops.R;
 
 /**
@@ -39,7 +37,7 @@ public class ParentNotificationFragment extends Fragment {
     private LinearLayoutManager linearLayoutManager;
     private RecyclerView parentNotificationRecyclerview;
 
-    private JobAdapter mNotificationAdapter;
+    private NeighborJobAdapter mNotificationAdapter;
     private DatabaseReference mRef;
     private DatabaseReference mJobRef;
 
@@ -70,17 +68,17 @@ public class ParentNotificationFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_parent_notification, container, false);
+        View view = inflater.inflate(R.layout.fragment_neighbor_jobs, container, false);
 
         auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        parentNotificationRecyclerview = (RecyclerView) view.findViewById(R.id.parent_notification_recycler_view);
+        parentNotificationRecyclerview = (RecyclerView) view.findViewById(R.id.neighbor_jobs_recycler_view);
         parentNotificationRecyclerview.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(getActivity());
         mRef = FirebaseDatabase.getInstance().getReference();
         Query jobQuery = mRef.child("jobs").orderByChild("cachpar").equalTo(auth.getCurrentUser().getUid());
-        mNotificationAdapter = new JobAdapter(Job.class, R.layout.job_list_row, JobViewHolder.class, jobQuery, getContext());
+        mNotificationAdapter = new NeighborJobAdapter(Job.class, R.layout.job_list_row, NeighborJobViewHolder.class, jobQuery, getContext());
         mNotificationAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {

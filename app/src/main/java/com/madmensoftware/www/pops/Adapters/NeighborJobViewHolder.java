@@ -3,6 +3,7 @@ package com.madmensoftware.www.pops.Adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -24,7 +25,7 @@ import java.util.ArrayList;
 /**
  * Created by carsonjones on 9/10/16.
  */
-public class JobViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+public class NeighborJobViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     public TextView jobTitle;
     public TextView jobDescription;
     public TextView jobBudget;
@@ -33,7 +34,7 @@ public class JobViewHolder extends RecyclerView.ViewHolder implements View.OnCli
     View mView;
     Context mContext;
 
-    public JobViewHolder(View itemView) {
+    public NeighborJobViewHolder(View itemView) {
         super(itemView);
         mView = itemView;
         mContext = itemView.getContext();
@@ -48,18 +49,23 @@ public class JobViewHolder extends RecyclerView.ViewHolder implements View.OnCli
     public void onClick(View view) {
         final ArrayList<Job> jobs = new ArrayList<>();
         Query jobQuery = FirebaseDatabase.getInstance().getReference().child("jobs").orderByChild("posterUid").equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        jobQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+        jobQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    jobs.add(snapshot.getValue(Job.class));
+                    Job job = snapshot.getValue(Job.class);
+                    jobs.add(job);
+                    Log.i("NeighborJobViewHolder", " job added to jobs. UID is " +job.getUid());
                 }
 
                 int itemPosition = getLayoutPosition();
 
+                Log.i("NeighborJobViewHolder", " jobsSize is " + jobs.size());
+                Log.i("NeighborJobViewHolder", " itemPosition is " + itemPosition);
+
                 Intent intent = new Intent(mContext, JobDetailActivity.class);
                 intent.putExtra("position", itemPosition + "");
-                intent.putExtra("jobs", Parcels.wrap(jobs));
+                intent.putExtra("job", Parcels.wrap(jobs.get(itemPosition)));
                 mContext.startActivity(intent);
             }
 
