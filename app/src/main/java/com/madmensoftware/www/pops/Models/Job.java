@@ -20,10 +20,9 @@ public class Job {
     String posterUid;
     String posterName;
     String popperUid;
-    double latitude;
-    double longitude;
     String Uid;
     String parentUid;
+    long startTime;
 
     public Job() {
 
@@ -46,8 +45,6 @@ public class Job {
         this.posterUid = posterUid;
         this.posterName = posterName;
         this.popperUid = popperUid;
-        this.longitude = longitude;
-        this.latitude = latitude;
         this.Uid = Uid;
     }
 
@@ -140,29 +137,12 @@ public class Job {
         this.popperUid = popperUid;
     }
 
-
-    public double getLatitude() {
-        return latitude;
+    public long getStartTime() {
+        return startTime;
     }
 
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
     }
 
 }

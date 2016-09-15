@@ -15,6 +15,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.LocationCallback;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -89,13 +92,14 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
     private ViewPager viewPager;
     private PopperJobsViewPagerAdapter adapter;
 
+    private GeoFire geoFire;
+    private GoogleMap mGoogleMap;
+
 
     // Firebase instance variables
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseRecyclerAdapter<Job, JobViewHolder>
             mFirebaseAdapter;
-
-
 
 
 
@@ -146,6 +150,7 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume(); // needed to get the map to display immediately
+
 
         auth = FirebaseAuth.getInstance();
         mRef = FirebaseDatabase.getInstance().getReference();
@@ -306,18 +311,38 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap map) {
         // create marker
-        MarkerOptions marker = new MarkerOptions().position(
-                new LatLng(mJob.getLatitude(), mJob.getLongitude())).title("Job Location");
-        // Changing marker icon
-        marker.icon(BitmapDescriptorFactory
-                .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+        mGoogleMap = map;
+        geoFire = new GeoFire(mDatabase.child("jobs_location"));
+        geoFire.getLocation(mJob.getUid(), new LocationCallback() {
+            @Override
+            public void onLocationResult(String key, GeoLocation location) {
+                if (location != null) {
+                    MarkerOptions marker = new MarkerOptions().position(
+                            new LatLng(location.latitude, location.longitude)).title("Job Location");
+                    // Changing marker icon
+                    marker.icon(BitmapDescriptorFactory
+                            .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
 
-        // adding marker
-        map.addMarker(marker);
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(mJob.getLatitude(), mJob.getLongitude())).zoom(12).build();
-        map.animateCamera(CameraUpdateFactory
-                .newCameraPosition(cameraPosition));
+                    // adding marker
+                    mGoogleMap.addMarker(marker);
+                    CameraPosition cameraPosition = new CameraPosition.Builder()
+                            .target(new LatLng(location.latitude, location.longitude)).zoom(12).build();
+                    mGoogleMap.animateCamera(CameraUpdateFactory
+                            .newCameraPosition(cameraPosition));
+                    System.out.println(String.format("The location for key %s is [%f,%f]", key, location.latitude, location.longitude));
+                } else {
+                    System.out.println(String.format("There is no location for key %s in GeoFire", key));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.err.println("There was an error getting the GeoFire location: " + databaseError);
+            }
+        });
+
+
+
     }
 
 

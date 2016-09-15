@@ -220,7 +220,7 @@
                 android:background="@android:color/darker_gray"
                 android:layout_below="@id/popper_dash_goal_progress_bar_container"
                 android:textSize="17sp"
-                android:layout_marginTop="10dp" />
+                android:layout_marginTop="25dp" />
 
             <LinearLayout
                 android:id="@+id/popper_dash_skills_communication_container"
@@ -229,6 +229,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center"
+                android:background="@drawable/popper_dash_skills_linear_layout_bg"
                 android:weightSum="1">
 
 
@@ -237,9 +238,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Communication"
+                    android:textAlignment="center"
                     android:textColor="@color/black"
                     android:layout_centerVertical="true"
-                    android:textSize="20sp"
+                    android:textSize="16sp"
                     android:layout_weight=".6"/>
 
                 <LinearLayout
@@ -249,21 +251,19 @@
                     android:layout_alignParentEnd="true"
                     android:orientation="vertical"
                     android:layout_weight=".4"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="5dp"
                     android:layout_marginTop="5dp"
-                    android:gravity="center_horizontal">
+                    android:gravity="center_horizontal"
+                    android:paddingBottom="10dp">
 
                     <RatingBar
                         android:id="@+id/popper_dash_skill_rating_communication"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-
-                        android:numStars="5"
+                        android:numStars="4"
                         android:stepSize="0.5"
-                        android:rating="2.0"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentRight="true"
-                        android:layout_alignParentEnd="true" />
+                        android:isIndicator="true"
+                        android:rating="2.0"/>
 
                     <ProgressBar
                         android:theme="@style/LinearProgress"
@@ -291,6 +291,227 @@
 
 
             </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/popper_dash_skills_teamwork_container"
+                android:layout_below="@id/popper_dash_skills_communication_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/popper_dash_skills_linear_layout_bg"
+                android:weightSum="1">
+
+
+                <TextView
+                    android:id="@+id/popper_dash_skill_teamwork_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Teamwork"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:layout_centerVertical="true"
+                    android:textSize="16sp"
+                    android:layout_weight=".6"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:orientation="vertical"
+                    android:layout_weight=".4"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginTop="5dp"
+                    android:gravity="center_horizontal"
+                    android:paddingBottom="10dp">
+
+                    <RatingBar
+                        android:id="@+id/popper_dash_skill_rating_teamwork"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:numStars="4"
+                        android:stepSize="0.5"
+                        android:rating="3.0"
+                        android:isIndicator="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true" />
+
+                    <ProgressBar
+                        android:theme="@style/LinearProgress"
+                        android:id="@+id/popper_dash_skill_teamwork_progress_bar"
+                        style="@style/PopperDashHorizontalProgressBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:indeterminate="false"
+                        android:max="500"
+                        android:progress="200" />
+
+                    <TextView
+                        android:id="@+id/popper_dash_skill_teamwork_progress_bar_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:text="300 points left to next star!"
+                        android:layout_below="@id/popper_dash_skill_communication_progress_bar"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="10dp" />
+
+
+                </LinearLayout>
+
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/popper_dash_skills_commercial_awareness_container"
+                android:layout_below="@id/popper_dash_skills_teamwork_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/popper_dash_skills_linear_layout_bg"
+                android:weightSum="1">
+
+
+                <TextView
+                    android:id="@+id/popper_dash_skill_commercial_awareness_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Commercial Awareness"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:layout_centerVertical="true"
+                    android:textSize="16sp"
+                    android:layout_weight=".6"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:orientation="vertical"
+                    android:layout_weight=".4"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginTop="5dp"
+                    android:gravity="center_horizontal"
+                    android:paddingBottom="10dp">
+
+                    <RatingBar
+                        android:id="@+id/popper_dash_skill_rating_commercial_awareness"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:numStars="4"
+                        android:stepSize="0.5"
+                        android:rating="4.0"
+                        android:isIndicator="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true" />
+
+                    <ProgressBar
+                        android:theme="@style/LinearProgress"
+                        android:id="@+id/popper_dash_skill_commercial_awareness_progress_bar"
+                        style="@style/PopperDashHorizontalProgressBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:indeterminate="false"
+                        android:max="500"
+                        android:progress="100" />
+
+                    <TextView
+                        android:id="@+id/popper_dash_skill_commercial_awareness_progress_bar_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:text="400 points left to next star!"
+                        android:layout_below="@id/popper_dash_skill_communication_progress_bar"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="10dp" />
+
+
+                </LinearLayout>
+
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/popper_dash_skills_analysing_investigating_container"
+                android:layout_below="@id/popper_dash_skills_commercial_awareness_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/popper_dash_skills_linear_layout_bg"
+                android:weightSum="1">
+
+
+                <TextView
+                    android:id="@+id/popper_dash_skill_analysing_investigating_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Analysing and Investigating"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:layout_centerVertical="true"
+                    android:textSize="16sp"
+                    android:layout_weight=".6"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:orientation="vertical"
+                    android:layout_weight=".4"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginTop="5dp"
+                    android:gravity="center_horizontal"
+                    android:paddingBottom="10dp">
+
+                    <RatingBar
+                        android:id="@+id/popper_dash_skill_rating_analysing_investigating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:isIndicator="true"
+                        android:numStars="4"
+                        android:stepSize="0.5"
+                        android:rating="3.0"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true" />
+
+                    <ProgressBar
+                        android:theme="@style/LinearProgress"
+                        android:id="@+id/popper_dash_skill_analysing_investigating_progress_bar"
+                        style="@style/PopperDashHorizontalProgressBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:indeterminate="false"
+                        android:max="500"
+                        android:progress="450" />
+
+                    <TextView
+                        android:id="@+id/popper_dash_skill_analysing_investigating_progress_bar_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:text="50 points left to next star!"
+                        android:layout_below="@id/popper_dash_skill_communication_progress_bar"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="10dp" />
+
+                </LinearLayout>
+
+
+
+            </LinearLayout>
+
+
 
         </RelativeLayout>
 

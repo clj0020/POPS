@@ -1,17 +1,15 @@
 package com.madmensoftware.www.pops.Activities;
 
-import android.app.DialogFragment;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ErrorDialogFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -24,30 +22,43 @@ import com.madmensoftware.www.pops.Fragments.AddDetailsNeighborFragment;
 import com.madmensoftware.www.pops.Fragments.AddDetailsParentFragment;
 import com.madmensoftware.www.pops.Fragments.AddDetailsPopperFragment;
 import com.madmensoftware.www.pops.Fragments.NeighborCreditCardFormFragment;
+import com.madmensoftware.www.pops.Fragments.ParentCreditCardFormFragment;
 import com.madmensoftware.www.pops.Fragments.ParentImportantInfoFragment;
-import com.madmensoftware.www.pops.Fragments.SignUpFirstPageFragment;
-import com.madmensoftware.www.pops.Fragments.SignUpSecondPageFragment;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
-import org.parceler.Parcels;
+
 import com.stripe.android.*;
+import com.stripe.android.Stripe;
+import com.stripe.model.Account;
 import com.stripe.android.model.Card;
 import com.stripe.android.model.Token;
+import com.stripe.exception.APIConnectionException;
+import com.stripe.exception.APIException;
+import com.stripe.exception.AuthenticationException;
+import com.stripe.exception.CardException;
+import com.stripe.exception.InvalidRequestException;
+import com.stripe.model.Customer;
+import com.stripe.model.ExternalAccount;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class AddUserDetails extends AppCompatActivity implements AddDetailsPopperFragment.SignUpPopperCallbacks,
         AddDetailsNeighborFragment.SignUpNeighborCallbacks, AddDetailsParentFragment.SignUpParentCallbacks,
-        ParentImportantInfoFragment.ParentImportantInfoCallbacks, NeighborCreditCardFormFragment.NeighborCreditCardFormCallbacks {
+        ParentImportantInfoFragment.ParentImportantInfoCallbacks, NeighborCreditCardFormFragment.NeighborCreditCardFormCallbacks,
+        ParentCreditCardFormFragment.ParentCreditCardFormCallbacks {
 
     private static final String TAG = "AddUserDetails:";
-    private static final String TEST_KEY = "pk_test_9SdGQF1ZibEEnbJ3vYmBaAFj";
-    private static final String PUBLISHABLE_KEY = "";
+    private static final String PUBLISHIBLE_TEST_KEY = "pk_test_9SdGQF1ZibEEnbJ3vYmBaAFj";
+    private static final String SECRET_TEST_KEY = "sk_test_I9UFP4mZBd3kq6W7w9zDenGq";
+
 
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +115,6 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
                 break;
         }
     }
-
 
     @Override
     public void onPopperSubmit(String name, int age, int zip_code, String transportation, int radius, double goal, long goalDateLong, int parentCode, int organizationCode) {
@@ -233,24 +243,21 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
                 ccv
         );
 
+        String token;
+        try {
+            Stripe stripe = new Stripe(PUBLISHIBLE_TEST_KEY);
+
 
         boolean validation = card.validateCard();
         if (validation) {
-            new Stripe().createToken(
+            stripe.createToken(
                     card,
-                    TEST_KEY,
                     new TokenCallback() {
                         public void onSuccess(Token token) {
                             TinyDB tinyDB = new TinyDB(getApplicationContext());
                             User neighbor = (User) tinyDB.getObject("User", User.class);
+                            new CreateCustomerTask().execute(token);
 
-                            neighbor.setStripeToken(token.toString());
-
-                            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                            mDatabase.child("users").child(firebaseUser.getUid()).setValue(neighbor);
-
-                            Intent intent = new Intent(AddUserDetails.this, MainActivity.class);
-                            startActivity(intent);
                         }
                         public void onError(Exception error) {
                         }
@@ -268,52 +275,105 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
         else {
             Toast.makeText(this, "The card details that you entered is invalid", Toast.LENGTH_LONG).show();
         }
+
+        } catch (AuthenticationException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     @Override
-    public void onParentSubmit(String name, int phone) {
+    public void onParentCreditCardFormSubmit(String cardNumber, String expirationMonth, String expirationYear, String ccv, String postalCode) {
+        int expMonth = Integer.parseInt(expirationMonth);
+        int expYear = Integer.parseInt(expirationYear);
+
+        Card card = new Card(
+                cardNumber,
+                expMonth,
+                expYear,
+                ccv
+        );
+
+        card.setCurrency("usd");
+
+        try {
+            Stripe stripe = new Stripe(PUBLISHIBLE_TEST_KEY);
+
+            boolean validation = card.validateCard();
+            if (validation) {
+                stripe.createToken(
+                        card,
+                        new TokenCallback() {
+                            public void onSuccess(Token token) {
+
+                                TinyDB tinyDB = new TinyDB(getApplicationContext());
+                                User parent = (User) tinyDB.getObject("User", User.class);
+                                Map<String, Object> accountMap = new HashMap<String, Object>();
+                                accountMap.put("parent", parent);
+                                accountMap.put("token", token);
+                                new UpdateParentAccountTask().execute(accountMap);
+                            }
+                            public void onError(Exception error) {
+                            }
+                        });
+            }
+            else if (!card.validateNumber()) {
+                Toast.makeText(this, "The card number that you entered is invalid", Toast.LENGTH_LONG).show();
+            }
+            else if (!card.validateExpiryDate()) {
+                Toast.makeText(this, "The expiration date that you entered is invalid", Toast.LENGTH_LONG).show();
+            }
+            else if (!card.validateCVC()) {
+                Toast.makeText(this, "The CVC code that you entered is invalid", Toast.LENGTH_LONG).show();
+            }
+            else {
+                Toast.makeText(this, "The card details that you entered is invalid", Toast.LENGTH_LONG).show();
+            }
+
+        } catch (AuthenticationException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+
+    @Override
+    public void onParentSubmit(String firstName, String lastName, int lastFourSSN, int dobYear, int dobMonth, int dobDay, int phone) {
         FirebaseUser firebaseParent = FirebaseAuth.getInstance().getCurrentUser();
         String email = firebaseParent.getEmail();
 
         User parent = new User();
 
-        parent.setName(name);
+        parent.setName(firstName + " " + lastName);
         parent.setPhone(phone);
         parent.setEmail(email);
 
-        int parentCode = generateUniqueCode();
-        parent.setAccessCode(parentCode);
 
-        String safeWord = generateRandomSafeWord();
-        parent.setSafeWord(safeWord);
+        Map<String, Object> accountParams = new HashMap<String, Object>();
+        accountParams.put("managed", true);
+        accountParams.put("country", "US");
+        accountParams.put("email", email);
 
-        parent.setType("Parent");
+        Map<String, Object> legalEntityParams = new HashMap<String, Object>();
+        Map<String, Object> dobParams = new HashMap<String, Object>();
+        dobParams.put("day", dobDay);
+        dobParams.put("month", dobMonth);
+        dobParams.put("year", dobYear);
 
-        Log.i("UserDetails", "ParentAccessCode" + parent.getAccessCode());
-        Log.i("UserDetails", "ParentSafeWord" + parent.getSafeWord());
+        legalEntityParams.put("dob", dobParams);
+        legalEntityParams.put("first_name", firstName);
+        legalEntityParams.put("last_name", lastName);
+        legalEntityParams.put("phone_number", phone);
+        legalEntityParams.put("ssn_last_4", lastFourSSN);
+        legalEntityParams.put("type", "individual");
+        accountParams.put("legal_entity", legalEntityParams);
 
+        new CreateAccountTask().execute(accountParams);
 
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        mDatabase.child("users").child(firebaseUser.getUid()).setValue(parent);
-
-        mDatabase.child("parent-codes").child(parentCode + "").setValue(firebaseUser.getUid());
-        mDatabase.child("safe-words").child(safeWord).setValue(firebaseUser.getUid());
-
-        FragmentManager fm = getSupportFragmentManager();
-        Fragment fragment = fm.findFragmentById(R.id.user_details_fragment_container);
-
-        if (fragment == null) {
-            fragment = ParentImportantInfoFragment.newInstance();
-            fm.beginTransaction()
-                    .add(R.id.user_details_fragment_container, fragment)
-                    .commit();
-        }
-        else {
-            fragment = ParentImportantInfoFragment.newInstance();
-            fm.beginTransaction()
-                    .replace(R.id.user_details_fragment_container, fragment)
-                    .commit();
-        }
+        TinyDB tinyDB = new TinyDB(getApplicationContext());
+        tinyDB.putObject("User", parent);
     }
 
     @Override
@@ -349,5 +409,259 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
         Random rand = new Random();
         int randomNum = rand.nextInt((2 - 0) + 1) + 0;
         return safeWords[randomNum];
+    }
+
+    public void processFinish(Customer customer) {
+        TinyDB tinyDB = new TinyDB(getApplicationContext());
+        User user = (User) tinyDB.getObject("User", User.class);
+        Log.i("AddUserDetails", "processFinish user is " + user.getName());
+
+        user.setStripeCustomerId(customer.getId());
+
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        mDatabase.child("users").child(firebaseUser.getUid()).setValue(user);
+
+        tinyDB.putObject("User", user);
+
+
+        switch(user.getType()) {
+            case "Parent":
+                FragmentManager fm = getSupportFragmentManager();
+                Fragment fragment = fm.findFragmentById(R.id.user_details_fragment_container);
+
+                if (fragment == null) {
+                    fragment = ParentImportantInfoFragment.newInstance();
+                    fm.beginTransaction()
+                            .add(R.id.user_details_fragment_container, fragment)
+                            .commit();
+                }
+                else {
+                    fragment = ParentImportantInfoFragment.newInstance();
+                    fm.beginTransaction()
+                            .replace(R.id.user_details_fragment_container, fragment)
+                            .commit();
+                }
+                break;
+            case "Neighbor":
+                Intent intent = new Intent(AddUserDetails.this, MainActivity.class);
+                startActivity(intent);
+                break;
+        }
+
+
+    }
+
+    public void accountCreationProcessFinish(Account account) {
+        int parentCode = generateUniqueCode();
+        String safeWord = generateRandomSafeWord();
+
+        Log.i("AddUserDetails", "accountCreationProcessFinish accountId" + account.getId());
+        Log.i("AddUserDetails", "accountCreationProcessFinish secretAccountKey" + account.getKeys().getSecret());
+        Log.i("AddUserDetails", "accountCreationProcessFinish publishableAccountKey" + account.getKeys().getPublishable());
+
+        TinyDB tinyDB = new TinyDB(this);
+        User parent = (User) tinyDB.getObject("User", User.class);
+        parent.setStripeAccountId(account.getId());
+        parent.setStripeApiSecretKey(account.getKeys().getSecret());
+        parent.setStripeApiPublishableKey(account.getKeys().getPublishable());
+        parent.setAccessCode(parentCode);
+        parent.setSafeWord(safeWord);
+        parent.setType("Parent");
+
+        Log.i("UserDetails", "ParentAccessCode" + parent.getAccessCode());
+        Log.i("UserDetails", "ParentSafeWord" + parent.getSafeWord());
+
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        mDatabase.child("users").child(firebaseUser.getUid()).setValue(parent);
+//        mDatabase.child("stripe-accounts").child(firebaseUser.getUid()).setValue(account);
+
+        mDatabase.child("parent-codes").child(parentCode + "").setValue(firebaseUser.getUid());
+        mDatabase.child("safe-words").child(safeWord).setValue(firebaseUser.getUid());
+
+        tinyDB.putObject("User", parent);
+
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentById(R.id.user_details_fragment_container);
+
+        if (fragment == null) {
+            fragment = ParentCreditCardFormFragment.newInstance();
+            fm.beginTransaction()
+                    .add(R.id.user_details_fragment_container, fragment)
+                    .commit();
+        }
+        else {
+            fragment = ParentCreditCardFormFragment.newInstance();
+            fm.beginTransaction()
+                    .replace(R.id.user_details_fragment_container, fragment)
+                    .commit();
+        }
+    }
+
+    public void accountUpdateProcessFinish(ExternalAccount account) {
+
+//        Log.i("AddUserDetails", "accountCreationProcessFinish accountId" + account.getId());
+//        Log.i("AddUserDetails", "accountCreationProcessFinish secretAccountKey" + account.getKeys().getSecret());
+//        Log.i("AddUserDetails", "accountCreationProcessFinish publishableAccountKey" + account.getKeys().getPublishable());
+
+        TinyDB tinyDB = new TinyDB(this);
+        User parent = (User) tinyDB.getObject("User", User.class);
+
+//        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+//        mDatabase.child("users").child(firebaseUser.getUid()).setValue(parent);
+//        mDatabase.child("stripe-accounts").child(firebaseUser.getUid()).setValue(account);
+//
+//        mDatabase.child("parent-codes").child(parentCode + "").setValue(firebaseUser.getUid());
+//        mDatabase.child("safe-words").child(safeWord).setValue(firebaseUser.getUid());
+
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentById(R.id.user_details_fragment_container);
+
+        if (fragment == null) {
+            fragment = ParentImportantInfoFragment.newInstance();
+            fm.beginTransaction()
+                    .add(R.id.user_details_fragment_container, fragment)
+                    .commit();
+        }
+        else {
+            fragment = ParentImportantInfoFragment.newInstance();
+            fm.beginTransaction()
+                    .replace(R.id.user_details_fragment_container, fragment)
+                    .commit();
+        }
+    }
+
+    private class CreateCustomerTask extends AsyncTask<Token, Integer, Customer> {
+        // Do the long-running work in here
+        protected Customer doInBackground(Token... params) {
+
+            Token token = params[0];
+            String tokenId = token.getId();
+            com.stripe.Stripe.apiKey = SECRET_TEST_KEY;
+            // Create a Customer
+            Map<String, Object> customerParams = new HashMap<String, Object>();
+            customerParams.put("source", tokenId);
+            customerParams.put("description", "Example");
+
+            Customer customer = new Customer();
+
+            try {
+                customer = Customer.create(customerParams);
+
+            } catch (AuthenticationException e) {
+                e.printStackTrace();
+            } catch (InvalidRequestException e) {
+                e.printStackTrace();
+            } catch (APIConnectionException e) {
+                e.printStackTrace();
+            } catch (CardException e) {
+                e.printStackTrace();
+            } catch (APIException e) {
+                e.printStackTrace();
+            }
+
+            return customer;
+        }
+
+        // This is called each time you call publishProgress()
+        protected void onProgressUpdate(Integer... progress) {
+
+        }
+
+        // This is called when doInBackground() is finished
+        protected void onPostExecute(Customer result) {
+            processFinish(result);
+            super.onPostExecute(result);
+        }
+    }
+
+    private class CreateAccountTask extends AsyncTask<Map<String, Object>, Integer, Account> {
+        // Do the long-running work in here
+        protected Account doInBackground(Map<String, Object>... params) {
+            Map<String, Object> accountParams = params[0];
+
+            com.stripe.Stripe.apiKey = SECRET_TEST_KEY;
+
+            Account account = new Account();
+
+            try {
+                account = Account.create(accountParams);
+            } catch (AuthenticationException e) {
+                e.printStackTrace();
+            } catch (InvalidRequestException e) {
+                e.printStackTrace();
+            } catch (APIConnectionException e) {
+                e.printStackTrace();
+            } catch (CardException e) {
+                e.printStackTrace();
+            } catch (APIException e) {
+                e.printStackTrace();
+            }
+
+            return account;
+        }
+
+        // This is called each time you call publishProgress()
+        protected void onProgressUpdate(Integer... progress) {
+
+        }
+
+        // This is called when doInBackground() is finished
+        protected void onPostExecute(Account result) {
+            accountCreationProcessFinish(result);
+            super.onPostExecute(result);
+        }
+    }
+
+    private class UpdateParentAccountTask extends AsyncTask<Map<String, Object>, Integer, ExternalAccount> {
+        // Do the long-running work in here
+        protected ExternalAccount doInBackground(Map<String, Object>... params) {
+            Map<String, Object> accountMap = params[0];
+            User parent = (User) accountMap.get("parent");
+            Token cardToken = (Token) accountMap.get("token");
+
+            com.stripe.Stripe.apiKey = parent.getStripeApiSecretKey();
+
+            ExternalAccount externalAccount = new ExternalAccount();
+
+
+            Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground accountSecretAPIKey is " + parent.getStripeApiSecretKey());
+            Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground accountPublishableAPIKey is " + parent.getStripeApiPublishableKey());
+            Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground accountID is " + parent.getStripeAccountId());
+
+            try {
+                Account account = Account.retrieve(parent.getStripeAccountId(), null);
+
+                Map<String, Object> externalAccountParams = new HashMap<String, Object>();
+                externalAccountParams.put("external_account", cardToken.getId());
+                externalAccountParams.put("default_for_currency", true);
+                externalAccount = account.getExternalAccounts().create(externalAccountParams);
+
+                Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground externalAccountID is " + externalAccount.getId());
+
+            } catch (AuthenticationException e) {
+                Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground AuthenticationException:" + e.getMessage());
+            } catch (InvalidRequestException e) {
+                Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground InvalidRequestException:" + e.getMessage());
+            } catch (APIConnectionException e) {
+                Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground APIConnectionException:" + e.getMessage());
+            } catch (CardException e) {
+                Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground CardException:" + e.getMessage());
+            } catch (APIException e) {
+                Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground APIException:" + e.getMessage());
+            }
+
+            return externalAccount;
+        }
+
+        // This is called each time you call publishProgress()
+        protected void onProgressUpdate(Integer... progress) {
+
+        }
+
+        // This is called when doInBackground() is finished
+        protected void onPostExecute(ExternalAccount result) {
+            accountUpdateProcessFinish(result);
+            super.onPostExecute(result);
+        }
     }
 }

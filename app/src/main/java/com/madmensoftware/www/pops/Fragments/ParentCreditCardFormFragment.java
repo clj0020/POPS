@@ -19,22 +19,22 @@ import com.madmensoftware.www.pops.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class NeighborCreditCardFormFragment extends Fragment implements OnCardFormSubmitListener {
+public class ParentCreditCardFormFragment extends Fragment implements OnCardFormSubmitListener {
 
     private CardForm cardForm;
 
-    private NeighborCreditCardFormCallbacks mCallbacks;
+    private ParentCreditCardFormCallbacks mCallbacks;
 
-    public interface NeighborCreditCardFormCallbacks {
-        void onCreditCardFormSubmit(String cardNumber, String expirationMonth, String expirationYear, String ccv, String postalCode);
+    public interface ParentCreditCardFormCallbacks {
+        void onParentCreditCardFormSubmit(String cardNumber, String expirationMonth, String expirationYear, String ccv, String postalCode);
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) return;
-        if (activity instanceof NeighborCreditCardFormFragment.NeighborCreditCardFormCallbacks) {
-            mCallbacks = (NeighborCreditCardFormFragment.NeighborCreditCardFormCallbacks) activity;
+        if (activity instanceof ParentCreditCardFormCallbacks) {
+            mCallbacks = (ParentCreditCardFormCallbacks) activity;
         } else {
             throw new RuntimeException(activity.toString()
                     + " must implement OnListFragmentInteractionListener");
@@ -44,8 +44,8 @@ public class NeighborCreditCardFormFragment extends Fragment implements OnCardFo
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof NeighborCreditCardFormFragment.NeighborCreditCardFormCallbacks) {
-            mCallbacks = (NeighborCreditCardFormFragment.NeighborCreditCardFormCallbacks) context;
+        if (context instanceof ParentCreditCardFormCallbacks) {
+            mCallbacks = (ParentCreditCardFormCallbacks) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement onCreditCardFormSubmit");
@@ -53,13 +53,13 @@ public class NeighborCreditCardFormFragment extends Fragment implements OnCardFo
     }
 
 
-    public NeighborCreditCardFormFragment() {
+    public ParentCreditCardFormFragment() {
         // Required empty public constructor
     }
 
-    public static NeighborCreditCardFormFragment newInstance() {
-        NeighborCreditCardFormFragment fragment = new NeighborCreditCardFormFragment();
-        Log.i("Neighbor:", " NeighborCreditCarmForm created.");
+    public static ParentCreditCardFormFragment newInstance() {
+        ParentCreditCardFormFragment fragment = new ParentCreditCardFormFragment();
+        Log.i("Neighbor:", " ParentCreditCarmForm created.");
         return fragment;
     }
 
@@ -67,12 +67,11 @@ public class NeighborCreditCardFormFragment extends Fragment implements OnCardFo
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_neighbor_credit_card_form, container, false);
+        View view = inflater.inflate(R.layout.fragment_parent_credit_card_form, container, false);
 
-        cardForm = (CardForm) view.findViewById(R.id.bt_card_form);
+        cardForm = (CardForm) view.findViewById(R.id.parent_bt_card_form);
         cardForm.setRequiredFields(getActivity(), true, true, true, true, "Purchase");
         cardForm.setOnCardFormSubmitListener(this);
-
 
         return view;
     }
@@ -86,7 +85,7 @@ public class NeighborCreditCardFormFragment extends Fragment implements OnCardFo
             String expirationYear = cardForm.getExpirationYear();
             String ccv = cardForm.getCvv();
             String postalCode = cardForm.getPostalCode();
-            mCallbacks.onCreditCardFormSubmit(cardNumber, expirationMonth, expirationYear, ccv, postalCode);
+            mCallbacks.onParentCreditCardFormSubmit(cardNumber, expirationMonth, expirationYear, ccv, postalCode);
         }
         else {
             Toast.makeText(getActivity(), "Invalid Payment Info", Toast.LENGTH_SHORT).show();

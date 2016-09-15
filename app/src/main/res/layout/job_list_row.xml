@@ -9,64 +9,91 @@
     android:paddingTop="10dp"
     android:paddingBottom="10dp">
 
-    <RelativeLayout
-        android:id="@+id/job_list_top_row"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp">
+        android:orientation="horizontal"
+        android:weightSum="1"
+        android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/job_list_title"
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="Mowing the Lawn"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:layout_weight=".1">
+
+            <RelativeLayout
+                android:id="@+id/job_list_top_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp">
+
+                <TextView
+                    android:id="@+id/job_list_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="Mowing the Lawn"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_centerVertical="true"/>
+
+
+                <TextView
+                    android:id="@+id/job_list_budget"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="$50.00"
+                    android:textSize="15sp"
+                    android:textColor="@color/white"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginRight="20dp"
+                    android:layout_centerVertical="true"/>
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/job_list_poster_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/job_list_top_row"
+                tools:text="Carson Jones"
+                android:textSize="17sp"
+                android:textColor="@color/white"
+                android:layout_marginTop="5dp" />
 
 
             <TextView
-                android:id="@+id/job_list_budget"
+                android:id="@+id/job_list_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="$50.00"
+                tools:text="Just need someone to come mow my lawn on Sunday. Will provide snacks and lemonade as well as all equipment for the job"
+                android:layout_below="@id/job_list_poster_name"
                 android:textColor="@color/white"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"/>
-
-    </RelativeLayout>
-
-    <TextView
-        android:id="@+id/job_list_poster_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/job_list_top_row"
-        tools:text="Carson Jones"
-        android:textSize="17sp"
-        android:textColor="@color/white"
-        android:layout_marginTop="5dp" />
+                android:textSize="13sp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginRight="40dp" />
 
 
-    <TextView
-        android:id="@+id/job_list_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="Just need someone to come mow my lawn on Sunday. Will provide snacks and lemonade as well as all equipment for the job"
-        android:layout_below="@id/job_list_poster_name"
-        android:textColor="@color/white"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="20dp"
-        android:layout_marginRight="40dp" />
+        </RelativeLayout>
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView"
-        android:layout_centerVertical="true"
-        android:scaleY="-1"
-        android:background="@mipmap/ic_back"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"/>
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".9"
+            android:id="@+id/imageView"
+            android:layout_centerVertical="true"
+            android:scaleY="-1"
+            android:background="@mipmap/ic_back"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:scaleX="-1"/>
+
+
+
+    </LinearLayout>
+
 
 
 </RelativeLayout>

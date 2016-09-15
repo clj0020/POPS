@@ -1,6 +1,7 @@
 package com.madmensoftware.www.pops.Activities;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
@@ -24,22 +25,37 @@ import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Fragments.NeighborJobsFragment;
 import com.madmensoftware.www.pops.Fragments.NeighborNotificationsFragment;
 import com.madmensoftware.www.pops.Helpers.NonSwipeableViewPager;
+import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
+import com.stripe.Stripe;
+import com.stripe.exception.APIConnectionException;
+import com.stripe.exception.APIException;
+import com.stripe.exception.AuthenticationException;
+import com.stripe.exception.CardException;
+import com.stripe.exception.InvalidRequestException;
+import com.stripe.model.Charge;
+import com.stripe.model.Customer;
 
 import org.parceler.Parcels;
 
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by carsonjones on 8/30/16.
  */
 public class NeighborActivity extends AppCompatActivity {
         public final static String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
+        private static final String PUBLISHIBLE_TEST_KEY = "pk_test_9SdGQF1ZibEEnbJ3vYmBaAFj";
+        private static final String SECRET_TEST_KEY = "sk_test_I9UFP4mZBd3kq6W7w9zDenGq";
 
         private FirebaseAuth.AuthStateListener authListener;
         private FirebaseAuth auth;
+        private DatabaseReference mDatabase;
 
         private TabLayout tabLayout;
         private NonSwipeableViewPager viewPager;
@@ -79,6 +95,7 @@ public class NeighborActivity extends AppCompatActivity {
             viewPager = (NonSwipeableViewPager) findViewById(R.id.neighbor_viewpager);
             tabLayout = (TabLayout) findViewById(R.id.neighbor_tabs);
 
+            mDatabase = FirebaseDatabase.getInstance().getReference();
 
             Bundle b = this.getIntent().getExtras();
             if (b != null) {
@@ -108,8 +125,6 @@ public class NeighborActivity extends AppCompatActivity {
                         // Write a message to the database
                         FirebaseDatabase database = FirebaseDatabase.getInstance();
                         DatabaseReference ref = database.getReference("users/" + uid);
-
-
                         // Read from the database
                         ref.addValueEventListener(new ValueEventListener() {
                             @Override
@@ -158,6 +173,26 @@ public class NeighborActivity extends AppCompatActivity {
                     neighborBundle.putParcelable("User", Parcels.wrap(user));
                     neighborIntent.putExtras(neighborBundle);
                     startActivity(neighborIntent);
+                    return true;
+                case R.id.action_test_purchase:
+                    TinyDB tinyDB = new TinyDB(getApplicationContext());
+                    User neighbor = (User) tinyDB.getObject("User", User.class);
+
+                    mDatabase.child("users").child(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if(dataSnapshot.exists()) {
+                                User neighbor = dataSnapshot.getValue(User.class);
+                                new CreateChargeTask().execute(neighbor);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError error) {
+                        }
+
+                    });
+                    return true;
                 default:
                     // If we got here, the user's action was not recognized.
                     // Invoke the superclass to handle it.
@@ -206,4 +241,62 @@ public class NeighborActivity extends AppCompatActivity {
                 return mFragmentTitleList.get(position);
             }
         }
+
+    private class CreateChargeTask extends AsyncTask<User, Integer, String> {
+        // Do the long-running work in here
+        protected String doInBackground(User... params) {
+            User user = params[0];
+//            Customer customer = new Customer();
+////
+////            try {
+////                customer = Customer.retrieve(user.getStripeCustomerId());
+////            } catch (AuthenticationException e) {
+////                e.printStackTrace();
+////            } catch (InvalidRequestException e) {
+////                e.printStackTrace();
+////            } catch (APIConnectionException e) {
+////                e.printStackTrace();
+////            } catch (CardException e) {
+////                e.printStackTrace();
+////            } catch (APIException e) {
+////                e.printStackTrace();
+////            }
+
+            Stripe.apiKey = "sk_test_I9UFP4mZBd3kq6W7w9zDenGq";
+            // Create a charge: this will charge the user's card
+            try {
+                Map<String, Object> chargeParams = new HashMap<String, Object>();
+                chargeParams.put("amount", 1000); // Amount in cents
+                chargeParams.put("currency", "usd");
+                chargeParams.put("customer", user.getStripeCustomerId());
+                chargeParams.put("description", "Example charge");
+                chargeParams.put("destination", "acct_18u1uFHfcGmL46Ma");
+                chargeParams.put("application_fee", 250);
+
+                Charge charge = Charge.create(chargeParams);
+            } catch (CardException e) {
+                // The card has been declined
+            } catch (APIException e) {
+                e.printStackTrace();
+            } catch (InvalidRequestException e) {
+                e.printStackTrace();
+            } catch (APIConnectionException e) {
+                e.printStackTrace();
+            } catch (AuthenticationException e) {
+                e.printStackTrace();
+            }
+
+            return "";
+        }
+
+        // This is called each time you call publishProgress()
+        protected void onProgressUpdate(Integer... progress) {
+
+        }
+
+        // This is called when doInBackground() is finished
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+        }
+    }
 }
