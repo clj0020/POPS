@@ -32,8 +32,6 @@ public class ParentNotificationViewHolder extends RecyclerView.ViewHolder implem
     public TextView jobBudget;
     public TextView jobPosterName;
 
-
-
     View mView;
     Context mContext;
 

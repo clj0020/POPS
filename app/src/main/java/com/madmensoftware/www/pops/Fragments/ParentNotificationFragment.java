@@ -17,6 +17,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.madmensoftware.www.pops.Adapters.JobAdapter;
+import com.madmensoftware.www.pops.Adapters.JobViewHolder;
 import com.madmensoftware.www.pops.Adapters.ParentNotificationAdapter;
 import com.madmensoftware.www.pops.Adapters.ParentNotificationViewHolder;
 import com.madmensoftware.www.pops.Models.Job;
@@ -37,7 +39,7 @@ public class ParentNotificationFragment extends Fragment {
     private LinearLayoutManager linearLayoutManager;
     private RecyclerView parentNotificationRecyclerview;
 
-    private ParentNotificationAdapter mNotificationAdapter;
+    private JobAdapter mNotificationAdapter;
     private DatabaseReference mRef;
     private DatabaseReference mJobRef;
 
@@ -77,8 +79,8 @@ public class ParentNotificationFragment extends Fragment {
         parentNotificationRecyclerview.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(getActivity());
         mRef = FirebaseDatabase.getInstance().getReference();
-        Query jobQuery = mRef.child("notification").orderByChild("parentUid").equalTo(auth.getCurrentUser().getUid());
-        mNotificationAdapter = new ParentNotificationAdapter(Notification.class, R.layout.job_list_row, ParentNotificationViewHolder.class, jobQuery, getContext());
+        Query jobQuery = mRef.child("jobs").orderByChild("cachpar").equalTo(auth.getCurrentUser().getUid());
+        mNotificationAdapter = new JobAdapter(Job.class, R.layout.job_list_row, JobViewHolder.class, jobQuery, getContext());
         mNotificationAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {

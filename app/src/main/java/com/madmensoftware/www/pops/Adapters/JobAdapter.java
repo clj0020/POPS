@@ -24,6 +24,14 @@ public class JobAdapter extends FirebaseRecyclerAdapter<Job, JobViewHolder> {
         viewHolder.jobTitle.setText(model.getTitle());
         viewHolder.jobPosterName.setText(model.getPosterName());
         viewHolder.jobDescription.setText(model.getDescription());
-        viewHolder.jobBudget.setText(model.getBudget() + "");
+
+        if(model.getStatus().equals("active")) {
+
+            viewHolder.jobBudget.setText(model.getBudget() + "");
+        }
+        else {
+            viewHolder.jobBudget.setText(model.getStatus());
+
+        }
     }
 }

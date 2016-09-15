@@ -11,18 +11,19 @@ import com.madmensoftware.www.pops.Models.Notification;
 /**
  * Created by carsonjones on 9/10/16.
  */
-public class ParentNotificationAdapter extends FirebaseRecyclerAdapter<Notification, ParentNotificationViewHolder> {
+public class ParentNotificationAdapter extends FirebaseRecyclerAdapter<Job, ParentNotificationViewHolder> {
 
     private Context context;
 
-    public ParentNotificationAdapter(Class<Notification> modelClass, int modelLayout, Class<ParentNotificationViewHolder> viewHolderClass, Query ref, Context context) {
+    public ParentNotificationAdapter(Class<Job> modelClass, int modelLayout, Class<ParentNotificationViewHolder> viewHolderClass, Query ref, Context context) {
         super(modelClass, modelLayout, viewHolderClass, ref);
         this.context = context;
     }
 
     @Override
-    protected void populateViewHolder(ParentNotificationViewHolder viewHolder, Notification model, int position) {
-        viewHolder.jobTitle.setText(model.getName());
+    protected void populateViewHolder(ParentNotificationViewHolder viewHolder, Job model, int position) {
+        viewHolder.jobTitle.setText(model.getTitle());
         viewHolder.jobDescription.setText(model.getDescription());
+        viewHolder.jobBudget.setText(model.getStatus());
     }
 }

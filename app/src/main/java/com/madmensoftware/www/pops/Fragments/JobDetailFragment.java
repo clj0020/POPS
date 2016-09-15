@@ -205,7 +205,7 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                 String notID = mDatabase.child("notification").push().getKey();
                                 notification.setUid(notID);
                                 mDatabase.child("jobs").child(mJob.getUid()).child("notification").setValue(notID);
-                                mDatabase.child("jobs").child(mJob.getUid()).child("cachpar").setValue(mUid);
+                                mDatabase.child("jobs").child(mJob.getUid()).child("cachpar").setValue(user.getParentUid());
 
                                 mDatabase.child("notification").child(notID).setValue(notification);
                                 AcceptButton.setVisibility(View.INVISIBLE);
