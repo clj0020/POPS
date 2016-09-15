@@ -52,14 +52,16 @@ public class PopperJobsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_popper_jobs, container, false);
 
-        viewPager = (ViewPager) view.findViewById(R.id.popper_job_viewpager);
+        ViewPager viewPager = (ViewPager) view.findViewById(R.id.popper_job_viewpager);
         if (viewPager != null) {
             setupViewPager(viewPager);
         }
 
-        tabLayout = (TabLayout) view.findViewById(R.id.popper_job_tabs);
+        Log.v("Layout","Tabs");
+        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.popper_job_tabs);
         tabLayout.setSelectedTabIndicatorColor(Color.parseColor("#FFFFFF"));
         tabLayout.setTabTextColors(Color.parseColor("#707070"), Color.parseColor("#FFFFFF"));
+        assert viewPager != null;
         tabLayout.setupWithViewPager(viewPager);
 
         return view;

@@ -67,6 +67,26 @@
 
             </LinearLayout>
 
+            <Button
+                android:text="Reject Request"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:id="@+id/Reject" />
+
+            <Button
+                android:text="Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/Accept"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="11dp"
+                android:layout_marginStart="11dp" />
+
         </RelativeLayout>
 
         <RelativeLayout
@@ -232,12 +252,6 @@
                 android:layout_height="300dp"
                 android:layout_below="@id/job_detail_location_label"
                 map:liteMode="true"/>
-
-            <Button
-                android:text="Button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/Accept" />
 
         </RelativeLayout>
 

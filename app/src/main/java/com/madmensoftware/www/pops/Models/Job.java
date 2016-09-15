@@ -22,6 +22,8 @@ public class Job {
     String popperUid;
     double latitude;
     double longitude;
+    String Uid;
+    String parentUid;
 
     public Job() {
 
@@ -34,7 +36,7 @@ public class Job {
         this.budget = budget;
     }
 
-    public Job(String title, String description, String category, double budget, int duration, String status, String posterUid, String posterName, String popperUid, double latitude, double longitude) {
+    public Job(String title, String description, String category, double budget, int duration, String status, String posterUid, String posterName, String popperUid, double latitude, double longitude, String Uid) {
         this.title = title;
         this.description = description;
         this.category = category;
@@ -46,8 +48,25 @@ public class Job {
         this.popperUid = popperUid;
         this.longitude = longitude;
         this.latitude = latitude;
+        this.Uid = Uid;
     }
 
+    public String getParentUid() {
+        return parentUid;
+    }
+
+    public void setParentUid(String parentUid) {
+        this.parentUid = parentUid;
+    }
+
+    public void setUid(String uid){
+        this.Uid = uid;
+    }
+
+    public  String getUid()
+    {
+        return Uid;
+    }
 
     public String getTitle() {
         return title;

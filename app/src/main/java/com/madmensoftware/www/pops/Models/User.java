@@ -36,6 +36,8 @@ public class User {
     String parentUid;
     String childUid;
     String organizationName;
+    List<String> jobs;
+    Notification notification;
     String safeWord;
     String stripeToken;
 
