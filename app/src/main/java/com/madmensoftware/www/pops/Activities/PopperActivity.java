@@ -87,6 +87,8 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
 
         //get firebase auth instance
         auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
+        uid = currentUser.getUid();
 
         authListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -97,35 +99,30 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
                     startActivity(new Intent(PopperActivity.this, LoginActivity.class));
                     finish();
                 }
-                else {
-                    mUser = user;
-                    uid = mUser.getUid();
-
-                    mDatabase.child("users").child(uid).addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            TinyDB tinyDb = new TinyDB(getApplicationContext());
-                            tinyDb.putObject("User", dataSnapshot.getValue(User.class));
-                        }
-                        @Override
-                        public void onCancelled(DatabaseError error) {
-
-                        }
-                    });
-
-                    setupViewPager(viewPager, uid);
-                    tabLayout.setupWithViewPager(viewPager);
-                    setupTabIcons();
-                }
             }
         };
 
+
+        mDatabase.child("users").child(uid).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                TinyDB tinyDb = new TinyDB(getApplicationContext());
+                tinyDb.putObject("User", dataSnapshot.getValue(User.class));
+            }
+            @Override
+            public void onCancelled(DatabaseError error) {
+
+            }
+        });
+
+        setupViewPager(viewPager, uid);
+        tabLayout.setupWithViewPager(viewPager);
+        setupTabIcons();
     }
 
 
     @Override
     public void onSignOutButton() {
-        Log.i("Sign Out Interface", "Sign Out Interface");
         auth.signOut();
     }
 
@@ -144,7 +141,7 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
         adapter.addFragment(PopperMapFragment.newInstance(uid), "Map");
         adapter.addFragment(PopperNotificationsFragment.newInstance(uid), "Notifications");
         adapter.addFragment(PopperCheckInFragment.newInstance(uid), "Check In");
-
+        viewPager.setOffscreenPageLimit(4);
         viewPager.setAdapter(adapter);
     }
 
