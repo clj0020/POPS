@@ -24,15 +24,22 @@ import com.madmensoftware.www.pops.Activities.LoginActivity;
 import com.madmensoftware.www.pops.Activities.NeighborActivity;
 import com.madmensoftware.www.pops.Adapters.JobAdapter;
 import com.madmensoftware.www.pops.Adapters.JobViewHolder;
+import com.madmensoftware.www.pops.Adapters.NeighborNotificationAdapter;
+import com.madmensoftware.www.pops.Adapters.NeighborNotificationViewHolder;
+import com.madmensoftware.www.pops.Adapters.ParentJobAdapter;
+import com.madmensoftware.www.pops.Adapters.ParentJobViewHolder;
+import com.madmensoftware.www.pops.Adapters.ParentNotificationAdapter;
+import com.madmensoftware.www.pops.Adapters.ParentNotificationViewHolder;
 import com.madmensoftware.www.pops.Adapters.PopperJobsViewPagerAdapter;
 import com.madmensoftware.www.pops.Models.Job;
+import com.madmensoftware.www.pops.Models.Notification;
 import com.madmensoftware.www.pops.R;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class NeighborJobsFragment extends Fragment {
-    
+public class NeighborNotificationFragment extends Fragment {
+
     private static final String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
 
     private FirebaseAuth.AuthStateListener authListener;
@@ -43,31 +50,31 @@ public class NeighborJobsFragment extends Fragment {
 
 
     //    private Query jobQuery;
+//
     private LinearLayoutManager linearLayoutManager;
     private RecyclerView jobRecyclerview;
 
-    private JobAdapter mJobAdapter;
+    private NeighborNotificationAdapter mJobAdapter;
     private DatabaseReference mRef;
     private DatabaseReference mJobRef;
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private PopperJobsViewPagerAdapter adapter;
 
 
     // Firebase instance variables
     private DatabaseReference mFirebaseDatabaseReference;
-    private FirebaseRecyclerAdapter<Job, JobViewHolder>
+    private FirebaseRecyclerAdapter<Job, NeighborNotificationViewHolder>
             mFirebaseAdapter;
 
 
 
-    public NeighborJobsFragment() {
+    public NeighborNotificationFragment() {
         // Required empty public constructor
     }
 
-    public static NeighborJobsFragment newInstance(String userId) {
-        NeighborJobsFragment fragment = new NeighborJobsFragment();
+    public static NeighborNotificationFragment newInstance(String userId) {
+        NeighborNotificationFragment fragment = new NeighborNotificationFragment();
         Log.i("Jobs", "Attached the jobs fragment");
         Bundle args = new Bundle();
         args.putSerializable(EXTRA_USER_ID, userId);
@@ -89,8 +96,8 @@ public class NeighborJobsFragment extends Fragment {
         jobRecyclerview.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(getActivity());
         mRef = FirebaseDatabase.getInstance().getReference();
-        Query jobQuery = mRef.child("jobs").orderByChild("posterUid").equalTo(auth.getCurrentUser().getUid());
-        mJobAdapter = new JobAdapter(Job.class, R.layout.job_list_row, JobViewHolder.class, jobQuery, getContext());
+        Query jobQuery = mRef.child("notification").orderByChild("neighborUid").equalTo(auth.getCurrentUser().getUid());
+        mJobAdapter = new NeighborNotificationAdapter(Notification.class, R.layout.job_list_row, NeighborNotificationViewHolder.class, jobQuery, getContext());
         mJobAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {

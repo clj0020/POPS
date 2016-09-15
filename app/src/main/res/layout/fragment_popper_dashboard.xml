@@ -21,7 +21,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:scaleType="fitXY"
-                    android:src="@drawable/popper_dash_bg" />
+                    android:src="@drawable/bgstandard" />
 
                 <ImageButton
                     android:id="@+id/popper_menu_btn"

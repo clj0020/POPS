@@ -205,7 +205,7 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                     job.setDescription(description);
                     job.setDuration(duration);
                     job.setBudget(budget);
-                    job.setStatus("Pending");
+                    job.setStatus("open");
                     job.setCategory(category);
 
                     String jobId = mDatabase.child("jobs").push().getKey();

@@ -16,6 +16,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Activities.JobDetailActivity;
 import com.madmensoftware.www.pops.Models.Job;
+import com.madmensoftware.www.pops.Models.Notification;
 import com.madmensoftware.www.pops.R;
 
 import org.parceler.Parcels;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 /**
  * Created by carsonjones on 9/10/16.
  */
-public class JobViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+public class ParentNotificationViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     public TextView jobTitle;
     public TextView jobDescription;
     public TextView jobBudget;
@@ -36,7 +37,7 @@ public class JobViewHolder extends RecyclerView.ViewHolder implements View.OnCli
     View mView;
     Context mContext;
 
-    public JobViewHolder(View itemView) {
+    public ParentNotificationViewHolder(View itemView) {
         super(itemView);
         mView = itemView;
         mContext = itemView.getContext();
@@ -50,7 +51,7 @@ public class JobViewHolder extends RecyclerView.ViewHolder implements View.OnCli
     @Override
     public void onClick(View view) {
         final ArrayList<Job> jobs = new ArrayList<>();
-        Query jobQuery = FirebaseDatabase.getInstance().getReference().child("jobs").orderByChild("posterUid").equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        Query jobQuery = FirebaseDatabase.getInstance().getReference().child("jobs").orderByChild("cachpar").equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid());
         jobQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -60,7 +61,6 @@ public class JobViewHolder extends RecyclerView.ViewHolder implements View.OnCli
 
                 int itemPosition = getLayoutPosition();
                 Log.i("ItemPosition", "itemposition: " + itemPosition);
-                Log.i("ItemPosition", "jobd.get.title: " + jobs.get(itemPosition).getTitle());
 
                 Intent intent = new Intent(mContext, JobDetailActivity.class);
                 intent.putExtra("position", itemPosition + "");

@@ -22,7 +22,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Fragments.NeighborJobsFragment;
-import com.madmensoftware.www.pops.Fragments.NeighborNotificationsFragment;
+import com.madmensoftware.www.pops.Fragments.NeighborNotificationFragment;
 import com.madmensoftware.www.pops.Helpers.NonSwipeableViewPager;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
@@ -173,7 +173,7 @@ public class NeighborActivity extends AppCompatActivity {
         private void setupViewPager(ViewPager viewPager, String uid) {
             ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
             adapter.addFragment(NeighborJobsFragment.newInstance(uid), "Jobs");
-            adapter.addFragment(NeighborNotificationsFragment.newInstance(uid), "Notifications");
+            adapter.addFragment(NeighborNotificationFragment.newInstance(uid), "Notifications");
 
             viewPager.setAdapter(adapter);
         }

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 /**
  * Created by carsonjones on 9/10/16.
  */
-public class JobViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+public class PopperJobViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     public TextView jobTitle;
     public TextView jobDescription;
     public TextView jobBudget;
@@ -36,7 +36,7 @@ public class JobViewHolder extends RecyclerView.ViewHolder implements View.OnCli
     View mView;
     Context mContext;
 
-    public JobViewHolder(View itemView) {
+    public PopperJobViewHolder(View itemView) {
         super(itemView);
         mView = itemView;
         mContext = itemView.getContext();
@@ -50,7 +50,7 @@ public class JobViewHolder extends RecyclerView.ViewHolder implements View.OnCli
     @Override
     public void onClick(View view) {
         final ArrayList<Job> jobs = new ArrayList<>();
-        Query jobQuery = FirebaseDatabase.getInstance().getReference().child("jobs").orderByChild("posterUid").equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        Query jobQuery = FirebaseDatabase.getInstance().getReference().child("jobs").orderByChild("popperUid").equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid());
         jobQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

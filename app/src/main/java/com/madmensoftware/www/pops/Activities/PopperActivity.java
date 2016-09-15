@@ -42,9 +42,12 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
 
+    public FirebaseUser mFirebaseUser;
+
+
     private TabLayout tabLayout;
     private NonSwipeableViewPager viewPager;
-
+    public String mUid;
 
     private int[] tabIcons = {
             R.mipmap.ic_dashboard,
@@ -80,9 +83,7 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
         viewPager = (NonSwipeableViewPager) findViewById(R.id.viewpager);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
 
-        setupViewPager(viewPager);
-        tabLayout.setupWithViewPager(viewPager);
-        setupTabIcons();
+
 
         auth = FirebaseAuth.getInstance();
         authListener = new FirebaseAuth.AuthStateListener() {
@@ -93,6 +94,16 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
                     Log.i("Auth", "User is null");
                     startActivity(new Intent(PopperActivity.this, LoginActivity.class));
                     finish();
+                }
+                else {
+                    mFirebaseUser = user;
+                    mUid = auth.getCurrentUser().getUid();
+                    setupViewPager(viewPager, mUid);
+
+                    tabLayout.setupWithViewPager(viewPager);
+                    setupTabIcons();
+
+
                 }
             }
         };
@@ -139,12 +150,12 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
         tabLayout.getTabAt(4).setIcon(tabIcons[4]);
     }
 
-    private void setupViewPager(ViewPager viewPager) {
+    private void setupViewPager(ViewPager viewPager , String mUid) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(PopperDashboardFragment.newInstance(), "Dash");
         adapter.addFragment(PopperJobsFragment.newInstance(), "Jobs");
         adapter.addFragment(PopperMapFragment.newInstance(), "Map");
-        adapter.addFragment(PopperNotificationsFragment.newInstance(), "Notifications");
+        adapter.addFragment(PopperNotificationsFragment.newInstance(mUid), "Notifications");
         adapter.addFragment(PopperCheckInFragment.newInstance(), "Check In");
         viewPager.setOffscreenPageLimit(4);
         viewPager.setAdapter(adapter);

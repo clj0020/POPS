@@ -24,6 +24,8 @@ import com.madmensoftware.www.pops.Activities.LoginActivity;
 import com.madmensoftware.www.pops.Activities.NeighborActivity;
 import com.madmensoftware.www.pops.Adapters.JobAdapter;
 import com.madmensoftware.www.pops.Adapters.JobViewHolder;
+import com.madmensoftware.www.pops.Adapters.ParentJobAdapter;
+import com.madmensoftware.www.pops.Adapters.ParentJobViewHolder;
 import com.madmensoftware.www.pops.Adapters.PopperJobsViewPagerAdapter;
 import com.madmensoftware.www.pops.Models.Job;
 import com.madmensoftware.www.pops.R;
@@ -31,8 +33,8 @@ import com.madmensoftware.www.pops.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class NeighborJobsFragment extends Fragment {
-    
+public class ParentJobsFragment extends Fragment {
+
     private static final String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
 
     private FirebaseAuth.AuthStateListener authListener;
@@ -43,16 +45,16 @@ public class NeighborJobsFragment extends Fragment {
 
 
     //    private Query jobQuery;
+//
     private LinearLayoutManager linearLayoutManager;
     private RecyclerView jobRecyclerview;
 
-    private JobAdapter mJobAdapter;
+    private ParentJobAdapter mJobAdapter;
     private DatabaseReference mRef;
     private DatabaseReference mJobRef;
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private PopperJobsViewPagerAdapter adapter;
 
 
     // Firebase instance variables
@@ -62,12 +64,12 @@ public class NeighborJobsFragment extends Fragment {
 
 
 
-    public NeighborJobsFragment() {
+    public ParentJobsFragment() {
         // Required empty public constructor
     }
 
-    public static NeighborJobsFragment newInstance(String userId) {
-        NeighborJobsFragment fragment = new NeighborJobsFragment();
+    public static ParentJobsFragment newInstance(String userId) {
+        ParentJobsFragment fragment = new ParentJobsFragment();
         Log.i("Jobs", "Attached the jobs fragment");
         Bundle args = new Bundle();
         args.putSerializable(EXTRA_USER_ID, userId);
@@ -89,8 +91,8 @@ public class NeighborJobsFragment extends Fragment {
         jobRecyclerview.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(getActivity());
         mRef = FirebaseDatabase.getInstance().getReference();
-        Query jobQuery = mRef.child("jobs").orderByChild("posterUid").equalTo(auth.getCurrentUser().getUid());
-        mJobAdapter = new JobAdapter(Job.class, R.layout.job_list_row, JobViewHolder.class, jobQuery, getContext());
+        Query jobQuery = mRef.child("jobs").orderByChild("parentUid").equalTo(auth.getCurrentUser().getUid());
+        mJobAdapter = new ParentJobAdapter(Job.class, R.layout.job_list_row, ParentJobViewHolder.class, jobQuery, getContext());
         mJobAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {

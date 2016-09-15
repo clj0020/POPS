@@ -21,8 +21,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.madmensoftware.www.pops.Fragments.NeighborJobsFragment;
-import com.madmensoftware.www.pops.Fragments.NeighborNotificationsFragment;
+import com.madmensoftware.www.pops.Fragments.ParentJobsFragment;
+import com.madmensoftware.www.pops.Fragments.ParentNotificationFragment;
 import com.madmensoftware.www.pops.Helpers.NonSwipeableViewPager;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
@@ -167,8 +167,8 @@ public class ParentActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager, String uid) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(NeighborJobsFragment.newInstance(uid), "Jobs");
-        adapter.addFragment(NeighborNotificationsFragment.newInstance(uid), "Notifications");
+        adapter.addFragment(ParentJobsFragment.newInstance(uid), "Jobs");
+        adapter.addFragment(ParentNotificationFragment.newInstance(uid), "Notifications");
 
         viewPager.setAdapter(adapter);
     }

@@ -9,8 +9,6 @@ import org.parceler.Parcel;
  */
 @Parcel
 public class Job {
-
-    String uid;
     String title;
     String description;
     String category;
@@ -24,7 +22,37 @@ public class Job {
     double longitude;
     String Uid;
     String parentUid;
+    String notification;
 
+    public String getCashPostNot() {
+        return cashPostNot;
+    }
+
+    public void setCashPostNot(String cashPostNot) {
+        this.cashPostNot = cashPostNot;
+    }
+
+    String cashPostNot;
+
+    public String getCachepop() {
+        return cachepop;
+    }
+
+    public void setCachepop(String cachepop) {
+        this.cachepop = cachepop;
+    }
+
+    String cachepop;
+
+    public String getCachpar() {
+        return cachpar;
+    }
+
+    public void setCachpar(String cachpar) {
+        this.cachpar = cachpar;
+    }
+
+    String cachpar;
     public Job() {
 
     }
@@ -49,6 +77,12 @@ public class Job {
         this.longitude = longitude;
         this.latitude = latitude;
         this.Uid = Uid;
+    }
+
+    public String getNotification(){return notification;}
+
+    public void setNotification(String notification) {
+        this.notification = notification;
     }
 
     public String getParentUid() {
@@ -155,14 +189,6 @@ public class Job {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
     }
 
 }
