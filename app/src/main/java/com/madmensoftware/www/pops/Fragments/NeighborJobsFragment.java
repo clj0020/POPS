@@ -43,6 +43,7 @@ public class NeighborJobsFragment extends Fragment {
 
 
     //    private Query jobQuery;
+//
     private LinearLayoutManager linearLayoutManager;
     private RecyclerView jobRecyclerview;
 

@@ -321,17 +321,15 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 Job job = dataSnapshot.getValue(Job.class);
 
-                                if (job.getStatus().equals("open")) {
+
                                 Marker jobMarker = mGoogleMap.addMarker(new MarkerOptions()
                                         .position(new LatLng(latitude, longitude))
                                         .snippet(job.getDescription())
                                         .title(job.getTitle()));
                                 jobMarker.setTag(job);
 
-                                //TAGME
+                                markers.put(job.getUid(), jobMarker);
 
-                                    markers.put(job.getUid(), jobMarker);
-                                }
                             }
 
                             @Override
@@ -378,17 +376,16 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 Job job = dataSnapshot.getValue(Job.class);
-                                if (job.getStatus().equals("open")) {
+
                                 Marker jobMarker = mGoogleMap.addMarker(new MarkerOptions()
                                         .position(new LatLng(latitude, longitude))
                                         .snippet(job.getDescription())
                                         .title(job.getTitle()));
                                 jobMarker.setTag(job);
 
-                                    Marker marker = markers.get(job.getUid());
-                                    if (marker != null) {
-                                        animateMarkerTo(jobMarker, latitude, longitude);
-                                    }
+                                Marker marker = markers.get(job.getUid());
+                                if (marker != null) {
+                                    animateMarkerTo(jobMarker, latitude, longitude);
                                 }
                             }
 

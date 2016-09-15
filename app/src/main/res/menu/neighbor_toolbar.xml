@@ -12,6 +12,11 @@
         android:title="Settings"
         app:showAsAction="never"/>
 
+    <item android:id="@+id/action_test_purchase"
+        android:title="Test Purchase"
+        app:showAsAction="never"/>
+
+
     <item android:id="@+id/action_log_out"
         android:title="Log Out"
         app:showAsAction="never"/>

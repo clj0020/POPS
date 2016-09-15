@@ -20,8 +20,6 @@ import com.google.firebase.database.Query;
 import com.madmensoftware.www.pops.Adapters.JobAdapter;
 import com.madmensoftware.www.pops.Adapters.JobViewHolder;
 import com.madmensoftware.www.pops.Adapters.PopperCurrentJobsAdapter;
-import com.madmensoftware.www.pops.Adapters.PopperJobAdapter;
-import com.madmensoftware.www.pops.Adapters.PopperJobViewHolder;
 import com.madmensoftware.www.pops.Adapters.PopperJobsViewPagerAdapter;
 import com.madmensoftware.www.pops.Adapters.SimpleSectionedRecyclerViewAdapter;
 import com.madmensoftware.www.pops.Models.Job;
@@ -45,7 +43,7 @@ public class PopperCurrentJobsFragment extends Fragment {
     private LinearLayoutManager linearLayoutManager;
     private RecyclerView jobRecyclerview;
 
-    private PopperJobAdapter mJobAdapter;
+    private JobAdapter mJobAdapter;
     private DatabaseReference mRef;
     private DatabaseReference mJobRef;
 
@@ -87,7 +85,7 @@ public class PopperCurrentJobsFragment extends Fragment {
         linearLayoutManager = new LinearLayoutManager(getActivity());
         mRef = FirebaseDatabase.getInstance().getReference();
         Query jobQuery = mRef.child("jobs").orderByChild("popperUid").equalTo(auth.getCurrentUser().getUid());
-        mJobAdapter = new PopperJobAdapter(Job.class, R.layout.job_list_row, PopperJobViewHolder.class, jobQuery, getContext());
+        mJobAdapter = new JobAdapter(Job.class, R.layout.job_list_row, JobViewHolder.class, jobQuery, getContext());
         mJobAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {

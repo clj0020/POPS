@@ -2,10 +2,17 @@ package com.madmensoftware.www.pops.Activities;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Calendar;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -17,14 +24,18 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
@@ -76,7 +87,10 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
     private EditText mJobTitleEditText, mJobDescriptionEditText, mJobDurationEditText, mJobBudgetEditText;
     private Spinner mJobCategorySpinner;
     private Button mAddJobButton;
-    private ImageButton mGetCurrentLocation;
+    private Button btnDatePicker, btnTimePicker;
+    private EditText mJobDate, mJobTime;
+    private int mYear, mMonth, mDay, mHour, mMinute;
+    private int mJobYear, mJobDay, mJobMonth, mJobHour, mJobMinute;
 
     private GoogleApiClient mGoogleApiClient;
     private double longitude;
@@ -110,7 +124,13 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
         mJobDurationEditText = (EditText) findViewById(R.id.add_job_duration);
         mJobBudgetEditText = (EditText) findViewById(R.id.add_job_budget);
         mJobCategorySpinner = (Spinner) findViewById(R.id.add_job_category);
+        mJobDate = (EditText) findViewById(R.id.add_job_date);
+        mJobTime = (EditText) findViewById(R.id.add_job_time);
+        btnDatePicker = (Button) findViewById(R.id.add_job_date_btn);
+        btnTimePicker = (Button) findViewById(R.id.add_job_time_btn);
         mAddJobButton = (Button) findViewById(R.id.add_job_submit_btn);
+
+        mJobBudgetEditText.addTextChangedListener(new CurrencyTextWatcher(mJobBudgetEditText, "#,###"));
 
         //Spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -166,6 +186,8 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
             }
         };
 
+        btnDatePicker.setOnClickListener(this);
+        btnTimePicker.setOnClickListener(this);
         mAddJobButton.setOnClickListener(this);
     }
 
@@ -189,46 +211,101 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View v) {
         switch(v.getId()) {
             case R.id.add_job_submit_btn:
-                if (isEmpty(mJobBudgetEditText) || isEmpty(mJobDescriptionEditText) || isEmpty(mJobDurationEditText) || isEmpty(mJobBudgetEditText)) {
-                    Toast.makeText(AddJobActivity.this, "Please fill out all fields.", Toast.LENGTH_LONG).show();
-                }
-                else {
-                    String title = mJobTitleEditText.getText().toString();
-                    String description = mJobDescriptionEditText.getText().toString();
-                    int duration = Integer.parseInt(mJobDurationEditText.getText().toString());
-                    double budget = Double.parseDouble(mJobBudgetEditText.getText().toString());
+                    if (isEmpty(mJobDescriptionEditText) || isEmpty(mJobTitleEditText) || isEmpty(mJobDurationEditText) || isEmpty(mJobBudgetEditText)) {
+                        Toast.makeText(this, "Please fill all fields.", Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        String title = mJobTitleEditText.getText().toString();
+                        String description = mJobDescriptionEditText.getText().toString();
+                        double budget = convertDollarToDouble(mJobBudgetEditText.getText().toString());
+                        int duration = Integer.parseInt(mJobDurationEditText.getText().toString());
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.set(mJobYear, mJobMonth, mJobDay,
+                                mJobHour, mJobMinute, 0);
+                        long startTime = calendar.getTimeInMillis();
 
-                    Job job = new Job();
-                    job.setPosterUid(uid);
-                    job.setPosterName(user.getName());
-                    job.setTitle(title);
-                    job.setDescription(description);
-                    job.setDuration(duration);
-                    job.setBudget(budget);
-                    job.setStatus("open");
-                    job.setCategory(category);
+                        if (startTime == 0) {
+                            Toast.makeText(this, "Please pick a date and a time.", Toast.LENGTH_LONG).show();
+                        }
+                        else if (latitude == 0 || longitude == 0) {
+                            Toast.makeText(this, "Please choose a location for the job.", Toast.LENGTH_LONG).show();
+                        }
+                        else {
+                            Job job = new Job();
+                            job.setPosterUid(uid);
+                            job.setPosterName(user.getName());
+                            job.setTitle(title);
+                            job.setStartTime(startTime);
+                            job.setDescription(description);
+                            job.setDuration(duration);
+                            job.setBudget(budget);
+                            job.setStatus("Pending");
+                            job.setCategory(category);
 
-                    String jobId = mDatabase.child("jobs").push().getKey();
-                    job.setUid(jobId);
-                    mDatabase.child("jobs").child(jobId).setValue(job);
+                            String jobId = mDatabase.child("jobs").push().getKey();
+                            job.setUid(jobId);
+                            mDatabase.child("jobs").child(jobId).setValue(job);
 
-                    geofire = new GeoFire(mDatabase.child("jobs_location"));
-                    geofire.setLocation(jobId, new GeoLocation(latitude, longitude));
+                            geofire = new GeoFire(mDatabase.child("jobs_location"));
+                            geofire.setLocation(jobId, new GeoLocation(latitude, longitude));
 
-                    Toast.makeText(AddJobActivity.this, "Job Added Successfully", Toast.LENGTH_LONG).show();
-                    startActivity(new Intent(AddJobActivity.this, NeighborActivity.class));
-                }
+                            Toast.makeText(AddJobActivity.this, "Job Added Successfully", Toast.LENGTH_LONG).show();
+                            startActivity(new Intent(AddJobActivity.this, NeighborActivity.class));
+                        }
+                    }
 
+
+                break;
+            case R.id.add_job_date_btn:
+                // Get Current Date
+                final Calendar c = Calendar.getInstance();
+                mYear = c.get(Calendar.YEAR);
+                mMonth = c.get(Calendar.MONTH);
+                mDay = c.get(Calendar.DAY_OF_MONTH);
+
+                DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                        new DatePickerDialog.OnDateSetListener() {
+
+                            @Override
+                            public void onDateSet(DatePicker view, int year,
+                                                  int monthOfYear, int dayOfMonth) {
+
+                                mJobDate.setText((monthOfYear + 1) + "-" + dayOfMonth + "-" + year);
+                                mJobYear = year;
+                                mJobMonth = monthOfYear + 1;
+                                mJobDay = dayOfMonth;
+
+                                btnDatePicker.setText((monthOfYear + 1) + "-" + dayOfMonth + "-" + year);
+
+                            }
+                        }, mYear, mMonth, mDay);
+                datePickerDialog.show();
+                break;
+            case R.id.add_job_time_btn:
+                // Get Current Time
+                final Calendar cal = Calendar.getInstance();
+                mHour = cal.get(Calendar.HOUR_OF_DAY);
+                mMinute = cal.get(Calendar.MINUTE);
+
+                // Launch Time Picker Dialog
+                TimePickerDialog timePickerDialog = new TimePickerDialog(this,
+                        new TimePickerDialog.OnTimeSetListener() {
+
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay,
+                                                  int minute) {
+                                mJobHour = hourOfDay;
+                                mJobMinute = minute;
+
+                                btnTimePicker.setText(hourOfDay + ":" + minute);
+                            }
+                        }, mHour, mMinute, false);
+                timePickerDialog.show();
                 break;
             default:
                 break;
         }
     }
-
-    private boolean isEmpty(EditText myeditText) {
-        return myeditText.getText().toString().trim().length() == 0;
-    }
-
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -242,6 +319,106 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {}
+
+    private boolean isEmpty(EditText etText) {
+        return etText.getText().toString().trim().length() == 0;
+    }
+
+    public double convertDollarToDouble(String dollar) {
+        double dbl = 0;
+        NumberFormat nf = new DecimalFormat("$#,###.00");
+
+        try {
+            dbl = nf.parse(dollar).doubleValue();
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return dbl;
+    }
+
+    public String convertDoubleToDollar(double dbl) {
+        String dollar = "";
+        NumberFormat nf = new DecimalFormat("$#,###.00");
+        return nf.format(dbl);
+    }
+
+    public class CurrencyTextWatcher implements TextWatcher {
+
+        private final DecimalFormat df;
+        private final DecimalFormat dfnd;
+        private final EditText et;
+        private boolean hasFractionalPart;
+        private int trailingZeroCount;
+
+        public CurrencyTextWatcher(EditText editText, String pattern) {
+            df = new DecimalFormat(pattern);
+            df.setDecimalSeparatorAlwaysShown(true);
+            dfnd = new DecimalFormat("#,###.00");
+            this.et = editText;
+            hasFractionalPart = false;
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            et.removeTextChangedListener(this);
+
+            if (s != null && !s.toString().isEmpty()) {
+                try {
+                    int inilen, endlen;
+                    inilen = et.getText().length();
+                    String v = s.toString().replace(String.valueOf(df.getDecimalFormatSymbols().getGroupingSeparator()), "").replace("$","");
+                    Number n = df.parse(v);
+                    int cp = et.getSelectionStart();
+                    if (hasFractionalPart) {
+                        StringBuilder trailingZeros = new StringBuilder();
+                        while (trailingZeroCount-- > 0)
+                            trailingZeros.append('0');
+                        et.setText(df.format(n) + trailingZeros.toString());
+                    } else {
+                        et.setText(dfnd.format(n));
+                    }
+                    et.setText("$".concat(et.getText().toString()));
+                    endlen = et.getText().length();
+                    int sel = (cp + (endlen - inilen));
+                    if (sel > 0 && sel < et.getText().length()) {
+                        et.setSelection(sel);
+                    } else if (trailingZeroCount > -1) {
+                        et.setSelection(et.getText().length() - 3);
+                    } else {
+                        et.setSelection(et.getText().length());
+                    }
+                } catch (NumberFormatException | ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            et.addTextChangedListener(this);
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            int index = s.toString().indexOf(String.valueOf(df.getDecimalFormatSymbols().getDecimalSeparator()));
+            trailingZeroCount = 0;
+            if (index > -1) {
+                for (index++; index < s.length(); index++) {
+                    if (s.charAt(index) == '0')
+                        trailingZeroCount++;
+                    else {
+                        trailingZeroCount = 0;
+                    }
+                }
+                hasFractionalPart = true;
+            } else {
+                hasFractionalPart = false;
+            }
+        }
+    }
 
 
 }

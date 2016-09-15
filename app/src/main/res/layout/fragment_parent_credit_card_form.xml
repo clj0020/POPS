@@ -2,12 +2,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:context="com.madmensoftware.www.pops.Fragments.ParentCreditCardFormFragment"
     android:background="@color/colorPrimary">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/parent_notification_recycler_view"
-        android:scrollbars="vertical"
+    <com.braintreepayments.cardform.view.CardForm
+        android:id="@+id/parent_bt_card_form"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
 </FrameLayout>

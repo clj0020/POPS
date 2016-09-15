@@ -9,6 +9,8 @@ import org.parceler.Parcel;
  */
 @Parcel
 public class Job {
+
+    String uid;
     String title;
     String description;
     String category;
@@ -18,41 +20,10 @@ public class Job {
     String posterUid;
     String posterName;
     String popperUid;
-    double latitude;
-    double longitude;
     String Uid;
     String parentUid;
-    String notification;
+    long startTime;
 
-    public String getCashPostNot() {
-        return cashPostNot;
-    }
-
-    public void setCashPostNot(String cashPostNot) {
-        this.cashPostNot = cashPostNot;
-    }
-
-    String cashPostNot;
-
-    public String getCachepop() {
-        return cachepop;
-    }
-
-    public void setCachepop(String cachepop) {
-        this.cachepop = cachepop;
-    }
-
-    String cachepop;
-
-    public String getCachpar() {
-        return cachpar;
-    }
-
-    public void setCachpar(String cachpar) {
-        this.cachpar = cachpar;
-    }
-
-    String cachpar;
     public Job() {
 
     }
@@ -74,15 +45,7 @@ public class Job {
         this.posterUid = posterUid;
         this.posterName = posterName;
         this.popperUid = popperUid;
-        this.longitude = longitude;
-        this.latitude = latitude;
         this.Uid = Uid;
-    }
-
-    public String getNotification(){return notification;}
-
-    public void setNotification(String notification) {
-        this.notification = notification;
     }
 
     public String getParentUid() {
@@ -174,21 +137,12 @@ public class Job {
         this.popperUid = popperUid;
     }
 
-
-    public double getLatitude() {
-        return latitude;
+    public long getStartTime() {
+        return startTime;
     }
 
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
     }
 
 }

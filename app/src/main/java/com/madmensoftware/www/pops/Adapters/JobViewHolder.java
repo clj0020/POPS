@@ -3,7 +3,6 @@ package com.madmensoftware.www.pops.Adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -31,8 +30,6 @@ public class JobViewHolder extends RecyclerView.ViewHolder implements View.OnCli
     public TextView jobBudget;
     public TextView jobPosterName;
 
-
-
     View mView;
     Context mContext;
 
@@ -59,13 +56,10 @@ public class JobViewHolder extends RecyclerView.ViewHolder implements View.OnCli
                 }
 
                 int itemPosition = getLayoutPosition();
-                Log.i("ItemPosition", "itemposition: " + itemPosition);
-                Log.i("ItemPosition", "jobd.get.title: " + jobs.get(itemPosition).getTitle());
 
                 Intent intent = new Intent(mContext, JobDetailActivity.class);
                 intent.putExtra("position", itemPosition + "");
-
-                intent.putExtra("job", Parcels.wrap(jobs.get(itemPosition)));
+                intent.putExtra("jobs", Parcels.wrap(jobs));
                 mContext.startActivity(intent);
             }
 

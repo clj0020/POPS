@@ -39,7 +39,10 @@ public class User {
     List<String> jobs;
     Notification notification;
     String safeWord;
-    String stripeToken;
+    String stripeCustomerId;
+    String stripeAccountId;
+    String stripeApiSecretKey;
+    String stripeApiPublishableKey;
 
 
     public User() {
@@ -216,13 +219,39 @@ public class User {
         this.safeWord = safeWord;
     }
 
-    public String getStripeToken() {
-        return stripeToken;
+    public String getStripeCustomerId() {
+        return stripeCustomerId;
     }
 
-    public void setStripeToken(String stripeToken) {
-        this.stripeToken = stripeToken;
+    public void setStripeCustomerId(String stripeCustomerId) {
+        this.stripeCustomerId = stripeCustomerId;
     }
+
+    public String getStripeAccountId() {
+        return stripeAccountId;
+    }
+
+    public void setStripeAccountId(String stripeAccountId) {
+        this.stripeAccountId = stripeAccountId;
+    }
+
+    public String getStripeApiSecretKey() {
+        return stripeApiSecretKey;
+    }
+
+    public void setStripeApiSecretKey(String stripeApiSecretKey) {
+        this.stripeApiSecretKey = stripeApiSecretKey;
+    }
+
+    public String getStripeApiPublishableKey() {
+        return stripeApiPublishableKey;
+    }
+
+    public void setStripeApiPublishableKey(String stripeApiPublishableKey) {
+        this.stripeApiPublishableKey = stripeApiPublishableKey;
+    }
+
+
 
 
     // Helper methods
