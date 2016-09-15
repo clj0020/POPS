@@ -37,6 +37,7 @@ public class User {
     String childUid;
     String organizationName;
     List<String> jobs;
+    Notification notification;
 
 
     public User() {

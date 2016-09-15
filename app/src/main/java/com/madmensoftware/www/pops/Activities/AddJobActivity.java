@@ -209,6 +209,7 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                     job.setCategory(category);
 
                     String jobId = mDatabase.child("jobs").push().getKey();
+                    job.setUid(jobId);
                     mDatabase.child("jobs").child(jobId).setValue(job);
 
                     geofire = new GeoFire(mDatabase.child("jobs_location"));

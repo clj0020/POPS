@@ -31,7 +31,8 @@ public class PopperJobsFragment extends Fragment {
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private PopperJobsViewPagerAdapter adapter;
-    
+    private static String mUid;
+
 
     private static final String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
 
@@ -43,6 +44,8 @@ public class PopperJobsFragment extends Fragment {
         PopperJobsFragment fragment = new PopperJobsFragment();
         Bundle args = new Bundle();
         args.putSerializable(EXTRA_USER_ID, userId);
+        mUid = userId;
+        Log.d("MYUID", "newInstance: " + mUid);
         fragment.setArguments(args);
         return fragment;
     }
