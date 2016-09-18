@@ -28,6 +28,7 @@ import com.madmensoftware.www.pops.Helpers.NonSwipeableViewPager;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
+import com.orhanobut.logger.Logger;
 import com.stripe.Stripe;
 import com.stripe.exception.APIConnectionException;
 import com.stripe.exception.APIException;
@@ -45,6 +46,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by carsonjones on 8/30/16.
  */
@@ -52,23 +56,21 @@ public class NeighborActivity extends AppCompatActivity {
         public final static String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
         private static final String PUBLISHIBLE_TEST_KEY = "pk_test_9SdGQF1ZibEEnbJ3vYmBaAFj";
         private static final String SECRET_TEST_KEY = "sk_test_I9UFP4mZBd3kq6W7w9zDenGq";
-
+    
+        @BindView(R.id.neighbor_tabs) TabLayout tabLayout;
+        @BindView(R.id.neighbor_viewpager) NonSwipeableViewPager viewPager;
+        @BindView(R.id.neighbor_toolbar) Toolbar myToolbar;  
+    
         private FirebaseAuth.AuthStateListener authListener;
         private FirebaseAuth auth;
         private DatabaseReference mDatabase;
-
-        private TabLayout tabLayout;
-        private NonSwipeableViewPager viewPager;
-
+        public FirebaseUser mFirebaseUser;
+        private User user;
+        public String uid;
         private int[] tabIcons = {
                 R.mipmap.ic_jobs,
                 R.mipmap.ic_notifications
         };
-
-        public FirebaseUser mFirebaseUser;
-
-        private User user;
-        public String uid;
 
         @Override
         public void onStart() {
@@ -88,13 +90,10 @@ public class NeighborActivity extends AppCompatActivity {
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_neighbor);
-
-            Toolbar myToolbar = (Toolbar) findViewById(R.id.neighbor_toolbar);
+            ButterKnife.bind(this);
+            
             setSupportActionBar(myToolbar);
-
-            viewPager = (NonSwipeableViewPager) findViewById(R.id.neighbor_viewpager);
-            tabLayout = (TabLayout) findViewById(R.id.neighbor_tabs);
-
+            
             mDatabase = FirebaseDatabase.getInstance().getReference();
 
             Bundle b = this.getIntent().getExtras();
@@ -102,15 +101,13 @@ public class NeighborActivity extends AppCompatActivity {
                 user = Parcels.unwrap(b.getParcelable("User"));
             }
 
-
             auth = FirebaseAuth.getInstance();
-
             authListener = new FirebaseAuth.AuthStateListener() {
                 @Override
                 public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                     FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                     if (firebaseUser == null) {
-                        Log.i("Auth", "User is null");
+                        Logger.d("Auth", "User is null");
                         startActivity(new Intent(NeighborActivity.this, LoginActivity.class));
                         finish();
                     }
@@ -132,24 +129,20 @@ public class NeighborActivity extends AppCompatActivity {
                                 if(dataSnapshot.exists()) {
                                     User mUser = dataSnapshot.getValue(User.class);
                                     user = mUser;
-
                                 }
                                 else {
                                     auth.signOut();
                                 }
                             }
-
                             @Override
                             public void onCancelled(DatabaseError error) {
 
                             }
-
                         });
                     }
                 }
             };
         }
-
 
         @Override
         public boolean onCreateOptionsMenu(Menu menu) {
@@ -242,7 +235,7 @@ public class NeighborActivity extends AppCompatActivity {
             }
         }
 
-    private class CreateChargeTask extends AsyncTask<User, Integer, String> {
+        private class CreateChargeTask extends AsyncTask<User, Integer, String> {
         // Do the long-running work in here
         protected String doInBackground(User... params) {
             User user = params[0];

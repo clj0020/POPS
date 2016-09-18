@@ -28,6 +28,7 @@ import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 
+import com.orhanobut.logger.Logger;
 import com.stripe.android.*;
 import com.stripe.android.Stripe;
 import com.stripe.model.Account;
@@ -53,13 +54,11 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
     private static final String TAG = "AddUserDetails:";
     private static final String PUBLISHIBLE_TEST_KEY = "pk_test_9SdGQF1ZibEEnbJ3vYmBaAFj";
     private static final String SECRET_TEST_KEY = "sk_test_I9UFP4mZBd3kq6W7w9zDenGq";
-
-
+    
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
-
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,7 +141,7 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
                     String parentUid = dataSnapshot.getValue().toString();
                     mDatabase.child("users").child(parentUid).child("childUid").setValue(auth.getCurrentUser().getUid());
                     popper.setParentUid(parentUid);
-                    Log.i("UserDetails", "ParentUid" + parentUid);
+                    Logger.d("UserDetails", "ParentUid" + parentUid);
 
                     mDatabase.child("users").child(parentUid).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -162,7 +161,7 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
                             if (dataSnapshot.exists()) {
                                 popper.setOrganizationName(dataSnapshot.child("name").getValue().toString());
 
-                                Log.i(TAG + "Org: ", dataSnapshot.child("name").getValue().toString());
+                                Logger.d(TAG + "Org: ", dataSnapshot.child("name").getValue().toString());
 
                                 FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                                 mDatabase.child("users").child(firebaseUser.getUid()).setValue(popper);
@@ -337,8 +336,7 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
 
 
     }
-
-
+    
     @Override
     public void onParentSubmit(String firstName, String lastName, int lastFourSSN, int dobYear, int dobMonth, int dobDay, int phone) {
         FirebaseUser firebaseParent = FirebaseAuth.getInstance().getCurrentUser();
@@ -414,7 +412,7 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
     public void processFinish(Customer customer) {
         TinyDB tinyDB = new TinyDB(getApplicationContext());
         User user = (User) tinyDB.getObject("User", User.class);
-        Log.i("AddUserDetails", "processFinish user is " + user.getName());
+        Logger.d("AddUserDetails", "processFinish user is " + user.getName());
 
         user.setStripeCustomerId(customer.getId());
 
@@ -455,9 +453,9 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
         int parentCode = generateUniqueCode();
         String safeWord = generateRandomSafeWord();
 
-        Log.i("AddUserDetails", "accountCreationProcessFinish accountId" + account.getId());
-        Log.i("AddUserDetails", "accountCreationProcessFinish secretAccountKey" + account.getKeys().getSecret());
-        Log.i("AddUserDetails", "accountCreationProcessFinish publishableAccountKey" + account.getKeys().getPublishable());
+        Logger.d("AddUserDetails", "accountCreationProcessFinish accountId" + account.getId());
+        Logger.d("AddUserDetails", "accountCreationProcessFinish secretAccountKey" + account.getKeys().getSecret());
+        Logger.d("AddUserDetails", "accountCreationProcessFinish publishableAccountKey" + account.getKeys().getPublishable());
 
         TinyDB tinyDB = new TinyDB(this);
         User parent = (User) tinyDB.getObject("User", User.class);
@@ -468,13 +466,11 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
         parent.setSafeWord(safeWord);
         parent.setType("Parent");
 
-        Log.i("UserDetails", "ParentAccessCode" + parent.getAccessCode());
-        Log.i("UserDetails", "ParentSafeWord" + parent.getSafeWord());
+        Logger.d("UserDetails", "ParentAccessCode" + parent.getAccessCode());
+        Logger.d("UserDetails", "ParentSafeWord" + parent.getSafeWord());
 
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         mDatabase.child("users").child(firebaseUser.getUid()).setValue(parent);
-//        mDatabase.child("stripe-accounts").child(firebaseUser.getUid()).setValue(account);
-
         mDatabase.child("parent-codes").child(parentCode + "").setValue(firebaseUser.getUid());
         mDatabase.child("safe-words").child(safeWord).setValue(firebaseUser.getUid());
 
@@ -499,19 +495,8 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
 
     public void accountUpdateProcessFinish(ExternalAccount account) {
 
-//        Log.i("AddUserDetails", "accountCreationProcessFinish accountId" + account.getId());
-//        Log.i("AddUserDetails", "accountCreationProcessFinish secretAccountKey" + account.getKeys().getSecret());
-//        Log.i("AddUserDetails", "accountCreationProcessFinish publishableAccountKey" + account.getKeys().getPublishable());
-
         TinyDB tinyDB = new TinyDB(this);
         User parent = (User) tinyDB.getObject("User", User.class);
-
-//        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-//        mDatabase.child("users").child(firebaseUser.getUid()).setValue(parent);
-//        mDatabase.child("stripe-accounts").child(firebaseUser.getUid()).setValue(account);
-//
-//        mDatabase.child("parent-codes").child(parentCode + "").setValue(firebaseUser.getUid());
-//        mDatabase.child("safe-words").child(safeWord).setValue(firebaseUser.getUid());
 
         FragmentManager fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.user_details_fragment_container);
@@ -624,9 +609,9 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
             ExternalAccount externalAccount = new ExternalAccount();
 
 
-            Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground accountSecretAPIKey is " + parent.getStripeApiSecretKey());
-            Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground accountPublishableAPIKey is " + parent.getStripeApiPublishableKey());
-            Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground accountID is " + parent.getStripeAccountId());
+            Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground accountSecretAPIKey is " + parent.getStripeApiSecretKey());
+            Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground accountPublishableAPIKey is " + parent.getStripeApiPublishableKey());
+            Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground accountID is " + parent.getStripeAccountId());
 
             try {
                 Account account = Account.retrieve(parent.getStripeAccountId(), null);
@@ -636,18 +621,18 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
                 externalAccountParams.put("default_for_currency", true);
                 externalAccount = account.getExternalAccounts().create(externalAccountParams);
 
-                Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground externalAccountID is " + externalAccount.getId());
+                Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground externalAccountID is " + externalAccount.getId());
 
             } catch (AuthenticationException e) {
-                Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground AuthenticationException:" + e.getMessage());
+                Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground AuthenticationException:" + e.getMessage());
             } catch (InvalidRequestException e) {
-                Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground InvalidRequestException:" + e.getMessage());
+                Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground InvalidRequestException:" + e.getMessage());
             } catch (APIConnectionException e) {
-                Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground APIConnectionException:" + e.getMessage());
+                Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground APIConnectionException:" + e.getMessage());
             } catch (CardException e) {
-                Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground CardException:" + e.getMessage());
+                Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground CardException:" + e.getMessage());
             } catch (APIException e) {
-                Log.i("AddUserDetails: ", "updateParentAccountTask doInBackground APIException:" + e.getMessage());
+                Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground APIException:" + e.getMessage());
             }
 
             return externalAccount;

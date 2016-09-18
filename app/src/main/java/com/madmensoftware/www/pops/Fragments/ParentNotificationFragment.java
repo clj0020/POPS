@@ -22,6 +22,10 @@ import com.madmensoftware.www.pops.Adapters.NeighborJobViewHolder;
 import com.madmensoftware.www.pops.Adapters.ParentNotificationViewHolder;
 import com.madmensoftware.www.pops.Models.Job;
 import com.madmensoftware.www.pops.R;
+import com.orhanobut.logger.Logger;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,23 +37,14 @@ public class ParentNotificationFragment extends Fragment {
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
-
-    private LinearLayoutManager linearLayoutManager;
-    private RecyclerView parentNotificationRecyclerview;
-
+    private DatabaseReference mFirebaseDatabaseReference;
+    private FirebaseRecyclerAdapter<Job, ParentNotificationViewHolder> mFirebaseAdapter;
     private NeighborJobAdapter mNotificationAdapter;
     private DatabaseReference mRef;
     private DatabaseReference mJobRef;
+    private LinearLayoutManager linearLayoutManager;
 
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
-
-
-    // Firebase instance variables
-    private DatabaseReference mFirebaseDatabaseReference;
-    private FirebaseRecyclerAdapter<Job, ParentNotificationViewHolder>
-            mFirebaseAdapter;
-
+    @BindView(R.id.neighbor_jobs_recycler_view) RecyclerView parentNotificationRecyclerview;
 
 
     public ParentNotificationFragment() {
@@ -66,18 +61,21 @@ public class ParentNotificationFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_neighbor_jobs, container, false);
+        ButterKnife.bind(this, view);
+
+        Logger.d("onCreateView");
 
         auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        parentNotificationRecyclerview = (RecyclerView) view.findViewById(R.id.neighbor_jobs_recycler_view);
         parentNotificationRecyclerview.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(getActivity());
+
         mRef = FirebaseDatabase.getInstance().getReference();
         Query jobQuery = mRef.child("jobs").orderByChild("cachpar").equalTo(auth.getCurrentUser().getUid());
+
         mNotificationAdapter = new NeighborJobAdapter(Job.class, R.layout.job_list_row, NeighborJobViewHolder.class, jobQuery, getContext());
         mNotificationAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override

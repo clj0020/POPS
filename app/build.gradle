@@ -46,6 +46,7 @@ dependencies {
     compile 'com.firebaseui:firebase-ui:0.5.3'
     compile 'com.firebaseui:firebase-ui-database:0.5.3'
     compile 'com.jakewharton:butterknife:8.4.0'
+    apt 'com.jakewharton:butterknife-compiler:8.4.0'
     compile 'com.google.android.gms:play-services-maps:9.4.0'
     compile 'com.google.android.gms:play-services-auth:9.4.0'
     compile 'com.google.code.gson:gson:2.7'
@@ -55,6 +56,12 @@ dependencies {
     compile 'com.braintreepayments:card-form:2.3.2'
     testCompile 'junit:junit:4.12'
     apt 'org.parceler:parceler:1.1.5'
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4'
+    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4'
+    compile 'com.orhanobut:logger:1.15'
+    compile 'frankiesardo:icepick:3.2.0'
+    provided 'frankiesardo:icepick-processor:3.2.0'
 }
 
 

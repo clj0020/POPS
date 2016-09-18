@@ -35,31 +35,28 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Date;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 
 public class PopperDashboardFragment extends Fragment {
-    private static final String USER_ID = "user_id";
+
+    @BindView(R.id.popper_dash_name) TextView mNameTextView;
+    @BindView(R.id.popper_dash_age) TextView mAgeTextView;
+    @BindView(R.id.popper_dash_organization) TextView mOrganizationNameTextView;
+    @BindView(R.id.popper_dash_goal) TextView mGoalTextView;
+    @BindView(R.id.popper_dash_earned) TextView mEarnedTextView;
+    @BindView(R.id.popper_dash_goal_date) TextView mGoalDateTextView;
+    @BindView(R.id.popper_menu_btn) ImageButton mSettingsButton;
+    @BindView(R.id.popper_dash_goal_progress_bar) ProgressBar mGoalProgressBar;
+    @BindView(R.id.popper_dash_skill_rating_communication) RatingBar mSkillCommunicationStars;
 
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
-
     public String userId;
-
-    private TextView mNameTextView;
-    private TextView mAgeTextView;
-    private TextView mOrganizationNameTextView;
-    private TextView mGoalTextView;
-    private TextView mEarnedTextView;
-    private TextView mGoalDateTextView;
-    private ImageButton mSettingsButton;
-    private ProgressBar mGoalProgressBar;
-
-    private RatingBar mSkillCommunicationStars;
 
     private PopperDashCallbacks mCallbacks;
 
-    /**
-     * Required interface for hosting activities
-     */
     public interface PopperDashCallbacks {
         void onSignOutButton();
     }
@@ -104,30 +101,17 @@ public class PopperDashboardFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_popper_dashboard, container, false);
+        ButterKnife.bind(this, view);
 
         auth = FirebaseAuth.getInstance();
-
-
-        mNameTextView = (TextView) view.findViewById(R.id.popper_dash_name);
-        mAgeTextView = (TextView) view.findViewById(R.id.popper_dash_age);
-        mOrganizationNameTextView = (TextView) view.findViewById(R.id.popper_dash_organization);
-        mGoalTextView = (TextView) view.findViewById(R.id.popper_dash_goal);
-        mEarnedTextView = (TextView) view.findViewById(R.id.popper_dash_earned);
-        mGoalDateTextView = (TextView) view.findViewById(R.id.popper_dash_goal_date);
-        mGoalProgressBar = (ProgressBar) view.findViewById(R.id.popper_dash_goal_progress_bar);
-
-        mSkillCommunicationStars = (RatingBar) view.findViewById(R.id.popper_dash_skill_rating_communication);
 
         LayerDrawable stars = (LayerDrawable) mSkillCommunicationStars.getProgressDrawable();
 
         stars.getDrawable(2).setColorFilter(Color.parseColor("#0076B2"), PorterDuff.Mode.SRC_ATOP); // for filled stars
         stars.getDrawable(1).setColorFilter(Color.parseColor("#D3D3D3"), PorterDuff.Mode.SRC_ATOP); // for half filled stars
         stars.getDrawable(0).setColorFilter(Color.parseColor("#D3D3D3"), PorterDuff.Mode.SRC_ATOP); // for empty stars
-
-        mSettingsButton = (ImageButton) view.findViewById(R.id.popper_menu_btn);
 
         mSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -189,22 +173,6 @@ public class PopperDashboardFragment extends Fragment {
 
         return view;
     }
-
-
-//    @Override
-//    public void onClick(View v) {
-//
-//        switch (v.getId()) {
-//            case R.id.popper_dash_sign_out_btn:
-//                mCallbacks.onSignOutButton();
-//                Log.i("Sign Out", "Sign out button clicked");
-//                break;
-//            case R.id.popper_dash_goal:
-//                break;
-//            default:
-//                break;
-//        }
-//    }
 
     @Override
     public void onPause() {

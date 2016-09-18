@@ -66,41 +66,50 @@ import com.madmensoftware.www.pops.Helpers.GPSTracker;
 import com.madmensoftware.www.pops.Models.Job;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
+import com.orhanobut.logger.Logger;
 
 import org.parceler.Parcels;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class AddJobActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = AddJobActivity.class.getSimpleName();
-    private static final int PERMISSION_REQUEST_CODE_LOCATION = 1;
 
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
     private GeoFire geofire;
+    private GoogleApiClient mGoogleApiClient;
+    private double longitude;
+    private double latitude;
 
     private User user;
     private String uid;
     private String category;
 
 
-    private EditText mJobTitleEditText, mJobDescriptionEditText, mJobDurationEditText, mJobBudgetEditText;
-    private Spinner mJobCategorySpinner;
-    private Button mAddJobButton;
-    private Button btnDatePicker, btnTimePicker;
-    private EditText mJobDate, mJobTime;
+    @BindView(R.id.add_job_title) EditText mJobTitleEditText;
+    @BindView(R.id.add_job_description) EditText mJobDescriptionEditText;
+    @BindView(R.id.add_job_duration) EditText mJobDurationEditText;
+    @BindView(R.id.add_job_budget) EditText mJobBudgetEditText;
+    @BindView(R.id.add_job_category) Spinner mJobCategorySpinner;
+    @BindView(R.id.add_job_submit_btn) Button mAddJobButton;
+    @BindView(R.id.add_job_date_btn) Button btnDatePicker;
+    @BindView(R.id.add_job_time_btn) Button btnTimePicker;
+    @BindView(R.id.add_job_date) EditText mJobDate;
+    @BindView(R.id.add_job_time) EditText mJobTime;
+
     private int mYear, mMonth, mDay, mHour, mMinute;
     private int mJobYear, mJobDay, mJobMonth, mJobHour, mJobMinute;
-
-    private GoogleApiClient mGoogleApiClient;
-    private double longitude;
-    private double latitude;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_job);
+
+        ButterKnife.bind(this);
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -116,19 +125,7 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
             user = Parcels.unwrap(b.getParcelable("User"));
         }
 
-
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        mJobTitleEditText = (EditText) findViewById(R.id.add_job_title);
-        mJobDescriptionEditText = (EditText) findViewById(R.id.add_job_description);
-        mJobDurationEditText = (EditText) findViewById(R.id.add_job_duration);
-        mJobBudgetEditText = (EditText) findViewById(R.id.add_job_budget);
-        mJobCategorySpinner = (Spinner) findViewById(R.id.add_job_category);
-        mJobDate = (EditText) findViewById(R.id.add_job_date);
-        mJobTime = (EditText) findViewById(R.id.add_job_time);
-        btnDatePicker = (Button) findViewById(R.id.add_job_date_btn);
-        btnTimePicker = (Button) findViewById(R.id.add_job_time_btn);
-        mAddJobButton = (Button) findViewById(R.id.add_job_submit_btn);
 
         mJobBudgetEditText.addTextChangedListener(new CurrencyTextWatcher(mJobBudgetEditText, "#,###"));
 
@@ -199,12 +196,21 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     @Override
+    public void onPause() {
+        Logger.d("AddJobActivityPaused");
+        super.onPause();
+
+    }
+
+    @Override
     public void onStop() {
         mGoogleApiClient.disconnect();
         super.onStop();
         if (mAuthListener != null) {
             auth.removeAuthStateListener(mAuthListener);
         }
+
+        Logger.d("AddJobActivityStopped");
     }
 
     @Override
@@ -239,7 +245,7 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                             job.setDescription(description);
                             job.setDuration(duration);
                             job.setBudget(budget);
-                            job.setStatus("Pending");
+                            job.setStatus("open");
                             job.setCategory(category);
 
                             String jobId = mDatabase.child("jobs").push().getKey();
@@ -419,6 +425,4 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
             }
         }
     }
-
-
 }

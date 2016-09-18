@@ -14,34 +14,30 @@ import android.widget.ProgressBar;
 
 import com.madmensoftware.www.pops.R;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class SignUpSecondPageFragment extends Fragment implements View.OnClickListener {
 
     private static final String ARG_TYPE = "type";
 
-    private EditText inputEmail, inputPassword;
-    private ProgressBar progressBar;
-
-    private Button backBtn;
-    private Button submitBtn;
+    @BindView(R.id.email) EditText inputEmail;
+    @BindView(R.id.password) EditText inputPassword;
+    @BindView(R.id.progressBar) ProgressBar progressBar;
+    @BindView(R.id.backBtn) Button backBtn;
+    @BindView(R.id.nextBtn) Button submitBtn;
 
     private SignUpSecondPageCallbacks mCallbacks;
-
     public String type;
 
-    /**
-     * Required interface for hosting activities
-     */
     public interface SignUpSecondPageCallbacks {
         void onBackButton();
         void onSubmitButton(String email, String password, String type);
     }
 
-
     public SignUpSecondPageFragment() {
 
     }
-
-
 
     @Override
     public void onAttach(Activity activity) {
@@ -66,7 +62,6 @@ public class SignUpSecondPageFragment extends Fragment implements View.OnClickLi
         }
     }
 
-
     public static SignUpSecondPageFragment newInstance(String type) {
         SignUpSecondPageFragment fragment = new SignUpSecondPageFragment();
         Bundle args = new Bundle();
@@ -84,40 +79,15 @@ public class SignUpSecondPageFragment extends Fragment implements View.OnClickLi
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sign_up_second_page, container, false);
-
-//        btnSignIn = (Button) view.findViewById(R.id.sign_in_button);
-
-        backBtn = (Button) view.findViewById(R.id.backBtn);
-        submitBtn = (Button) view.findViewById(R.id.nextBtn);
+        ButterKnife.bind(this, view);
 
         backBtn.setOnClickListener(this);
         submitBtn.setOnClickListener(this);
 
-
-        inputEmail = (EditText) view.findViewById(R.id.email);
-        inputPassword = (EditText) view.findViewById(R.id.password);
-        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-
-
-//        btnSignUp.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                String email = inputEmail.getText().toString().trim();
-//                String password = inputPassword.getText().toString().trim();
-//
-//
-//            }
-//        });
-
-
         return view;
     }
-
 
     @Override
     public void onClick(View v) {
@@ -137,5 +107,4 @@ public class SignUpSecondPageFragment extends Fragment implements View.OnClickLi
         }
 
     }
-
 }

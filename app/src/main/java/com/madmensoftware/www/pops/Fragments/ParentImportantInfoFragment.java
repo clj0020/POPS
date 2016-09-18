@@ -22,24 +22,22 @@ import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * A simple {@link Fragment} subclass.
  */
 public class ParentImportantInfoFragment extends Fragment {
 
+    @BindView(R.id.parent_settings_code) TextView mAccessCode;
+    @BindView(R.id.parent_settings_safe_word) TextView mSafeWord;
+    @BindView(R.id.parent_important_info_close_btn) Button mCloseButton;
+
+    private ParentImportantInfoCallbacks mCallbacks;
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
 
-    private TextView mAccessCode;
-    private TextView mSafeWord;
-    private Button mCloseButton;
-
-    private ParentImportantInfoCallbacks mCallbacks;
-
-
-    /**
-     * Required interface for hosting activities
-     */
     public interface ParentImportantInfoCallbacks {
         void onImportantInfoClose();
     }
@@ -67,7 +65,6 @@ public class ParentImportantInfoFragment extends Fragment {
         }
     }
 
-
     public ParentImportantInfoFragment() {
         // Required empty public constructor
     }
@@ -79,17 +76,13 @@ public class ParentImportantInfoFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_parent_important_info, container, false);
+        ButterKnife.bind(this, view);
 
         auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        mAccessCode = (TextView) view.findViewById(R.id.parent_settings_code);
-        mSafeWord = (TextView) view.findViewById(R.id.parent_settings_safe_word);
-        mCloseButton = (Button) view.findViewById(R.id.parent_important_info_close_btn);
 
         mCloseButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,5 +108,4 @@ public class ParentImportantInfoFragment extends Fragment {
 
         return view;
     }
-
 }

@@ -12,6 +12,4 @@ public class ParentSettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_parent_settings);
     }
-
-
 }

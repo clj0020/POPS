@@ -11,7 +11,10 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -28,24 +31,26 @@ import com.madmensoftware.www.pops.Helpers.NonSwipeableViewPager;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
+import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by carsonjones on 8/30/16.
  */
-public class PopperActivity extends AppCompatActivity implements PopperDashboardFragment.PopperDashCallbacks {
+public class PopperActivity extends AppCompatActivity implements PopperDashboardFragment.PopperDashCallbacks, PopperCheckInFragment.PopperCheckInCallbacks {
     public final static String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
 
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
-
-    private TabLayout tabLayout;
-    private NonSwipeableViewPager viewPager;
-
-
+    private GeoFire geofire;
     private int[] tabIcons = {
             R.mipmap.ic_dashboard,
             R.mipmap.ic_jobs,
@@ -53,12 +58,15 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
             R.mipmap.ic_notifications,
             R.mipmap.ic_check_in
     };
+    
+    @BindView(R.id.tabs) TabLayout tabLayout;
+    @BindView(R.id.viewpager) NonSwipeableViewPager viewPager;
 
     @Override
     public void onStart() {
         super.onStart();
         auth.addAuthStateListener(authListener);
-        Log.i("Popper: ", "PopperActivity started.");
+        Logger.d("Popper: ", "PopperActivity started.");
     }
 
     @Override
@@ -68,17 +76,16 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
             auth.removeAuthStateListener(authListener);
         }
 
-        Log.i("Popper: ", "PopperActivity stopped.");
+        Logger.d("Popper: ", "PopperActivity stopped.");
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popper);
+        ButterKnife.bind(this);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        viewPager = (NonSwipeableViewPager) findViewById(R.id.viewpager);
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
 
         setupViewPager(viewPager);
         tabLayout.setupWithViewPager(viewPager);
@@ -90,7 +97,7 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user == null) {
-                    Log.i("Auth", "User is null");
+                    Logger.d("Auth", "User is null");
                     startActivity(new Intent(PopperActivity.this, LoginActivity.class));
                     finish();
                 }
@@ -108,27 +115,42 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
 
             }
         });
-
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        Log.i("Popper: ", "PopperActivity resumed.");
+        Logger.d("Popper: ", "PopperActivity resumed.");
     }
 
     @Override
     public void onPause() {
         super.onPause();
 
-        Log.i("Popper: ", "PopperActivity paused.");
+        Logger.d("Popper: ", "PopperActivity paused.");
     }
 
     @Override
     public void onSignOutButton() {
         auth.signOut();
+    }
+
+    @Override
+    public void onCheckIn(double latitude, double longitude) {
+        String uid = auth.getCurrentUser().getUid();
+        Date currentDate = Calendar.getInstance().getTime();
+        long currentTime = currentDate.getTime();
+
+        Logger.d(currentTime);
+
+        String checkInId = mDatabase.child("users").child(uid).child("check-in").push().getKey();
+        mDatabase.child("users").child(uid).child("check-in").child(checkInId).setValue(currentTime);
+
+        geofire = new GeoFire(mDatabase.child("check_in_location"));
+        geofire.setLocation(checkInId, new GeoLocation(latitude, longitude));
+
+        Toast.makeText(this, "Successfully Checked In!", Toast.LENGTH_LONG).show();
     }
 
     private void setupTabIcons() {
@@ -175,9 +197,8 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
+            return null;
         }
 
     }
-
 }

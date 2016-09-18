@@ -18,22 +18,24 @@ import android.view.ViewGroup;
 
 import com.madmensoftware.www.pops.Adapters.PopperJobsViewPagerAdapter;
 import com.madmensoftware.www.pops.R;
+import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class PopperJobsFragment extends Fragment {
 
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
-    private PopperJobsViewPagerAdapter adapter;
-    
+    @BindView(R.id.popper_job_viewpager) ViewPager viewPager;
+    @BindView(R.id.popper_job_tabs) TabLayout tabLayout;
 
-    private static final String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
+    private PopperJobsViewPagerAdapter adapter;
 
     public PopperJobsFragment() {
         // Required empty public constructor
@@ -41,24 +43,20 @@ public class PopperJobsFragment extends Fragment {
 
     public static PopperJobsFragment newInstance() {
         PopperJobsFragment fragment = new PopperJobsFragment();
-        Log.i("Popper:", " PopperJobsFragment created");
+        Logger.d(" PopperJobsFragment created");
         return fragment;
     }
 
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_popper_jobs, container, false);
+        ButterKnife.bind(this, view);
 
-        ViewPager viewPager = (ViewPager) view.findViewById(R.id.popper_job_viewpager);
         if (viewPager != null) {
             setupViewPager(viewPager);
         }
 
-        Log.v("Layout","Tabs");
-        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.popper_job_tabs);
         tabLayout.setSelectedTabIndicatorColor(Color.parseColor("#FFFFFF"));
         tabLayout.setTabTextColors(Color.parseColor("#707070"), Color.parseColor("#FFFFFF"));
         assert viewPager != null;
@@ -73,7 +71,6 @@ public class PopperJobsFragment extends Fragment {
         adapter.addFragment(PopperPastJobsFragment.newInstance(), "Past Jobs");
         viewPager.setAdapter(adapter);
     }
-
 
     static class Adapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragments = new ArrayList<>();
@@ -103,5 +100,4 @@ public class PopperJobsFragment extends Fragment {
             return mFragmentTitles.get(position);
         }
     }
-
 }

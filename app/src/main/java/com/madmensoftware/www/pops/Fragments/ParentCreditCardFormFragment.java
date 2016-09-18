@@ -16,12 +16,15 @@ import com.braintreepayments.cardform.OnCardFormSubmitListener;
 import com.braintreepayments.cardform.view.CardForm;
 import com.madmensoftware.www.pops.R;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * A simple {@link Fragment} subclass.
  */
 public class ParentCreditCardFormFragment extends Fragment implements OnCardFormSubmitListener {
 
-    private CardForm cardForm;
+    @BindView(R.id.parent_bt_card_form) CardForm cardForm;
 
     private ParentCreditCardFormCallbacks mCallbacks;
 
@@ -52,7 +55,6 @@ public class ParentCreditCardFormFragment extends Fragment implements OnCardForm
         }
     }
 
-
     public ParentCreditCardFormFragment() {
         // Required empty public constructor
     }
@@ -63,13 +65,11 @@ public class ParentCreditCardFormFragment extends Fragment implements OnCardForm
         return fragment;
     }
 
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_parent_credit_card_form, container, false);
+        ButterKnife.bind(this, view);
 
-        cardForm = (CardForm) view.findViewById(R.id.parent_bt_card_form);
         cardForm.setRequiredFields(getActivity(), true, true, true, true, "Purchase");
         cardForm.setOnCardFormSubmitListener(this);
 

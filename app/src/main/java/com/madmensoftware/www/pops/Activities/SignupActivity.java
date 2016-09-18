@@ -33,7 +33,6 @@ public class SignupActivity extends SingleFragmentActivity implements SignUpFirs
         SignUpSecondPageFragment.SignUpSecondPageCallbacks {
     public final static String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
 
-
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
@@ -49,7 +48,6 @@ public class SignupActivity extends SingleFragmentActivity implements SignUpFirs
         setContentView(R.layout.activity_signup);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
 
         FragmentManager fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);

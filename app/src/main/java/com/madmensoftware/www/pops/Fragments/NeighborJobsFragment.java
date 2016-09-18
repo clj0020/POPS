@@ -23,6 +23,9 @@ import com.madmensoftware.www.pops.Adapters.PopperJobsViewPagerAdapter;
 import com.madmensoftware.www.pops.Models.Job;
 import com.madmensoftware.www.pops.R;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -33,30 +36,18 @@ public class NeighborJobsFragment extends Fragment {
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
-
-
-
-
-    //    private Query jobQuery;
-//
-    private LinearLayoutManager linearLayoutManager;
-    private RecyclerView jobRecyclerview;
-
-    private NeighborJobAdapter mNeighborJobAdapter;
     private DatabaseReference mRef;
     private DatabaseReference mJobRef;
+    private DatabaseReference mFirebaseDatabaseReference;
+    private FirebaseRecyclerAdapter<Job, NeighborJobViewHolder> mFirebaseAdapter;
+    private LinearLayoutManager linearLayoutManager;
+    private NeighborJobAdapter mNeighborJobAdapter;
+
+    @BindView(R.id.neighbor_jobs_recycler_view) RecyclerView jobRecyclerview;
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private PopperJobsViewPagerAdapter adapter;
-
-
-    // Firebase instance variables
-    private DatabaseReference mFirebaseDatabaseReference;
-    private FirebaseRecyclerAdapter<Job, NeighborJobViewHolder>
-            mFirebaseAdapter;
-
-
 
     public NeighborJobsFragment() {
         // Required empty public constructor
@@ -72,20 +63,19 @@ public class NeighborJobsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_neighbor_jobs, container, false);
+        ButterKnife.bind(this, view);
 
         auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-
-
-        jobRecyclerview = (RecyclerView) view.findViewById(R.id.neighbor_jobs_recycler_view);
         jobRecyclerview.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(getActivity());
+
         mRef = FirebaseDatabase.getInstance().getReference();
         Query jobQuery = mRef.child("jobs").orderByChild("posterUid").equalTo(auth.getCurrentUser().getUid());
+
         mNeighborJobAdapter = new NeighborJobAdapter(Job.class, R.layout.job_list_row, NeighborJobViewHolder.class, jobQuery, getContext());
         mNeighborJobAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override

@@ -29,6 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.R;
+import com.orhanobut.logger.Logger;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
@@ -40,40 +41,35 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class AddDetailsPopperFragment extends Fragment implements View.OnClickListener {
 
     private static final String DIALOG_DATE = "DialogDate";
     private static final int REQUEST_DATE = 0;
 
-    private ProgressBar progressBar;
-
-    private EditText mNameEditText;
-    private EditText mAgeEditText;
-    private EditText mZipCodeEditText;
-    private EditText mOrganizationCode;
-    private EditText mGoal;
-    private EditText mParentCode;
-    private Spinner mTransportationSpinner;
-    private DiscreteSeekBar mRadiusSeekbar;
-    private Button mNextButton;
-    private Button mDateButton;
+    @BindView(R.id.progressBar) ProgressBar progressBar;
+    @BindView(R.id.name) EditText mNameEditText;
+    @BindView(R.id.age) EditText mAgeEditText;
+    @BindView(R.id.zip_code) EditText mZipCodeEditText;
+    @BindView(R.id.organization_code) EditText mOrganizationCode;
+    @BindView(R.id.goal) EditText mGoal;
+    @BindView(R.id.parent_code) EditText mParentCode;
+    @BindView(R.id.transportation_spinner) Spinner mTransportationSpinner;
+    @BindView(R.id.radius_seekbar) DiscreteSeekBar mRadiusSeekbar;
+    @BindView(R.id.nextBtn) Button mNextButton;
+    @BindView(R.id.goal_due_date) Button mDateButton;
 
     public String transportationType;
     private int mYear, mMonth, mDay;
-
     public Date goalDate;
     private long goalDateLong;
-
-
-    private boolean doesOrganizationCodeMatch;
 
     private AccessCodeChecker accessCodeChecker = new AccessCodeChecker();
 
     private SignUpPopperCallbacks mCallbacks;
 
-    /**
-     * Required interface for hosting activities
-     */
     public interface SignUpPopperCallbacks {
         void onPopperSubmit(String name, int age, int zip_code, String transportation, int radius, double goal, long goalDateLong, int parentCode, int organizationCode);
     }
@@ -119,23 +115,10 @@ public class AddDetailsPopperFragment extends Fragment implements View.OnClickLi
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_details_popper, container, false);
+        ButterKnife.bind(this, view);
 
+        Logger.d("onCreateView");
 
-        mNameEditText = (EditText) view.findViewById(R.id.name);
-        mAgeEditText = (EditText) view.findViewById(R.id.age);
-        mZipCodeEditText = (EditText) view.findViewById(R.id.zip_code);
-        mOrganizationCode = (EditText) view.findViewById(R.id.organization_code);
-        mParentCode = (EditText) view.findViewById(R.id.parent_code);
-        mTransportationSpinner = (Spinner) view.findViewById(R.id.transportation_spinner);
-        mRadiusSeekbar = (DiscreteSeekBar) view.findViewById(R.id.radius_seekbar);
-        mGoal = (EditText) view.findViewById(R.id.goal);
-        mDateButton = (Button) view.findViewById(R.id.goal_due_date);
-        mNextButton = (Button) view.findViewById(R.id.nextBtn);
-        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-
-        mGoal.addTextChangedListener(new CurrencyTextWatcher(mGoal, "#,###"));
-
-        //Spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.transportation_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -154,7 +137,6 @@ public class AddDetailsPopperFragment extends Fragment implements View.OnClickLi
             }
         });
 
-        // Seekbar
         mRadiusSeekbar.setNumericTransformer(new DiscreteSeekBar.NumericTransformer() {
             @Override
             public int transform(int value) {
@@ -172,10 +154,10 @@ public class AddDetailsPopperFragment extends Fragment implements View.OnClickLi
             }
         });
 
+        mGoal.addTextChangedListener(new CurrencyTextWatcher(mGoal, "#,###"));
 
         mDateButton.setOnClickListener(this);
         mNextButton.setOnClickListener(this);
-
 
         return view;
     }
@@ -183,10 +165,8 @@ public class AddDetailsPopperFragment extends Fragment implements View.OnClickLi
 
     @Override
     public void onClick(View v) {
-
         switch(v.getId()) {
             case R.id.nextBtn:
-
                 if(isEmpty(mNameEditText) || isEmpty(mAgeEditText) || isEmpty(mZipCodeEditText) || isEmpty(mGoal)) {
                     Toast.makeText(getActivity(), "Please enter all fields!", Toast.LENGTH_LONG).show();
                 }
@@ -247,34 +227,6 @@ public class AddDetailsPopperFragment extends Fragment implements View.OnClickLi
         }
 
     }
-
-    private void doesParentCodeMatch(int parentCode) {
-        Query parentCodeQuery = FirebaseDatabase.getInstance().getReference().child("users").orderByChild("accessCode").equalTo(parentCode);
-        parentCodeQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                accessCodeChecker.setParentCodeMatch(dataSnapshot);
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-    }
-
-    private void doesOrganizationCodeMatch(int organizationCode) {
-        Query parentCodeQuery = FirebaseDatabase.getInstance().getReference().child("organizations").orderByChild("code").equalTo(organizationCode);
-        parentCodeQuery.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                accessCodeChecker.setOrganizationCodeMatch(dataSnapshot);
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
 
     private boolean isEmpty(EditText etText) {
         return etText.getText().toString().trim().length() == 0;

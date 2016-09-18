@@ -32,6 +32,9 @@ import org.parceler.Parcels;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by carsonjones on 8/30/16.
  */
@@ -39,21 +42,19 @@ public class ParentActivity extends AppCompatActivity {
 
     public final static String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
 
+    @BindView(R.id.parent_viewpager) TabLayout tabLayout;
+    @BindView(R.id.parent_tabs) NonSwipeableViewPager viewPager;
+    @BindView(R.id.parent_toolbar) Toolbar myToolbar;
+
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth auth;
-
-    private TabLayout tabLayout;
-    private NonSwipeableViewPager viewPager;
-
+    public FirebaseUser mFirebaseUser;
+    private User user;
+    public String uid;
     private int[] tabIcons = {
             R.mipmap.ic_jobs,
             R.mipmap.ic_notifications
     };
-
-    public FirebaseUser mFirebaseUser;
-
-    private User user;
-    public String uid;
 
     @Override
     public void onStart() {
@@ -73,22 +74,16 @@ public class ParentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_parent);
+        ButterKnife.bind(this);
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.parent_toolbar);
         setSupportActionBar(myToolbar);
-
-        viewPager = (NonSwipeableViewPager) findViewById(R.id.parent_viewpager);
-        tabLayout = (TabLayout) findViewById(R.id.parent_tabs);
-
 
         Bundle b = this.getIntent().getExtras();
         if (b != null) {
             user = Parcels.unwrap(b.getParcelable("User"));
         }
 
-
         auth = FirebaseAuth.getInstance();
-
         authListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -110,7 +105,6 @@ public class ParentActivity extends AppCompatActivity {
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
                     DatabaseReference ref = database.getReference("users/" + uid);
 
-
                     // Read from the database
                     ref.addValueEventListener(new ValueEventListener() {
                         @Override
@@ -118,24 +112,20 @@ public class ParentActivity extends AppCompatActivity {
                             if(dataSnapshot.exists()) {
                                 User mUser = dataSnapshot.getValue(User.class);
                                 user = mUser;
-
                             }
                             else {
                                 auth.signOut();
                             }
                         }
-
                         @Override
                         public void onCancelled(DatabaseError error) {
 
                         }
-
                     });
                 }
             }
         };
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -12,30 +12,25 @@ import android.widget.Button;
 
 import com.madmensoftware.www.pops.R;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 
 public class SignUpFirstPageFragment extends Fragment implements View.OnClickListener {
 
-
-    private Button mPopperBtn;
-    private Button mParentBtn;
-    private Button mNeighborBtn;
-
+    @BindView(R.id.popperBtn) Button mPopperBtn;
+    @BindView(R.id.parentBtn) Button mParentBtn;
+    @BindView(R.id.neighborBtn) Button mNeighborBtn;
 
     private SignUpFirstPageCallbacks mCallbacks;
 
-
-    /**
-     * Required interface for hosting activities
-     */
     public interface SignUpFirstPageCallbacks {
         void onTypeSelected(String type);
     }
 
-
     public SignUpFirstPageFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public void onAttach(Activity activity) {
@@ -68,13 +63,9 @@ public class SignUpFirstPageFragment extends Fragment implements View.OnClickLis
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sign_up_first_page, container, false);
-
-        mPopperBtn = (Button) view.findViewById(R.id.popperBtn);
-        mParentBtn = (Button) view.findViewById(R.id.parentBtn);
-        mNeighborBtn = (Button) view.findViewById(R.id.neighborBtn);
+        ButterKnife.bind(this, view);
 
         mPopperBtn.setOnClickListener(this);
         mParentBtn.setOnClickListener(this);
@@ -85,7 +76,6 @@ public class SignUpFirstPageFragment extends Fragment implements View.OnClickLis
 
     @Override
     public void onClick(View v) {
-
         switch(v.getId()) {
             case R.id.popperBtn:
                 mCallbacks.onTypeSelected("Popper");
@@ -101,6 +91,4 @@ public class SignUpFirstPageFragment extends Fragment implements View.OnClickLis
         }
 
     }
-
-
 }

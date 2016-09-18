@@ -90,11 +90,13 @@ public class GPSTracker implements GoogleApiClient.ConnectionCallbacks,
     protected synchronized void buildGoogleApiClient(Context mContext) {
         Log.i(TAG, "Building GoogleApiClient");
 
-        mGoogleApiClient = new GoogleApiClient.Builder(mContext)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(mContext)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
 
         createLocationRequest();
     }
@@ -248,6 +250,10 @@ public class GPSTracker implements GoogleApiClient.ConnectionCallbacks,
             if (locationListener != null) {
                 locationListener.onLocationChanged(mCurrentLocation);
             }
+            TinyDB tinyDB = new TinyDB(mContext);
+            tinyDB.putDouble("latitude", latitude);
+            tinyDB.putDouble("longitude", longitude);
+
             latitude = mCurrentLocation.getLatitude();
             longitude = mCurrentLocation.getLongitude();
         }

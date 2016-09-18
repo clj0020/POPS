@@ -1,6 +1,8 @@
 package com.madmensoftware.www.pops.Fragments;
 
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -29,18 +31,24 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.madmensoftware.www.pops.Helpers.AndroidPermissions;
 import com.madmensoftware.www.pops.Helpers.GPSTracker;
+import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.Job;
 import com.madmensoftware.www.pops.R;
+import com.orhanobut.logger.Logger;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class PopperCheckInFragment extends Fragment implements GPSTracker.UpdateLocationListener, OnMapReadyCallback {
 
-    private static final String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
+    @BindView(R.id.popper_check_in_button) Button mCheckInButton;
 
     private GPSTracker gpsTracker;
     private MapView mMapView;
@@ -48,27 +56,52 @@ public class PopperCheckInFragment extends Fragment implements GPSTracker.Update
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
 
+    private PopperCheckInCallbacks mCallbacks;
 
-    private Button mCheckInButton;
+    public interface PopperCheckInCallbacks {
+        void onCheckIn(double latitude, double longitude);
+    }
 
 
     public PopperCheckInFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) return;
+        if (activity instanceof PopperCheckInCallbacks) {
+            mCallbacks = (PopperCheckInCallbacks) activity;
+        } else {
+            throw new RuntimeException(activity.toString()
+                    + " must implement OnListFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof PopperCheckInCallbacks) {
+            mCallbacks = (PopperCheckInCallbacks) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnListFragmentInteractionListener");
+        }
+    }
+
     public static PopperCheckInFragment newInstance() {
         PopperCheckInFragment fragment = new PopperCheckInFragment();
-        Log.i("Popper:", " PopperCheckInFragment created");
+        Logger.d(" PopperCheckInFragment created");
         return fragment;
     }
 
-
-
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_popper_check_in, container, false);
+        ButterKnife.bind(this, view);
+
+        Logger.d("onCreateView");
 
         auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -77,29 +110,21 @@ public class PopperCheckInFragment extends Fragment implements GPSTracker.Update
         gpsTracker.changeUpdateInterval(400000);
         gpsTracker.setLocationListener(this);
 
-        mCheckInButton = (Button) view.findViewById(R.id.popper_check_in_button);
-
         mCheckInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String uid = auth.getCurrentUser().getUid();
-                gpsTracker.updateGPSCoordinates();
 
+                gpsTracker.updateGPSCoordinates();
                 double latitude = gpsTracker.getLatitude();
                 double longitude = gpsTracker.getLongitude();
-                long currentTime = Calendar.getInstance().getTimeInMillis();
 
-                String checkInId = mDatabase.child("users").child(uid).child("check-in").push().getKey();
-                mDatabase.child("users").child(uid).child("check-in").child(checkInId).setValue(currentTime);
+                mCallbacks.onCheckIn(latitude, longitude);
 
-                geofire = new GeoFire(mDatabase.child("check_in_location"));
-                geofire.setLocation(checkInId, new GeoLocation(latitude, longitude));
-
-                Toast.makeText(getActivity(), "Successfully Checked In!", Toast.LENGTH_LONG).show();
 
 
                 Log.i("PopperCheckIn", "CheckInBtn: UserUID=" + uid);
-                Log.i("PopperCheckIn", "CheckInBtn: CurrentTime=" + currentTime);
+                //Log.i("PopperCheckIn", "CheckInBtn: CurrentTime=" + currentTime);
                 Log.i("PopperCheckIn", "CheckInBtn: CurrentLocation:  Latitude=" + gpsTracker.getLatitude() + " Longitude=" + gpsTracker.getLongitude());
             }
         });
@@ -127,7 +152,8 @@ public class PopperCheckInFragment extends Fragment implements GPSTracker.Update
         if (location != null) {
             LatLng latLng;
             latLng = new LatLng(location.getLatitude(), location.getLongitude());
-
+            Logger.d("onLocationChanged");
+            Logger.d("latLng:" + latLng);
         }
     }
 
@@ -137,8 +163,11 @@ public class PopperCheckInFragment extends Fragment implements GPSTracker.Update
             if (Build.VERSION.SDK_INT >= 23) {
                 if (!AndroidPermissions.getInstance().checkLocationPermission(getActivity())) {
                     AndroidPermissions.getInstance().displayLocationPermissionAlert(getActivity());
+
+                    Logger.d("Permission not currently granted.");
                 }
             }
+            Logger.d("gpsTracker onResume");
             gpsTracker.startLocationUpdates();
         }
     }

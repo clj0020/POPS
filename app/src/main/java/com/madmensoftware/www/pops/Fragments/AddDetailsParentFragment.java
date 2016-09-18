@@ -17,29 +17,31 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.madmensoftware.www.pops.R;
+import com.orhanobut.logger.Logger;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-/**
- * A simple {@link Fragment} subclass.
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+/*** A simple {@link Fragment} subclass.
  */
 public class AddDetailsParentFragment extends Fragment implements View.OnClickListener {
 
     private static final String USER_ID = "user_id";
 
-    private ProgressBar progressBar;
+    @BindView(R.id.progress_bar) ProgressBar progressBar;
+    @BindView(R.id.parent_first_name) EditText mFirstNameEditText;
+    @BindView(R.id.parent_last_name) EditText mLastNameEditText;
+    @BindView(R.id.parent_last_four_of_social) EditText mLastFourSocialEditText;
+    @BindView(R.id.parent_phone) EditText mPhoneEditText;
+    @BindView(R.id.parent_dob_date_picker_btn) Button mDateOfBirthButton;
+    @BindView(R.id.nextBtn) Button mNextButton;
 
-    private EditText mFirstNameEditText;
-    private EditText mLastNameEditText;
-    private EditText mLastFourSocialEditText;
-    private EditText mPhoneEditText;
-    private Button mDateOfBirthButton;
-    private Button mNextButton;
     public String uid;
-
     private int mYear, mMonth, mDay;
     private int dobYear, dobMonth, dobDay;
 
@@ -94,16 +96,9 @@ public class AddDetailsParentFragment extends Fragment implements View.OnClickLi
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_details_parent, container, false);
+        ButterKnife.bind(this, view);
 
-
-        mFirstNameEditText = (EditText) view.findViewById(R.id.parent_first_name);
-        mLastNameEditText = (EditText) view.findViewById(R.id.parent_last_name);
-        mLastFourSocialEditText = (EditText) view.findViewById(R.id.parent_last_four_of_social);
-        mDateOfBirthButton = (Button) view.findViewById(R.id.parent_dob_date_picker_btn);
-        mPhoneEditText = (EditText) view.findViewById(R.id.parent_phone);
-
-        mNextButton = (Button) view.findViewById(R.id.nextBtn);
-        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+        Logger.d("onCreateView");
 
         mDateOfBirthButton.setOnClickListener(this);
         mNextButton.setOnClickListener(this);

@@ -41,8 +41,12 @@ import com.madmensoftware.www.pops.Models.Job;
 import com.madmensoftware.www.pops.Models.Notification;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
+import com.orhanobut.logger.Logger;
 
 import org.parceler.Parcels;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -51,47 +55,27 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
     private Notification notification;
 
+    @BindView(R.id.job_detail_neighbor_name) TextView mJobNeighborName;
+    @BindView(R.id.job_detail_title) TextView mJobTitle;
+    @BindView(R.id.job_detail_category) TextView mJobCategory;
+    @BindView(R.id.job_detail_description) TextView mJobDescription;
+    @BindView(R.id.job_detail_budget) TextView mJobBudget;
+    @BindView(R.id.Accept) Button AcceptButton;
+    @BindView(R.id.Reject) Button RejectButton;
+    @BindView(R.id.mapView) MapView mMapView;
+
     private Job mJob;
-
-    private TextView mJobNeighborName;
-    private TextView mJobTitle;
-    private TextView mJobCategory;
-    private TextView mJobDescription;
-    private TextView mJobBudget;
-    private Button AcceptButton;
-    private Button RejectButton;
-
-    MapView mMapView;
-
-    private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
-
+    private DatabaseReference mRef;
+    private DatabaseReference mFirebaseDatabaseReference;
+    private FirebaseRecyclerAdapter<Job, NeighborJobViewHolder> mFirebaseAdapter;
+    private GeoFire geoFire;
+    private GoogleMap mGoogleMap;
     private String mUid;
     private String mType;
     private String type;
     private String parentUid;
-
-    private String ButtonText;
-
-    private LinearLayoutManager linearLayoutManager;
-    private RecyclerView jobRecyclerview;
-
-    private NeighborJobAdapter mNeighborJobAdapter;
-    private DatabaseReference mRef;
-
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
-    private PopperJobsViewPagerAdapter adapter;
-
-    private GeoFire geoFire;
-    private GoogleMap mGoogleMap;
-
-    // Firebase instance variables
-    private DatabaseReference mFirebaseDatabaseReference;
-    private FirebaseRecyclerAdapter<Job, NeighborJobViewHolder>
-            mFirebaseAdapter;
-
 
     public static JobDetailFragment newInstance(Job job) {
         JobDetailFragment jobDetailFragment= new JobDetailFragment();
@@ -100,7 +84,6 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
         jobDetailFragment.setArguments(args);
         return jobDetailFragment;
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -115,21 +98,15 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_job_detail, container, false);
-        AcceptButton = (Button) view.findViewById(R.id.Accept);
-        RejectButton = (Button) view.findViewById(R.id.Reject);
+        ButterKnife.bind(this, view);
+
+        Logger.d("onCreateView");
+
         RejectButton.setVisibility(View.INVISIBLE);
         AcceptButton.setVisibility(View.INVISIBLE);
 
-        mJobNeighborName = (TextView) view.findViewById(R.id.job_detail_neighbor_name);
-        mJobTitle = (TextView) view.findViewById(R.id.job_detail_title);
-        mJobCategory = (TextView) view.findViewById(R.id.job_detail_category);
-        mJobDescription = (TextView) view.findViewById(R.id.job_detail_description);
-        mJobBudget = (TextView) view.findViewById(R.id.job_detail_budget);
-        mMapView = (MapView) view.findViewById(R.id.mapView);
-
         if(mJob == null){
             Toast.makeText(getActivity(), "Error Loading Job... Please try again.", Toast.LENGTH_LONG).show();
-
         }
         else{
             mJobNeighborName.setText(mJob.getPosterName());
@@ -145,32 +122,31 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
         auth = FirebaseAuth.getInstance();
         mRef = FirebaseDatabase.getInstance().getReference();
-        //Query jobQuery = mRef.child("jobs").orderByChild("posterUid").orderByChild("popperUid").equalTo(auth.getCurrentUser().getUid());
 
         TinyDB tinyDb = new TinyDB(getActivity());
         User user = (User) tinyDb.getObject("User", User.class);
 
-        Log.i("JobDetail", "userType: " + user.getType());
+        Logger.d("userType" + user.getType());
 
         mUid = auth.getCurrentUser().getUid();
 
-        Log.i("JobDetail", "Outside onDataChange: jobStatus: " + mJob.getStatus());
+        Logger.d("Outside onDataChange: jobStatus: " + mJob.getStatus());
 
         mDatabase.child("users/" + mUid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final User user = dataSnapshot.getValue(User.class);
 
-
-                Log.i("JobDetails", "onDataChangedCalled Job Status is" + mJob.getStatus());
+                Logger.d("onDataChangedCalled Job Status is " + mJob.getStatus());
 
                 mType = user.getType();
                 type = mType;
-                Log.i("JOBDETAILS", "onCreate: fbType=" + mType);
+
+                Logger.d("onCreateView: fbType=" + mType);
 
                 switch (mType){
                     case "Popper":{
-                        Log.i("switch", "inSwitch: fbType=" + mType);
+                        Logger.d("inSwitch: fbType=" + mType);
 
                         if(mJob.getStatus().equals("open")){
                             AcceptButton.setVisibility(View.VISIBLE);
@@ -181,18 +157,17 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                             mDatabase.child("jobs").child(mJob.getUid()).child("cachepop").setValue(" ");
 
 
-                            Log.i("JobDetail", " Popper: Job Status is active");
-                            Log.i("JobDetail", " Popper: Job Status is " + mJob.getStatus());
-                            Log.i("JobDetail", " Popper: mUid is " + mUid);
+                            Logger.d("Popper: Job Status is active");
+                            Logger.d("Popper: Job Status is " + mJob.getStatus());
+                            Logger.d("Popper: mUid is " + mUid);
                         }
                         AcceptButton.setText("Request Job");
-                        type = "Popper";
                         parentUid = user.getParentUid();
                         AcceptButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Log.i("switch", "onclick: fbType=" + mType);
-                                Log.i("switch", "onclick: fbType=" + mType);
+                                Logger.d("onclick: fbType=" + mType);
+                                Logger.d("onclick: fbType=" + mType);
 
                                 TinyDB tinyDb = new TinyDB(getActivity());
                                 User popper = (User) tinyDb.getObject("User", User.class);
@@ -202,40 +177,43 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                 notification.setDescription("Tap to view");
                                 notification.setJobUid(mJob.getUid());
                                 notification.setParentUid(popper.getParentUid());
+
                                 Toast.makeText(getActivity(), "Accept Clicked", Toast.LENGTH_LONG).show();
+
                                 mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("pending");
+
                                 String notID = mDatabase.child("notification").push().getKey();
                                 notification.setUid(notID);
+
                                 mDatabase.child("jobs").child(mJob.getUid()).child("notification").setValue(notID);
                                 mDatabase.child("jobs").child(mJob.getUid()).child("cachpar").setValue(popper.getParentUid());
 
                                 mDatabase.child("notification").child(notID).setValue(notification);
                                 AcceptButton.setVisibility(View.INVISIBLE);
 
-                                Log.i("JobDetail", " Popper: acceptButtonClicked User is " + popper.getType());
-                                Log.i("JobDetail", " Popper: acceptButtonClicked Current User is " + auth.getCurrentUser().getUid());
-                                Log.i("JobDetail", " Popper: acceptButtonClicked Job Title is " + mJob.getTitle());
-                                Log.i("JobDetail", " Popper: acceptButtonClicked Job Status is " + mJob.getStatus());
+                                Logger.d(" Popper: acceptButtonClicked User is " + popper.getType());
+                                Logger.d(" Popper: acceptButtonClicked Current User is " + auth.getCurrentUser().getUid());
+                                Logger.d(" Popper: acceptButtonClicked Job Title is " + mJob.getTitle());
+                                Logger.d(" Popper: acceptButtonClicked Job Status is " + mJob.getStatus());
                             }
                         });
                         break;
                     }
                     case "Parent":{
-
                         if(mJob.getStatus().equals("pending")){
                             AcceptButton.setText("Accept Request");
                             RejectButton.setVisibility(View.VISIBLE);
                             AcceptButton.setVisibility(View.VISIBLE);
 
-                            Log.i("JobDetail", " Parent: jobStatus is pending");
-                            Log.i("JobDetail", " Parent: job is " + mJob.getStatus());
+                            Logger.d(" Parent: jobStatus is pending");
+                            Logger.d(" Parent: job is " + mJob.getStatus());
                         }
                         if(mJob.getStatus().equals("active")) {
                             mDatabase.child("jobs").child(mJob.getUid()).child("parentUid").setValue(mUid);
                             mDatabase.child("jobs").child(mJob.getUid()).child("cachpar").setValue(" ");
 
-                            Log.i("JobDetail", " Parent: jobStatus is active");
-                            Log.i("JobDetail", " Parent: job is " + mJob.getStatus());
+                            Logger.d(" Parent: jobStatus is active");
+                            Logger.d(" Parent: job is " + mJob.getStatus());
                         }
 
                         // Parent approves of popper request
@@ -246,7 +224,7 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                 TinyDB tinyDb = new TinyDB(getActivity());
                                 User parent = (User) tinyDb.getObject("User", User.class);
 
-                                Log.i("JobDetail", " Parent: acceptButtonClicked Job Status is " + mJob.getStatus());
+                                Logger.d(" Parent: acceptButtonClicked Job Status is " + mJob.getStatus());
 
                                 mDatabase.child("notifications").child(mJob.getNotification()).child("parentUid").setValue("");
 
@@ -257,8 +235,8 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                 notification.setNeighborUid(mJob.getPosterUid());
                                 notification.setPopperUid(parent.getChildUid());
 
-                                Log.i("JobDetail", " Parent: acceptButtonClicked User is " + parent.getUid());
-                                Log.i("JobDetail", " Parent: acceptButtonClicked Current User is " + auth.getCurrentUser().getUid());
+                                Logger.d(" Parent: acceptButtonClicked User is " + parent.getUid());
+                                Logger.d(" Parent: acceptButtonClicked Current User is " + auth.getCurrentUser().getUid());
 
                                 Toast.makeText(getActivity(), "Job Has Been Requested", Toast.LENGTH_LONG).show();
 
@@ -267,9 +245,11 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
                                 String notificationID = mDatabase.child("notification").push().getKey();
                                 notification.setUid(notificationID);
+
                                 mDatabase.child("jobs").child(mJob.getUid()).child("notification").setValue(notificationID);
                                 mDatabase.child("jobs").child(mJob.getUid()).child("cachepop").setValue(parent.getChildUid());
                                 mDatabase.child("notification").child(notificationID).setValue(notification);
+
                                 AcceptButton.setVisibility(View.INVISIBLE);
                                 RejectButton.setVisibility(View.INVISIBLE);
                             }
@@ -295,8 +275,8 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                 mDatabase.child("jobs").child(mJob.getUid()).child("notification").setValue("");
                                 mDatabase.child("jobs").child(mJob.getUid()).child("parentUid").setValue("");
 
-                                Log.i("JobDetail", " Parent: rejectButtonClicked User is " + user.getUid());
-                                Log.i("JobDetail", " Parent: rejectButtonClicked Current User is " + auth.getCurrentUser().getUid());
+                                Logger.d(" Parent: rejectButtonClicked User is " + user.getUid());
+                                Logger.d(" Parent: rejectButtonClicked Current User is " + auth.getCurrentUser().getUid());
 
                                 String notID = mDatabase.child("notification").push().getKey();
                                 notification.setUid(notID);
@@ -317,15 +297,15 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                             RejectButton.setVisibility(View.VISIBLE);
                             AcceptButton.setVisibility(View.VISIBLE);
 
-                            Log.i("JobDetail", " Neighbor: jobStatus is pending");
-                            Log.i("JobDetail", " Neighbor: job is " + mJob.getStatus());
+                            Logger.d(" Neighbor: jobStatus is pending");
+                            Logger.d(" Neighbor: job is " + mJob.getStatus());
                         }
                         AcceptButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 mDatabase.child("notifications").child(mJob.getNotification()).setValue("");
 
-                                Log.i("JobDetail", " Neighbor: acceptButtonClicked Job Status is " + mJob.getStatus());
+                                Logger.d(" Neighbor: acceptButtonClicked Job Status is " + mJob.getStatus());
 
                                 notification = new Notification();
                                 notification.setName("Accepted Job Request");
@@ -348,7 +328,7 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
                                 mDatabase.child("jobs").child(mJob.getUid()).setValue(mJob);
 
-                                Log.i("JobDetail", " Neighbor: acceptButtonClicked UID is " + mUid);
+                                Logger.d(" Neighbor: acceptButtonClicked UID is " + mUid);
                             }
                         });
                         RejectButton.setOnClickListener(new View.OnClickListener() {
@@ -356,15 +336,17 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                             public void onClick(View v) {
                                 mDatabase.child("notifications").child(mJob.getNotification()).setValue("");
 
-                                Log.i("JobDetail", " Neighbor: rejectButtonClicked Job Status is " + mJob.getStatus());
-                                Log.i("JobDetail", " Neighbor: rejectButtonClicked Job Uid is " + mJob.getUid());
+                                Logger.d(" Neighbor: rejectButtonClicked Job Status is " + mJob.getStatus());
+                                Logger.d(" Neighbor: rejectButtonClicked Job Uid is " + mJob.getUid());
 
                                 notification = new Notification();
                                 notification.setName("Job Request Rejected");
                                 notification.setDescription("Please contact parent or guardian");
                                 notification.setPopperUid(user.getChildUid());
                                 notification.setParentUid(mJob.getParentUid());
+
                                 Toast.makeText(getActivity(), "Reject Clicked", Toast.LENGTH_LONG).show();
+
                                 mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("open");
                                 mDatabase.child("jobs").child(mJob.getUid()).child("parentUid").setValue("no parent");
                                 mDatabase.child("jobs").child(mJob.getUid()).child("popperUid").setValue("no popper");
@@ -392,11 +374,10 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        Log.i("JOBDETAILS", "onCreate: fbType=" + mType);
+        Logger.d("onCreateView: fbType=" + mType);
 
-        Log.i("JOBDETAIL", "onCreate: uid = " + mUid);
-         Log.d("JOBDETAIL", "onCreate: type = " + type);
-
+        Logger.d("onCreate: uid = " + mUid);
+        Logger.d("onCreate: type = " + type);
 
         return view;
     }

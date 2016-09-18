@@ -15,20 +15,22 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.madmensoftware.www.pops.R;
+import com.orhanobut.logger.Logger;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class AddDetailsNeighborFragment extends Fragment implements View.OnClickListener {
 
-    private ProgressBar progressBar;
-
-    private EditText mNameEditText;
-    private EditText mAddressEditText;
-    private EditText mZipCodeEditText;
-    private EditText mOrganizationCode;
-    private Button mNextButton;
-    public String uid;
+    @BindView(R.id.neighbor_name) EditText mNameEditText;
+    @BindView(R.id.neighbor_address) EditText mAddressEditText;
+    @BindView(R.id.neighbor_zip_code) EditText mZipCodeEditText;
+    @BindView(R.id.neighbor_organization_code) EditText mOrganizationCode;
+    @BindView(R.id.nextBtn) Button mNextButton;
+    @BindView(R.id.progressBar) ProgressBar progressBar;
 
     private SignUpNeighborCallbacks mCallbacks;
 
@@ -80,14 +82,9 @@ public class AddDetailsNeighborFragment extends Fragment implements View.OnClick
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_details_neighbor, container, false);
+        ButterKnife.bind(this, view);
 
-
-        mNameEditText = (EditText) view.findViewById(R.id.neighbor_name);
-        mAddressEditText = (EditText) view.findViewById(R.id.neighbor_address);
-        mZipCodeEditText = (EditText) view.findViewById(R.id.neighbor_zip_code);
-        mOrganizationCode = (EditText) view.findViewById(R.id.neighbor_organization_code);
-        mNextButton = (Button) view.findViewById(R.id.nextBtn);
-        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+        Logger.d("onCreateView");
 
         mNextButton.setOnClickListener(this);
 
