@@ -60,8 +60,7 @@ dependencies {
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4'
     compile 'com.orhanobut:logger:1.15'
-    compile 'frankiesardo:icepick:3.2.0'
-    provided 'frankiesardo:icepick-processor:3.2.0'
+    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
 }
 
 

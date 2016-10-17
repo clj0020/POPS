@@ -122,7 +122,8 @@ public class SignupActivity extends SingleFragmentActivity implements SignUpFirs
         }
         else {
             progressBar.setVisibility(View.VISIBLE);
-           // create user
+
+            // create user
                 auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                             @Override

@@ -2,6 +2,8 @@ package com.madmensoftware.www.pops;
 
 import android.app.Application;
 
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 import com.squareup.leakcanary.LeakCanary;
 import android.os.StrictMode;
 
@@ -17,6 +19,8 @@ public class POPSApplication extends Application {
         super.onCreate();
         enabledStrictMode();
         LeakCanary.install(this);
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this);
     }
 
     private void enabledStrictMode() {
