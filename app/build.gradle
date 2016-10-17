@@ -34,7 +34,7 @@ dependencies {
     compile 'com.android.support:design:24.2.1'
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.android.support:recyclerview-v7:24.2.1'
-    compile 'com.google.android.gms:play-services:9.4.0'
+    compile 'com.google.android.gms:play-services:9.6.1'
     compile 'com.google.firebase:firebase-core:9.4.0'
     compile 'com.google.firebase:firebase-auth:9.4.0'
     compile 'com.google.firebase:firebase-database:9.4.0'
@@ -47,8 +47,8 @@ dependencies {
     compile 'com.firebaseui:firebase-ui-database:0.5.3'
     compile 'com.jakewharton:butterknife:8.4.0'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
-    compile 'com.google.android.gms:play-services-maps:9.4.0'
-    compile 'com.google.android.gms:play-services-auth:9.4.0'
+    compile 'com.google.android.gms:play-services-maps:9.6.1'
+    compile 'com.google.android.gms:play-services-auth:9.6.1'
     compile 'com.google.code.gson:gson:2.7'
     compile 'com.google.maps.android:android-maps-utils:0.4.+'
     compile 'com.firebase:geofire-android:2.1.0'
@@ -62,6 +62,8 @@ dependencies {
     compile 'com.orhanobut:logger:1.15'
     compile 'frankiesardo:icepick:3.2.0'
     provided 'frankiesardo:icepick-processor:3.2.0'
+    compile 'com.tomergoldst.android:tooltips:1.0.2'
+    compile 'com.github.ganfra:material-spinner:1.1.1'
 }
 
 

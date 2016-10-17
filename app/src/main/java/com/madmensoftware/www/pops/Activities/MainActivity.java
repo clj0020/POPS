@@ -29,7 +29,6 @@ import com.madmensoftware.www.pops.Fragments.PopperMapFragment;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
-
 import org.parceler.Parcels;
 
 public class MainActivity extends AppCompatActivity {
@@ -48,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
         //get firebase auth instance
         auth = FirebaseAuth.getInstance();
-        //auth.signOut();
+//        auth.signOut();
 
         authListener = new FirebaseAuth.AuthStateListener() {
             @Override
