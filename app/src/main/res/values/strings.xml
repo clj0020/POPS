@@ -72,5 +72,6 @@
         <item>Yard Work and Removal</item>
     </string-array>
 
+    <string name="facebook_app_id">263389244057610</string>
     <string name="hello_blank_fragment">Hello World</string>
 </resources>

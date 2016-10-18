@@ -31,7 +31,15 @@
             android:layout_marginRight="10dp"
             android:layout_marginTop="30dp" />
 
-            <EditText
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/facebook_login_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="30dp" />
+
+        <EditText
                 android:id="@+id/email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -87,17 +95,6 @@
 
         <!-- Link to Login Screen -->
 
-        <TextView
-            android:id="@+id/btn_signup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dip"
-            android:background="@null"
-            android:text="@string/btn_link_to_register"
-            android:textAllCaps="false"
-            android:textColor="@color/black"
-            android:textAlignment="center"
-            android:textSize="15dp" />
     </LinearLayout>
 
     <ProgressBar

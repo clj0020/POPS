@@ -29,6 +29,8 @@ import com.madmensoftware.www.pops.Fragments.PopperMapFragment;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
+import com.orhanobut.logger.Logger;
+
 import org.parceler.Parcels;
 
 public class MainActivity extends AppCompatActivity {
@@ -47,14 +49,16 @@ public class MainActivity extends AppCompatActivity {
 
         //get firebase auth instance
         auth = FirebaseAuth.getInstance();
-//        auth.signOut();
+        //auth.signOut();
+
+        Logger.i(auth.toString());
 
         authListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                 if (firebaseUser == null) {
-                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    startActivity(new Intent(MainActivity.this, LandingPageActivity.class));
                     finish();
                 }
                 else {
@@ -65,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
                     DatabaseReference ref = database.getReference("users/" + uid);
 
+                    Logger.i(firebaseUser.getUid());
 
                     // Read from the database
                     ref.addValueEventListener(new ValueEventListener() {
@@ -72,11 +77,13 @@ public class MainActivity extends AppCompatActivity {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             // This method is called once with the initial value and again
                             // whenever data at this location is updated.
+                            Logger.d("Called Event Listener");
 
-                            if(dataSnapshot.exists()) {
+
+                            if(dataSnapshot.getValue() != null) {
                                 User mUser = dataSnapshot.getValue(User.class);
-                                TinyDB tinyDB = new TinyDB(getApplicationContext());
-                                tinyDB.putObject("User", mUser);
+//                                TinyDB tinyDB = new TinyDB(getApplicationContext());
+//                                tinyDB.putObject("User", mUser);
                                 type = mUser.getType();
 
                                 switch (type) {
