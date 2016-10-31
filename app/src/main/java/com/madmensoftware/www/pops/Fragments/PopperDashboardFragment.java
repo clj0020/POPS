@@ -20,6 +20,7 @@ import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -50,6 +51,8 @@ public class PopperDashboardFragment extends Fragment {
     @BindView(R.id.popper_menu_btn) ImageButton mSettingsButton;
     @BindView(R.id.popper_dash_goal_progress_bar) ProgressBar mGoalProgressBar;
     @BindView(R.id.popper_dash_skill_rating_communication) RatingBar mSkillCommunicationStars;
+    @BindView(R.id.popper_dash_stats_container) RelativeLayout mStatsContainer;
+    @BindView(R.id.popper_dash_no_goal_container) RelativeLayout mNoGoalContainer;
 
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
@@ -156,12 +159,32 @@ public class PopperDashboardFragment extends Fragment {
                 // whenever data at this location is updated.
                 User mUser = dataSnapshot.getValue(User.class);
 
+
                 mNameTextView.setText(mUser.getName());
-                mAgeTextView.setText(mUser.getAge() + " years old");
-                mOrganizationNameTextView.setText(mUser.getOrganizationName());
-                mGoalTextView.setText(convertDoubleToDollar(mUser.getGoal()));
-                mEarnedTextView.setText(convertDoubleToDollar(mUser.getEarned()));
-                mGoalDateTextView.setText(mUser.getDaysUntilGoalDate() + " days");
+
+                if (mUser.getAge() == 0) {
+                    // Do not have their age
+
+                }
+                else {
+                    mAgeTextView.setText(mUser.getAge() + " years old");
+                }
+
+                //mOrganizationNameTextView.setText(mUser.getOrganizationName());
+
+                if (mUser.getGoal() == 0) {
+                    // They have not added a Goal yet
+                    mNoGoalContainer.setVisibility(View.VISIBLE);
+                    mStatsContainer.setVisibility(View.INVISIBLE);
+                }
+                else {
+                    mNoGoalContainer.setVisibility(View.INVISIBLE);
+                    mStatsContainer.setVisibility(View.VISIBLE);
+
+                    mGoalTextView.setText(convertDoubleToDollar(mUser.getGoal()));
+                    mEarnedTextView.setText(convertDoubleToDollar(mUser.getEarned()));
+                    mGoalDateTextView.setText(mUser.getDaysUntilGoalDate() + " days");
+                }
             }
 
             @Override

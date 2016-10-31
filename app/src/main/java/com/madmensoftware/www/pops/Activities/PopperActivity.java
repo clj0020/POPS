@@ -13,6 +13,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,6 +27,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.madmensoftware.www.pops.Dialogs.PickRadiusDialog;
 import com.madmensoftware.www.pops.Fragments.PopperCheckInFragment;
 import com.madmensoftware.www.pops.Fragments.PopperDashboardFragment;
 import com.madmensoftware.www.pops.Fragments.PopperJobsFragment;
@@ -44,7 +50,8 @@ import butterknife.ButterKnife;
 /**
  * Created by carsonjones on 8/30/16.
  */
-public class PopperActivity extends AppCompatActivity implements PopperDashboardFragment.PopperDashCallbacks, PopperCheckInFragment.PopperCheckInCallbacks {
+public class PopperActivity extends AppCompatActivity implements PopperDashboardFragment.PopperDashCallbacks, PopperCheckInFragment.PopperCheckInCallbacks,
+                PopperMapFragment.PopperMapFragmentCallbacks {
     public final static String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
 
     private FirebaseAuth.AuthStateListener authListener;
@@ -58,6 +65,8 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
             R.mipmap.ic_notifications,
             R.mipmap.ic_check_in
     };
+
+    private CallbackManager mCallbackManager;
     
     @BindView(R.id.tabs) TabLayout tabLayout;
     @BindView(R.id.viewpager) NonSwipeableViewPager viewPager;
@@ -82,8 +91,12 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_popper);
         ButterKnife.bind(this);
+
+        mCallbackManager = CallbackManager.Factory.create();
+
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -107,14 +120,22 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
         mDatabase.child("users").child(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                User mUser = dataSnapshot.getValue(User.class);
                 TinyDB tinyDb = new TinyDB(getApplicationContext());
-                tinyDb.putObject("User", dataSnapshot.getValue(User.class));
+                tinyDb.putObject("User", mUser);
+
             }
             @Override
             public void onCancelled(DatabaseError error) {
 
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -133,7 +154,8 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
 
     @Override
     public void onSignOutButton() {
-        auth.signOut();
+        FirebaseAuth.getInstance().signOut();
+        LoginManager.getInstance().logOut();
     }
 
     @Override
@@ -201,4 +223,5 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
         }
 
     }
+
 }
