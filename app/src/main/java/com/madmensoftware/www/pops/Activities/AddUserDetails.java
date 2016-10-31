@@ -116,7 +116,8 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
     }
 
     @Override
-    public void onPopperSubmit(String name, int age, int zip_code, String transportation, int radius, double goal, long goalDateLong, int parentCode, int organizationCode) {
+    public void onPopperSubmit(String name, int age, int zip_code, String transportation, int radius, double goal, long goalDateLong) {
+//    public void onPopperSubmit(String name, int age, int zip_code, String transportation, int radius, double goal, long goalDateLong, int parentCode, int organizationCode) {
         FirebaseUser firebasePopper = FirebaseAuth.getInstance().getCurrentUser();
         String email = firebasePopper.getEmail();
 
@@ -132,69 +133,69 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
         popper.setGoalDate(goalDateLong);
         popper.setEarned(0);
         popper.setType("Popper");
-
-        final DatabaseReference organizationRef = mDatabase.child("organizations").child(organizationCode + "");
-        mDatabase.child("parent-codes").child(parentCode + "").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    String parentUid = dataSnapshot.getValue().toString();
-                    mDatabase.child("users").child(parentUid).child("childUid").setValue(auth.getCurrentUser().getUid());
-                    popper.setParentUid(parentUid);
-                    Logger.d("UserDetails", "ParentUid" + parentUid);
-
-                    mDatabase.child("users").child(parentUid).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            User parent = dataSnapshot.getValue(User.class);
-                            popper.setSafeWord(parent.getSafeWord());
-                        }
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-
-                    organizationRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.exists()) {
-                                popper.setOrganizationName(dataSnapshot.child("name").getValue().toString());
-
-                                Logger.d(TAG + "Org: ", dataSnapshot.child("name").getValue().toString());
-
-                                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                                mDatabase.child("users").child(firebaseUser.getUid()).setValue(popper);
-
-                                TinyDB tinyDB = new TinyDB(getApplicationContext());
-                                tinyDB.putObject("User", popper);
-
-
-                                Intent intent = new Intent(AddUserDetails.this, MainActivity.class);
-                                startActivity(intent);
-                            }
-                            else {
-                                Toast.makeText(AddUserDetails.this, "Organization Code not found.", Toast.LENGTH_LONG).show();
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-
-                }
-                else {
-                    Toast.makeText(AddUserDetails.this, "Parent Code not found.", Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+//
+//        final DatabaseReference organizationRef = mDatabase.child("organizations").child(organizationCode + "");
+//        mDatabase.child("parent-codes").child(parentCode + "").addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.exists()) {
+//                    String parentUid = dataSnapshot.getValue().toString();
+//                    mDatabase.child("users").child(parentUid).child("childUid").setValue(auth.getCurrentUser().getUid());
+//                    popper.setParentUid(parentUid);
+//                    Logger.d("UserDetails", "ParentUid" + parentUid);
+//
+//                    mDatabase.child("users").child(parentUid).addListenerForSingleValueEvent(new ValueEventListener() {
+//                        @Override
+//                        public void onDataChange(DataSnapshot dataSnapshot) {
+//                            User parent = dataSnapshot.getValue(User.class);
+//                            popper.setSafeWord(parent.getSafeWord());
+//                        }
+//                        @Override
+//                        public void onCancelled(DatabaseError databaseError) {
+//
+//                        }
+//                    });
+//
+//                    organizationRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//                        @Override
+//                        public void onDataChange(DataSnapshot dataSnapshot) {
+//                            if (dataSnapshot.exists()) {
+//                                popper.setOrganizationName(dataSnapshot.child("name").getValue().toString());
+//
+//                                Logger.d(TAG + "Org: ", dataSnapshot.child("name").getValue().toString());
+//
+//                                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+//                                mDatabase.child("users").child(firebaseUser.getUid()).setValue(popper);
+//
+//                                TinyDB tinyDB = new TinyDB(getApplicationContext());
+//                                tinyDB.putObject("User", popper);
+//
+//
+//                                Intent intent = new Intent(AddUserDetails.this, MainActivity.class);
+//                                startActivity(intent);
+//                            }
+//                            else {
+//                                Toast.makeText(AddUserDetails.this, "Organization Code not found.", Toast.LENGTH_LONG).show();
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onCancelled(DatabaseError databaseError) {
+//
+//                        }
+//                    });
+//
+//                }
+//                else {
+//                    Toast.makeText(AddUserDetails.this, "Parent Code not found.", Toast.LENGTH_LONG).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
     }
 
     @Override
@@ -347,7 +348,6 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
         parent.setName(firstName + " " + lastName);
         parent.setPhone(phone);
         parent.setEmail(email);
-
 
         Map<String, Object> accountParams = new HashMap<String, Object>();
         accountParams.put("managed", true);
@@ -581,7 +581,6 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
             } catch (APIException e) {
                 e.printStackTrace();
             }
-
             return account;
         }
 
@@ -607,7 +606,6 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
             com.stripe.Stripe.apiKey = parent.getStripeApiSecretKey();
 
             ExternalAccount externalAccount = new ExternalAccount();
-
 
             Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground accountSecretAPIKey is " + parent.getStripeApiSecretKey());
             Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground accountPublishableAPIKey is " + parent.getStripeApiPublishableKey());

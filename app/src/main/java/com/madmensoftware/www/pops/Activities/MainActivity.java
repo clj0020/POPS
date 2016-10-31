@@ -37,7 +37,10 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth auth;
+    private FirebaseUser mFirebaseUser;
+    private String uid;
     private String type;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +62,12 @@ public class MainActivity extends AppCompatActivity {
                     finish();
                 }
                 else {
+                    mFirebaseUser = firebaseUser;
+                    uid = mFirebaseUser.getUid();
+
+                    // Write a message to the database
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
-                    DatabaseReference ref = database.getReference("users/" + firebaseUser.getUid());
+                    DatabaseReference ref = database.getReference("users/" + uid);
 
                     Logger.i(firebaseUser.getUid());
 

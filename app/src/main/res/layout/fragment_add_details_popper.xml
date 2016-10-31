@@ -7,15 +7,27 @@
 
 
     <RelativeLayout
+        android:id="@+id/add_details_popper_relative_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/login_gradient">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center|bottom"
+            android:layout_marginBottom="20dp"
+            android:visibility="gone" />
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_below="@+id/progressBar"
+            android:layout_toRightOf="@+id/progressBar"
+            android:layout_toEndOf="@+id/progressBar">
 
             <ImageView
                 android:layout_width="match_parent"
@@ -67,29 +79,29 @@
                 android:layout_marginRight="15dp"
                 android:layout_marginLeft="15dp" />
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginRight="15dp"
-                android:layout_marginLeft="15dp">
-
-                <TextView
-                    android:id="@+id/transportation_spinner_label"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="How will you get around?"
-                    android:textSize="20sp"
-                    android:textColor="@color/black"
-                    android:layout_marginBottom="10dp" />
-
-                <Spinner
+                <fr.ganfra.materialspinner.MaterialSpinner
                     android:id="@+id/transportation_spinner"
                     android:layout_width="fill_parent"
-                    android:layout_height="40dp"
-                    android:layout_below="@id/transportation_spinner_label"/>
+                    android:layout_height="wrap_content"
+                    app:ms_multiline="false"
+                    android:textColor="@color/black"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    app:ms_hint="How will you get around?"
+                    app:ms_enableFloatingLabel="true"
+                    app:ms_enableErrorLabel="false"
+                    app:ms_floatingLabelText="How will you get around?"
+                    app:ms_baseColor="@color/colorPrimaryDark"
+                    app:ms_highlightColor="@color/white"
+                    app:ms_thickness="2dp"
+                    app:ms_hintColor="@color/bt_light_gray"
+                    app:ms_arrowColor="@color/black"
+                    app:ms_arrowSize="16dp"
+                    app:ms_alignLabels="false"
+                    app:ms_floatingLabelColor="@color/bt_light_gray"/>
 
-            </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -115,7 +127,10 @@
                     app:dsb_max="20"
                     android:layout_below="@id/radius_seekbar_label"
                     app:dsb_trackHeight="2dp"
-                    app:dsb_scrubberHeight="2dp"/>
+                    app:dsb_scrubberHeight="2dp"
+                    app:dsb_indicatorTextAppearance="@color/white"
+                    app:dsb_progressColor="@color/colorPrimaryDark"
+                    app:dsb_indicatorColor="@color/colorPrimaryDark"/>
 
             </RelativeLayout>
 
@@ -132,7 +147,8 @@
                 android:textColorHint="@color/black"
                 android:layout_marginTop="20dp"
                 android:layout_marginRight="15dp"
-                android:layout_marginLeft="15dp" />
+                android:layout_marginLeft="15dp"
+                android:nextFocusForward="@+id/parent_code"/>
 
             <EditText
                 android:id="@+id/parent_code"
@@ -146,7 +162,8 @@
                 android:textColorHint="@color/black"
                 android:layout_marginTop="20dp"
                 android:layout_marginRight="15dp"
-                android:layout_marginLeft="15dp" />
+                android:layout_marginLeft="15dp"
+                android:nextFocusForward="@+id/goal"/>
 
             <EditText
                 android:id="@+id/goal"
@@ -159,7 +176,9 @@
                 android:textColorHint="@color/black"
                 android:layout_marginTop="20dp"
                 android:layout_marginRight="15dp"
-                android:layout_marginLeft="15dp" />
+                android:layout_marginLeft="15dp"
+                android:imeOptions="actionNext"
+                android:nextFocusDown="@+id/goal_due_date"/>
 
             <Button
                 android:id="@+id/goal_due_date"
@@ -181,21 +200,12 @@
                     android:text="Submit"
                     android:background="@drawable/login_button"
                     android:textColor="@color/colorPrimaryDark"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="20dp"
                     android:layout_marginBottom="10dp"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp" />
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp" />
 
         </LinearLayout>
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_gravity="center|bottom"
-            android:layout_marginBottom="20dp"
-            android:visibility="gone" />
-
 
 
     </RelativeLayout>

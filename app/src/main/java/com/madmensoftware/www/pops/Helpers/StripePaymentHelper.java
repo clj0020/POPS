@@ -3,6 +3,7 @@ package com.madmensoftware.www.pops.Helpers;
 import android.os.AsyncTask;
 
 import com.madmensoftware.www.pops.Models.User;
+import com.orhanobut.logger.Logger;
 import com.stripe.Stripe;
 import com.stripe.exception.APIConnectionException;
 import com.stripe.exception.APIException;
@@ -20,46 +21,63 @@ import java.util.Map;
 //:TODO Create reusable payment class that takes user objects, job object, and price and does different transactions
 public class StripePaymentHelper {
 
+    private static final String PUBLISHABLE_TEST_KEY = "pk_test_9SdGQF1ZibEEnbJ3vYmBaAFj";
+    private static final String SECRET_TEST_KEY = "sk_test_I9UFP4mZBd3kq6W7w9zDenGq";
+    private static final String PUBLISHABLE_LIVE_KEY = "pk_live_KBJbNT9dIp0W1wXzwqJosZBF";
+    private static final String SECRET_LIVE_KEY = "sk_live_Fhk9oHkCywcPIO67SQURx8v3";
 
-    private class CreateChargeTask extends AsyncTask<User, Integer, String> {
-        // Do the long-running work in here
-        protected String doInBackground(User... params) {
-            User user = params[0];
+    public void createCharge(double amount, User neighbor, User parent, double chargeFee,  String chargeDescription) {
+        Map<String, Object> chargeParams = new HashMap<>();
+        chargeParams.put("amount", amount); // Amount in cents
+        chargeParams.put("currency", "usd");
+        chargeParams.put("customer", neighbor.getStripeCustomerId());
+        chargeParams.put("description", chargeDescription);
+        chargeParams.put("destination", parent.getStripeAccountId());
+        chargeParams.put("application_fee", chargeFee);
 
-            Stripe.apiKey = "sk_test_I9UFP4mZBd3kq6W7w9zDenGq";
+        new CreateChargeTask().execute(chargeParams);
+    }
+
+    public void onCreateChargeProcessFinish(String result) {
+        Logger.d(result);
+    }
+
+    private class CreateChargeTask extends AsyncTask<Map<String, Object>, Integer, String> {
+
+        protected String doInBackground(Map<String, Object>... params) {
+            String message = "";
+
+            Map<String, Object> chargeParams = params[0];
+
+            Stripe.apiKey = SECRET_TEST_KEY;
+
             // Create a charge: this will charge the user's card
             try {
-                Map<String, Object> chargeParams = new HashMap<String, Object>();
-                chargeParams.put("amount", 1000); // Amount in cents
-                chargeParams.put("currency", "usd");
-                chargeParams.put("customer", user.getStripeCustomerId());
-                chargeParams.put("description", "Example charge");
-                chargeParams.put("destination", "acct_18u1uFHfcGmL46Ma");
-                chargeParams.put("application_fee", 250);
-
                 Charge charge = Charge.create(chargeParams);
+                message = "Charge successfull!";
             } catch (CardException e) {
                 // The card has been declined
+                message = "Card declined: " + e.getMessage();
             } catch (APIException e) {
-                e.printStackTrace();
+                message = "Stripe API Exception: " + e.getMessage();
             } catch (InvalidRequestException e) {
-                e.printStackTrace();
+                message = "Invalid Request Exception: " + e.getMessage();
             } catch (APIConnectionException e) {
-                e.printStackTrace();
+                message = "Stripe API Connection Exception: " + e.getMessage();
             } catch (AuthenticationException e) {
-                e.printStackTrace();
+                message = "Stripe Authentication Exception: " + e.getMessage();
             }
 
-            return "";
+            return message;
         }
 
         // This is called each time you call publishProgress()
         protected void onProgressUpdate(Integer... progress) {
-
         }
 
         // This is called when doInBackground() is finished
         protected void onPostExecute(String result) {
+            onCreateChargeProcessFinish(result);
             super.onPostExecute(result);
         }
     }
