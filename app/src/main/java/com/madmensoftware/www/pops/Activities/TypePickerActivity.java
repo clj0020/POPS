@@ -2,6 +2,7 @@ package com.madmensoftware.www.pops.Activities;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,8 +11,17 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FacebookAuthCredential;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,27 +43,55 @@ import org.json.JSONObject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class TypePickerActivity extends AppCompatActivity implements View.OnClickListener, PickRadiusDialog.PickRadiusDialogCallbacks, EnterNameDialog.EnterNameDialogCallbacks {
+public class TypePickerActivity extends AppCompatActivity implements View.OnClickListener, PickRadiusDialog.PickRadiusDialogCallbacks, EnterNameDialog.EnterNameDialogCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     @BindView(R.id.popperBtn) Button mPopperBtn;
     @BindView(R.id.parentBtn) Button mParentBtn;
     @BindView(R.id.neighborBtn) Button mNeighborBtn;
+    @BindView(R.id.typePickerCancelButton) Button mCancelButton;
 
     private DatabaseReference mDatabase;
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
     private boolean FacebookIsProvider;
     private boolean GoogleIsProvider;
+    private GoogleApiClient mGoogleApiClient;
+    private CallbackManager mCallbackManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_type_picker);
         ButterKnife.bind(this);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
+        mCallbackManager = CallbackManager.Factory.create();
+
+        // [START configure_signin]
+        // Configure sign-in to request the user's ID, email address, and basic
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        // [END configure_signin]
+
+
+        // [START build_client]
+        // Build a GoogleApiClient with access to the Google Sign-In API and the
+        // options specified by gso.
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+        // [END build_client]
+
         mPopperBtn.setOnClickListener(this);
         mParentBtn.setOnClickListener(this);
         mNeighborBtn.setOnClickListener(this);
+        mCancelButton.setOnClickListener(this);
 
         for (UserInfo user: FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
             if (user.getProviderId().equals("facebook.com")) {
@@ -65,6 +103,27 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
                 GoogleIsProvider = true;
             }
         }
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
+
+        // [START auth_state_listener]
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Logger.i("onAuthStateChanged:signed_in:" + user.getUid());
+
+                } else {
+                    // User is signed out
+                    Logger.i("onAuthStateChanged:signed_out");
+                    startActivity(new Intent(TypePickerActivity.this, SignUpActivityUpdated.class));
+                }
+            }
+        };
+        // [END auth_state_listener]
     }
 
     @Override
@@ -246,6 +305,10 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
                 }
 
                 break;
+            case R.id.typePickerCancelButton:
+                signOut();
+                startActivity(new Intent(TypePickerActivity.this, SignUpActivityUpdated.class));
+                break;
             default:
                 break;
         }
@@ -288,5 +351,74 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
         FragmentManager fm = getSupportFragmentManager();
         EnterNameDialog enterNameDialog = EnterNameDialog.newInstance("Some Title", user);
         enterNameDialog.show(fm, "fragment_edit_name");
+    }
+
+    // [START on_start_add_listener]
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+    // [END on_start_add_listener]
+
+    // [START on_stop_remove_listener]
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+    // [END on_stop_remove_listener]
+
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        signOut();
+        startActivity(new Intent(TypePickerActivity.this, SignUpActivityUpdated.class));
+        finish();
+    }
+
+    public void signOut() {
+
+        if (GoogleIsProvider) {
+            Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                    new ResultCallback<Status>() {
+                        @Override
+                        public void onResult(Status status) {
+                            Logger.i("Signing User out of Google Account");
+                            revokeGoogleAccess();
+                        }
+                    });
+        }
+        if (FacebookIsProvider) {
+            LoginManager.getInstance().logOut();
+        }
+
+        mAuth.signOut();
+    }
+
+    private void revokeGoogleAccess() {
+        Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient).setResultCallback(
+                new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(Status status) {
+                        Logger.i("Revoked Google Access to this Account");
+                    }
+                });
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        // An unresolvable error has occurred and Google APIs (including Sign-In) will not
+        // be available.
+        Logger.d("GoogleApi onConnectionFailed:" + connectionResult);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 }
