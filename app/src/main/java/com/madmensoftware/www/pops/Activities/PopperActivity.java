@@ -192,6 +192,7 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
         adapter.addFragment(PopperCheckInFragment.newInstance(), "Check In");
         viewPager.setOffscreenPageLimit(4);
         viewPager.setAdapter(adapter);
+        viewPager.setCurrentItem(viewPager.getCurrentItem() + 2);
     }
 
     public class ViewPagerAdapter extends FragmentPagerAdapter {

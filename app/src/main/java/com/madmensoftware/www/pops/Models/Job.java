@@ -25,6 +25,8 @@ public class Job {
     long startTime;
     String notification;
     String popperCache;
+    double longitude;
+    double latitude;
 
     public Job() {
 
@@ -47,6 +49,8 @@ public class Job {
         this.posterUid = posterUid;
         this.posterName = posterName;
         this.popperUid = popperUid;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.Uid = Uid;
     }
 
@@ -147,7 +151,6 @@ public class Job {
         this.startTime = startTime;
     }
 
-
     public String getNotification() {
         return notification;
     }
@@ -156,13 +159,28 @@ public class Job {
         this.notification = notification;
     }
 
-
     public String getPopperCache() {
         return popperCache;
     }
 
     public void setPopperCache(String popperCache) {
         this.popperCache = popperCache;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
     }
 
 }

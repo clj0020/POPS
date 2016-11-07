@@ -41,6 +41,8 @@ import android.widget.Toast;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -55,6 +57,7 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.model.LatLng;
@@ -89,11 +92,13 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
     private String uid;
     private String category;
 
+    private int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
 
     @BindView(R.id.add_job_title) EditText mJobTitleEditText;
     @BindView(R.id.add_job_description) EditText mJobDescriptionEditText;
     @BindView(R.id.add_job_duration) EditText mJobDurationEditText;
     @BindView(R.id.add_job_budget) EditText mJobBudgetEditText;
+    @BindView(R.id.add_job_location_btn) Button mAddJobLocationButton;
     @BindView(R.id.add_job_category) Spinner mJobCategorySpinner;
     @BindView(R.id.add_job_submit_btn) Button mAddJobButton;
     @BindView(R.id.add_job_date_btn) Button btnDatePicker;
@@ -147,23 +152,23 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
         });
 
 
-        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
-                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-        autocompleteFragment.setHint("Address of Job");
-
-        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-                Log.i(TAG, "Place: " + place.getName());
-                latitude = place.getLatLng().latitude;
-                longitude = place.getLatLng().longitude;
-            }
-
-            @Override
-            public void onError(Status status) {
-                Log.i(TAG, "An error occurred: " + status);
-            }
-        });
+//        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+//                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+//        autocompleteFragment.setHint("Address of Job");
+//
+//        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+//            @Override
+//            public void onPlaceSelected(Place place) {
+//                Log.i(TAG, "Place: " + place.getName());
+//                latitude = place.getLatLng().latitude;
+//                longitude = place.getLatLng().longitude;
+//            }
+//
+//            @Override
+//            public void onError(Status status) {
+//                Log.i(TAG, "An error occurred: " + status);
+//            }
+//        });
 
 
         auth = FirebaseAuth.getInstance();
@@ -214,8 +219,38 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlaceAutocomplete.getPlace(this, data);
+                Log.i(TAG, "Place: " + place.getName());
+                latitude = place.getLatLng().latitude;
+                longitude = place.getLatLng().longitude;
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Status status = PlaceAutocomplete.getStatus(this, data);
+                // TODO: Handle the error.
+                Log.i(TAG, status.getStatusMessage());
+
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+        }
+    }
+
+    @Override
     public void onClick(View v) {
         switch(v.getId()) {
+            case R.id.add_job_location_btn:
+                try {
+                    Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN).build(this);
+                    startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+                } catch (GooglePlayServicesRepairableException e) {
+                    // TODO: Handle the error.
+                } catch (GooglePlayServicesNotAvailableException e) {
+                    // TODO: Handle the error.
+                }
+
+
             case R.id.add_job_submit_btn:
                     if (isEmpty(mJobDescriptionEditText) || isEmpty(mJobTitleEditText) || isEmpty(mJobDurationEditText) || isEmpty(mJobBudgetEditText)) {
                         Toast.makeText(this, "Please fill all fields.", Toast.LENGTH_LONG).show();
@@ -247,6 +282,8 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                             job.setBudget(budget);
                             job.setStatus("open");
                             job.setCategory(category);
+                            job.setLatitude(latitude);
+                            job.setLongitude(longitude);
 
                             String jobId = mDatabase.child("jobs").push().getKey();
                             job.setUid(jobId);
@@ -349,6 +386,8 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
         NumberFormat nf = new DecimalFormat("$#,###.00");
         return nf.format(dbl);
     }
+
+
 
     public class CurrencyTextWatcher implements TextWatcher {
 
