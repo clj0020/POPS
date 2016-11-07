@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:background="@drawable/login_gradient"
-    tools:context=".Activities.LoginActivity">
+    tools:context=".Activities.SignUpActivityUpdated">
 
     <ImageView
         android:layout_width="match_parent"
@@ -32,7 +32,8 @@
             android:layout_marginTop="30dp" />
 
         <com.facebook.login.widget.LoginButton
-            android:id="@+id/facebook_login_button"
+            xmlns:facebook="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/facebook_sign_up_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="12dp"
@@ -41,7 +42,8 @@
             android:layout_marginRight="5dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="30dp"
-            android:layout_marginBottom="15dp" />
+            android:layout_marginBottom="15dp"
+            facebook:com_facebook_login_text="Sign Up with Facebook"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -51,7 +53,7 @@
             android:textColor="@color/black"/>
 
         <com.google.android.gms.common.SignInButton
-            android:id="@+id/google_login_button"
+            android:id="@+id/google_sign_up_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
@@ -73,63 +75,49 @@
             android:textColor="@color/black"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:text="Log In with Email"/>
+            android:text="Sign Up with Email"/>
 
         <EditText
-                android:id="@+id/email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:hint="@string/hint_email"
-                android:inputType="textEmailAddress"
-                android:background="@drawable/rounded_edittext"
-                android:textColor="@android:color/black"
-                android:textColorHint="@android:color/black"
-                android:padding="10dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginTop="20dp" />
+            android:id="@+id/signup_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:hint="@string/hint_email"
+            android:inputType="textEmailAddress"
+            android:background="@drawable/rounded_edittext"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/black"
+            android:padding="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="20dp" />
 
-
-            <EditText
-                android:id="@+id/password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:hint="@string/hint_password"
-                android:inputType="textPassword"
-                android:background="@drawable/rounded_edittext"
-                android:textColor="@android:color/black"
-                android:textColorHint="@android:color/black"
-                android:padding="10dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp" />
+        <EditText
+            android:id="@+id/signup_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:hint="@string/hint_password"
+            android:inputType="textPassword"
+            android:background="@drawable/rounded_edittext"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/black"
+            android:padding="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp" />
 
         <!-- Login Button -->
 
         <Button
-            android:id="@+id/btn_login"
+            android:id="@+id/sign_up_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dip"
             android:background="@drawable/login_button"
-            android:text="@string/btn_login"
+            android:text="Sign Up"
             android:textColor="@color/colorPrimaryDark"
             android:layout_marginLeft="80dp"
             android:layout_marginRight="80dp" />
-
-        <TextView
-            android:id="@+id/btn_reset_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dip"
-            android:background="@null"
-            android:text="@string/btn_forgot_password"
-            android:textAlignment="center"
-            android:textAllCaps="false"
-            android:textColor="@color/black" />
-
-        <!-- Link to Login Screen -->
 
     </LinearLayout>
 
@@ -141,3 +129,4 @@
         android:layout_marginBottom="20dp"
         android:visibility="gone" />
 </RelativeLayout>
+

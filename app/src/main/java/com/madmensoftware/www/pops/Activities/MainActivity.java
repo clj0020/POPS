@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
         //get firebase auth instance
         auth = FirebaseAuth.getInstance();
-        //auth.signOut();
+//        auth.signOut();
 
         Logger.i(auth.toString());
 
@@ -82,14 +82,14 @@ public class MainActivity extends AppCompatActivity {
 
                             if(dataSnapshot.getValue() != null) {
                                 User mUser = dataSnapshot.getValue(User.class);
-//                                TinyDB tinyDB = new TinyDB(getApplicationContext());
-//                                tinyDB.putObject("User", mUser);
                                 type = mUser.getType();
 
                                 switch (type) {
                                     case "Popper":
                                         Intent popperIntent = new Intent(MainActivity.this, PopperActivity.class);
                                         Bundle popperBundle = new Bundle();
+                                        TinyDB tinyDB = new TinyDB(getApplicationContext());
+                                        tinyDB.putObject("User", mUser);
                                         popperBundle.putParcelable("User", Parcels.wrap(mUser));
                                         popperIntent.putExtras(popperBundle);
                                         startActivity(popperIntent);
@@ -97,6 +97,8 @@ public class MainActivity extends AppCompatActivity {
                                     case "Parent":
                                         Intent parentIntent = new Intent(MainActivity.this, ParentActivity.class);
                                         Bundle parentBundle = new Bundle();
+                                        TinyDB tinyDB2 = new TinyDB(getApplicationContext());
+                                        tinyDB2.putObject("User", mUser);
                                         parentBundle.putParcelable("User", Parcels.wrap(mUser));
                                         parentIntent.putExtras(parentBundle);
                                         startActivity(parentIntent);
@@ -104,6 +106,8 @@ public class MainActivity extends AppCompatActivity {
                                     case "Neighbor":
                                         Intent neighborIntent = new Intent(MainActivity.this, NeighborActivity.class);
                                         Bundle neighborBundle = new Bundle();
+                                        TinyDB tinyDB3 = new TinyDB(getApplicationContext());
+                                        tinyDB3.putObject("User", mUser);
                                         neighborBundle.putParcelable("User", Parcels.wrap(mUser));
                                         neighborIntent.putExtras(neighborBundle);
                                         startActivity(neighborIntent);
@@ -113,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                             else {
-                                Intent intent = new Intent(MainActivity.this, AddUserDetails.class);
+                                Intent intent = new Intent(MainActivity.this, TypePickerActivity.class);
                                 startActivity(intent);
                             }
 

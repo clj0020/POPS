@@ -15,6 +15,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -65,6 +68,7 @@ public class NeighborActivity extends AppCompatActivity {
         private FirebaseAuth auth;
         private DatabaseReference mDatabase;
         public FirebaseUser mFirebaseUser;
+        private CallbackManager mCallbackManager;
         private User user;
         public String uid;
         private int[] tabIcons = {
@@ -89,8 +93,10 @@ public class NeighborActivity extends AppCompatActivity {
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+            FacebookSdk.sdkInitialize(getApplicationContext());
             setContentView(R.layout.activity_neighbor);
             ButterKnife.bind(this);
+            mCallbackManager = CallbackManager.Factory.create();
             
             setSupportActionBar(myToolbar);
             
@@ -151,6 +157,12 @@ public class NeighborActivity extends AppCompatActivity {
             return true;
         }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
             switch (item.getItemId()) {
@@ -159,6 +171,7 @@ public class NeighborActivity extends AppCompatActivity {
                     return true;
                 case R.id.action_log_out:
                     auth.signOut();
+                    LoginManager.getInstance().logOut();
                     return true;
                 case R.id.action_add_job:
                     Intent neighborIntent = new Intent(NeighborActivity.this, AddJobActivity.class);
