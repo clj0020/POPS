@@ -9,8 +9,6 @@ import org.parceler.Parcel;
  */
 @Parcel
 public class Job {
-
-    String uid;
     String title;
     String description;
     String category;
@@ -62,8 +60,8 @@ public class Job {
         this.parentUid = parentUid;
     }
 
-    public void setUid(String uid){
-        this.Uid = uid;
+    public void setUid(String uidTemp){
+        this.Uid = uidTemp;
     }
 
     public  String getUid()
