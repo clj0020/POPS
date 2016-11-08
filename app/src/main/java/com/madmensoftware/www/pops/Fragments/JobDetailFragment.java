@@ -116,9 +116,10 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
             mJobBudget.setText(String.valueOf(mJob.getBudget()));
         }
 
-
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume(); // needed to get the map to display immediately
+
+        mMapView.getMapAsync(this);
 
         auth = FirebaseAuth.getInstance();
         mRef = FirebaseDatabase.getInstance().getReference();
