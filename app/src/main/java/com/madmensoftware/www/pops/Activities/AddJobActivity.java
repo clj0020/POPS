@@ -191,6 +191,7 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
         btnDatePicker.setOnClickListener(this);
         btnTimePicker.setOnClickListener(this);
         mAddJobButton.setOnClickListener(this);
+        mAddJobLocationButton.setOnClickListener(this);
     }
 
     @Override
@@ -245,12 +246,11 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                     Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN).build(this);
                     startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
                 } catch (GooglePlayServicesRepairableException e) {
-                    // TODO: Handle the error.
+                    Logger.e("GooglePlayServicesRepairableException: " + e);
                 } catch (GooglePlayServicesNotAvailableException e) {
-                    // TODO: Handle the error.
+                    Logger.e("GooglePlayServicesNotAvailableException: " + e);
                 }
-
-
+                break;
             case R.id.add_job_submit_btn:
                     if (isEmpty(mJobDescriptionEditText) || isEmpty(mJobTitleEditText) || isEmpty(mJobDurationEditText) || isEmpty(mJobBudgetEditText)) {
                         Toast.makeText(this, "Please fill all fields.", Toast.LENGTH_LONG).show();
@@ -296,8 +296,6 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                             startActivity(new Intent(AddJobActivity.this, NeighborActivity.class));
                         }
                     }
-
-
                 break;
             case R.id.add_job_date_btn:
                 // Get Current Date

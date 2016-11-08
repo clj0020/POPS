@@ -24,22 +24,11 @@
             android:layout_marginRight="10dp"
             android:layout_marginTop="30dp" />
 
-        <fragment
-            android:id="@+id/place_autocomplete_fragment"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="15dp"
-            android:layout_marginLeft="15dp"
-            android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-            android:layout_marginBottom="20dp"
-            tools:layout="@layout/place_autocomplete_fragment" />
-
         <Button
+            android:id="@+id/add_job_location_btn"
             android:text="Where will the job be located?"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/add_job_location_btn" />
+            android:layout_height="wrap_content" />
 
         <EditText
             android:id="@+id/add_job_title"
