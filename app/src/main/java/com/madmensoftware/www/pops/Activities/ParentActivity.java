@@ -14,6 +14,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -49,6 +52,7 @@ public class ParentActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth auth;
     public FirebaseUser mFirebaseUser;
+    private CallbackManager mCallbackManager;
     private User user;
     public String uid;
     private int[] tabIcons = {
@@ -73,8 +77,10 @@ public class ParentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_parent);
         ButterKnife.bind(this);
+        mCallbackManager = CallbackManager.Factory.create();
 
         setSupportActionBar(myToolbar);
 
@@ -128,6 +134,12 @@ public class ParentActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.parent_toolbar, menu);
@@ -142,6 +154,7 @@ public class ParentActivity extends AppCompatActivity {
                 return true;
             case R.id.parent_action_log_out:
                 auth.signOut();
+                LoginManager.getInstance().logOut();
                 return true;
             default:
                 // If we got here, the user's action was not recognized.

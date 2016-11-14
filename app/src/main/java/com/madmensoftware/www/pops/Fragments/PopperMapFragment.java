@@ -1,5 +1,6 @@
 package com.madmensoftware.www.pops.Fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -72,6 +73,8 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
 
     private User mUser;
     private Bundle mBundle;
+    private double mRadius = 10.00;
+
 
     @BindView(R.id.popper_map) MapView mapView;
     @BindView(R.id.popper_map_wrapper) MapWrapperLayout mapWrapperLayout;
@@ -81,10 +84,42 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
     private TextView infoSnippet;
     private Button infoButton;
 
+    private PopperMapFragmentCallbacks mCallbacks;
+
+    /**
+     * Required interface for hosting activities
+     */
+    public interface PopperMapFragmentCallbacks {
+
+    }
+
     public static PopperMapFragment newInstance() {
         PopperMapFragment fragment = new PopperMapFragment();
         Logger.d("Popper:", " PopperCheckInFragment created");
         return fragment;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) return;
+        if (activity instanceof PopperMapFragment.PopperMapFragmentCallbacks) {
+            mCallbacks = (PopperMapFragment.PopperMapFragmentCallbacks) activity;
+        } else {
+            throw new RuntimeException(activity.toString()
+                    + " must implement OnListFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof PopperMapFragment.PopperMapFragmentCallbacks) {
+            mCallbacks = (PopperMapFragment.PopperMapFragmentCallbacks) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnListFragmentInteractionListener");
+        }
     }
 
     @Override
@@ -97,6 +132,7 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
 
     @Override
     public void onStop() {
+        super.onStop();
         gpsTracker.onStop();
         this.geoQuery.removeAllListeners();
 
@@ -106,7 +142,7 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
         this.markers.clear();
 
         Logger.d("PopperMap", "onStop: gpsTracker onStop called.");
-        super.onStop();
+
     }
 
     @Override
@@ -179,7 +215,7 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
 
         mapView.onCreate(mBundle);
         mapView.getMapAsync(this);
-      //  mGoogleMap.setOnCameraChangeListener(this);
+//        mGoogleMap.setOnCameraChangeListener(this);
 
         auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -187,9 +223,14 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
         TinyDB tinyDb = new TinyDB(getActivity());
         mUser = (User) tinyDb.getObject("User", User.class);
 
+        Logger.i("mUser", mUser.getUid());
 
         geoFire = new GeoFire(mDatabase.child("jobs_location"));
-        geoQuery = geoFire.queryAtLocation(new GeoLocation(gpsTracker.getLatitude(), gpsTracker.getLongitude()), mUser.getRadius());
+
+//        geoQuery = geoFire.queryAtLocation(new GeoLocation(gpsTracker.getLatitude(), gpsTracker.getLongitude()), mUser.getRadius());
+//        Hard coded the radius for now
+        // TODO: Make the popper map query change based on a slider's value in the filter pop up
+        geoQuery = geoFire.queryAtLocation(new GeoLocation(gpsTracker.getLatitude(), gpsTracker.getLongitude()), 10);
 
         return view;
     }
@@ -315,105 +356,106 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
                 GeoLocation currentLocation = new GeoLocation(gpsTracker.getLatitude(), gpsTracker.getLongitude());
                 Logger.d("GeoFire CurrLocation Lat: " + currentLocation.latitude + "Long: " + currentLocation.longitude);
 
-//                geoFire = new GeoFire(mDatabase.child("jobs_location"));
+                geoFire = new GeoFire(mDatabase.child("jobs_location"));
 //                GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(gpsTracker.getLatitude(), gpsTracker.getLongitude()), mUser.getRadius());
-//                geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-//                    @Override
-//                    public void onKeyEntered(String key, GeoLocation location) {
-//                        Logger.d("updateMapWithLocation GeoFireEntered:  Lat: " + location.latitude + " Long: " + location.longitude + " Key:" + key);
-//                        final double latitude = location.latitude;
-//                        final double longitude = location.longitude;
-//
-//                        mDatabase.child("jobs").child(key).addValueEventListener(new ValueEventListener() {
-//                            @Override
-//                            public void onDataChange(DataSnapshot dataSnapshot) {
-//                                Job job = dataSnapshot.getValue(Job.class);
-//
-//
-//                                Marker jobMarker = mGoogleMap.addMarker(new MarkerOptions()
-//                                        .position(new LatLng(latitude, longitude))
-//                                        .snippet(job.getDescription())
-//                                        .title(job.getTitle()));
-//                                jobMarker.setTag(job);
-//
-//                                markers.put(job.getUid(), jobMarker);
-//
-//                            }
-//
-//                            @Override
-//                            public void onCancelled(DatabaseError databaseError) {
-//
-//                            }
-//                        });
-//
-//                    }
-//
-//                    @Override
-//                    public void onKeyExited(String key) {
-//                        Logger.d("updateMapWithLocation GeoFireExitted: Key is no longer in the search area." + key);
-//
-//
-//                        mDatabase.child("jobs").child(key).addValueEventListener(new ValueEventListener() {
-//                            @Override
-//                            public void onDataChange(DataSnapshot dataSnapshot) {
-//                                Job job = dataSnapshot.getValue(Job.class);
-//
-//                                Marker marker = markers.get(job.getUid());
-//                                if (marker != null) {
-//                                    marker.remove();
-//                                    markers.remove(job.getUid());
-//                                }
-//
-//                            }
-//
-//                            @Override
-//                            public void onCancelled(DatabaseError databaseError) {
-//
-//                            }
-//                        });
-//                    }
-//
-//                    @Override
-//                    public void onKeyMoved(String key, GeoLocation location) {
-//                        Logger.d("updateMapWithLocation GeoFireMovedTo: Lat: " + location.latitude + "Long: " + location.longitude + "Key: " + key);
-//
-//                        final double latitude = location.latitude;
-//                        final double longitude = location.longitude;
-//
-//                        mDatabase.child("jobs").child(key).addValueEventListener(new ValueEventListener() {
-//                            @Override
-//                            public void onDataChange(DataSnapshot dataSnapshot) {
-//                                Job job = dataSnapshot.getValue(Job.class);
-//
-//                                Marker jobMarker = mGoogleMap.addMarker(new MarkerOptions()
-//                                        .position(new LatLng(latitude, longitude))
-//                                        .snippet(job.getDescription())
-//                                        .title(job.getTitle()));
-//                                jobMarker.setTag(job);
-//
-//                                Marker marker = markers.get(job.getUid());
-//                                if (marker != null) {
-//                                    animateMarkerTo(jobMarker, latitude, longitude);
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onCancelled(DatabaseError databaseError) {
-//
-//                            }
-//                        });
-//                    }
-//
-//                    @Override
-//                    public void onGeoQueryReady() {
-//                        Logger.d("updateMapWithLocation GeoFireReady: All initial data has been loaded and events have been fired!");
-//                    }
-//
-//                    @Override
-//                    public void onGeoQueryError(DatabaseError error) {
-//                        Logger.d("updateMapWithLocation GeoFireError: " + error + "");
-//                    }
-//                });
+                GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(gpsTracker.getLatitude(), gpsTracker.getLongitude()), 10);
+                geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+                    @Override
+                    public void onKeyEntered(String key, GeoLocation location) {
+                        Logger.d("updateMapWithLocation GeoFireEntered:  Lat: " + location.latitude + " Long: " + location.longitude + " Key:" + key);
+                        final double latitude = location.latitude;
+                        final double longitude = location.longitude;
+
+                        mDatabase.child("jobs").child(key).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Job job = dataSnapshot.getValue(Job.class);
+
+
+                                Marker jobMarker = mGoogleMap.addMarker(new MarkerOptions()
+                                        .position(new LatLng(latitude, longitude))
+                                        .snippet(job.getDescription())
+                                        .title(job.getTitle()));
+                                jobMarker.setTag(job);
+
+                                markers.put(job.getUid(), jobMarker);
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+                    }
+
+                    @Override
+                    public void onKeyExited(String key) {
+                        Logger.d("updateMapWithLocation GeoFireExitted: Key is no longer in the search area." + key);
+
+
+                        mDatabase.child("jobs").child(key).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Job job = dataSnapshot.getValue(Job.class);
+
+                                Marker marker = markers.get(job.getUid());
+                                if (marker != null) {
+                                    marker.remove();
+                                    markers.remove(job.getUid());
+                                }
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onKeyMoved(String key, GeoLocation location) {
+                        Logger.d("updateMapWithLocation GeoFireMovedTo: Lat: " + location.latitude + "Long: " + location.longitude + "Key: " + key);
+
+                        final double latitude = location.latitude;
+                        final double longitude = location.longitude;
+
+                        mDatabase.child("jobs").child(key).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Job job = dataSnapshot.getValue(Job.class);
+
+                                Marker jobMarker = mGoogleMap.addMarker(new MarkerOptions()
+                                        .position(new LatLng(latitude, longitude))
+                                        .snippet(job.getDescription())
+                                        .title(job.getTitle()));
+                                jobMarker.setTag(job);
+
+                                Marker marker = markers.get(job.getUid());
+                                if (marker != null) {
+                                    animateMarkerTo(jobMarker, latitude, longitude);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onGeoQueryReady() {
+                        Logger.d("updateMapWithLocation GeoFireReady: All initial data has been loaded and events have been fired!");
+                    }
+
+                    @Override
+                    public void onGeoQueryError(DatabaseError error) {
+                        Logger.d("updateMapWithLocation GeoFireError: " + error + "");
+                    }
+                });
             }
         }
         else {
@@ -485,7 +527,8 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
         LatLng center = cameraPosition.target;
         this.geoQuery.setCenter(new GeoLocation(center.latitude, center.longitude));
         // radius in km
-        this.geoQuery.setRadius(mUser.getRadius()/1000);
+//        this.geoQuery.setRadius(mUser.getRadius()/1000);
+        this.geoQuery.setRadius(10/1000);
     }
 
     @Override
@@ -582,6 +625,8 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
     public void onGeoQueryError(DatabaseError error) {
         Logger.d("updateMapWithLocation GeoFireError: " + error + "");
     }
+
+
 
 
 }

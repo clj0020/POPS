@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
         //get firebase auth instance
         auth = FirebaseAuth.getInstance();
-        //auth.signOut();
+//        auth.signOut();
 
         Logger.i(auth.toString());
 
@@ -59,11 +59,14 @@ public class MainActivity extends AppCompatActivity {
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                 if (firebaseUser == null) {
                     startActivity(new Intent(MainActivity.this, LandingPageActivity.class));
+                    Logger.i("User not authorized");
                     finish();
                 }
                 else {
                     mFirebaseUser = firebaseUser;
                     uid = mFirebaseUser.getUid();
+
+                    Logger.i("User is authorized, checking for a matching entry in database.");
 
                     // Write a message to the database
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -82,28 +85,37 @@ public class MainActivity extends AppCompatActivity {
 
                             if(dataSnapshot.getValue() != null) {
                                 User mUser = dataSnapshot.getValue(User.class);
-//                                TinyDB tinyDB = new TinyDB(getApplicationContext());
-//                                tinyDB.putObject("User", mUser);
                                 type = mUser.getType();
+
+                                Logger.i("User entry found, finding user type.");
 
                                 switch (type) {
                                     case "Popper":
+                                        Logger.i("User type is popper.");
                                         Intent popperIntent = new Intent(MainActivity.this, PopperActivity.class);
                                         Bundle popperBundle = new Bundle();
+                                        TinyDB tinyDB = new TinyDB(getApplicationContext());
+                                        tinyDB.putObject("User", mUser);
                                         popperBundle.putParcelable("User", Parcels.wrap(mUser));
                                         popperIntent.putExtras(popperBundle);
                                         startActivity(popperIntent);
                                         break;
                                     case "Parent":
+                                        Logger.i("User type is parent.");
                                         Intent parentIntent = new Intent(MainActivity.this, ParentActivity.class);
                                         Bundle parentBundle = new Bundle();
+                                        TinyDB tinyDB2 = new TinyDB(getApplicationContext());
+                                        tinyDB2.putObject("User", mUser);
                                         parentBundle.putParcelable("User", Parcels.wrap(mUser));
                                         parentIntent.putExtras(parentBundle);
                                         startActivity(parentIntent);
                                         break;
                                     case "Neighbor":
+                                        Logger.i("User type is neighbor.");
                                         Intent neighborIntent = new Intent(MainActivity.this, NeighborActivity.class);
                                         Bundle neighborBundle = new Bundle();
+                                        TinyDB tinyDB3 = new TinyDB(getApplicationContext());
+                                        tinyDB3.putObject("User", mUser);
                                         neighborBundle.putParcelable("User", Parcels.wrap(mUser));
                                         neighborIntent.putExtras(neighborBundle);
                                         startActivity(neighborIntent);
@@ -113,8 +125,9 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                             else {
-                                Intent intent = new Intent(MainActivity.this, AddUserDetails.class);
-                                startActivity(intent);
+                                Intent intent = new Intent(MainActivity.this, TypePickerActivity.class);
+                                Logger.i("User entry not found in database, send to Type Picker.");
+                                startActivity(new Intent(MainActivity.this, TypePickerActivity.class));
                             }
 
                         }

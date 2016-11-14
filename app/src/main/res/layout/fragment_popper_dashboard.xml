@@ -80,14 +80,43 @@
 
             </RelativeLayout>
 
-            <LinearLayout
-                android:id="@+id/popper_dash_stats_linear_layout"
-                android:layout_below="@id/popper_dash_top_relative_layout"
+            <RelativeLayout
+                android:id="@+id/popper_dash_no_goal_container"
+                android:visibility="visible"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:orientation="horizontal">
+                android:layout_height="150dp"
+                android:layout_below="@id/popper_dash_top_relative_layout">
+
+                <Button
+                    android:id="@+id/add_goal_button"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dip"
+                    android:background="@drawable/login_button"
+                    android:text="Create a goal and Track it"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:layout_marginLeft="80dp"
+                    android:layout_marginRight="80dp"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true"/>
+
+            </RelativeLayout>
+
+
+            <RelativeLayout
+                android:id="@+id/popper_dash_stats_container"
+                android:visibility="invisible"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/popper_dash_top_relative_layout">
 
                 <LinearLayout
+                    android:id="@+id/popper_dash_stats_linear_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
@@ -113,7 +142,7 @@
 
                 </LinearLayout>
 
-                <LinearLayout
+                    <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
@@ -140,7 +169,7 @@
 
                 </LinearLayout>
 
-                <LinearLayout
+                    <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
@@ -166,15 +195,15 @@
 
                 </LinearLayout>
 
-            </LinearLayout>
+                </LinearLayout>
 
-            <RelativeLayout
-                android:id="@+id/popper_dash_goal_progress_bar_container"
-                android:layout_below="@id/popper_dash_stats_linear_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                <RelativeLayout
+                    android:id="@+id/popper_dash_goal_progress_bar_container"
+                    android:layout_below="@id/popper_dash_stats_linear_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="90dp">
 
-                <ProgressBar
+                    <ProgressBar
                     android:theme="@style/LinearProgress"
                     android:id="@+id/popper_dash_goal_progress_bar"
                     style="@style/PopperDashHorizontalProgressBar"
@@ -188,7 +217,7 @@
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp" />
 
-                <TextView
+                    <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
@@ -197,7 +226,7 @@
                     android:textSize="18sp"
                     android:textColor="@color/black"/>
 
-                <TextView
+                    <TextView
                     android:id="@+id/goal_progress_horizontal_percentage"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
@@ -207,8 +236,9 @@
                     android:layout_marginLeft="20dp"
                     android:layout_marginRight="20dp" />
 
-            </RelativeLayout>
+                </RelativeLayout>
 
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/popper_dash_skills_label"
@@ -218,7 +248,7 @@
                 android:text="Skills"
                 android:textColor="@android:color/white"
                 android:background="@android:color/darker_gray"
-                android:layout_below="@id/popper_dash_goal_progress_bar_container"
+                android:layout_below="@id/popper_dash_stats_container"
                 android:textSize="17sp"
                 android:layout_marginTop="25dp" />
 

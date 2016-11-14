@@ -13,13 +13,16 @@ public class Notification {
         //required
     }
 
-    String name;
+    String title;
     String popperUid;
     String parentUid;
     String neighborUid;
     String jobUid;
     String Uid;
     String description;
+    String type;
+    String recieverUid;
+    Job job;
 
     public String getUid(){
         return Uid;
@@ -28,13 +31,39 @@ public class Notification {
         Uid = uid;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
+
+
+    public String getRecieverUid() {
+        return recieverUid;
+    }
+
+    public void setRecieverUid(String recieverUid) {
+        this.recieverUid = recieverUid;
+    }
+
+    public Job getJob() {
+        return job;
+    }
+
+    public void setJob(Job job) {
+        this.job = job;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
 
     public String getPopperUid() {
         return popperUid;

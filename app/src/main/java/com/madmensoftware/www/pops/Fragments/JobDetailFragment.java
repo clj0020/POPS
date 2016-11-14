@@ -116,9 +116,10 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
             mJobBudget.setText(String.valueOf(mJob.getBudget()));
         }
 
-
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume(); // needed to get the map to display immediately
+
+        mMapView.getMapAsync(this);
 
         auth = FirebaseAuth.getInstance();
         mRef = FirebaseDatabase.getInstance().getReference();
@@ -152,20 +153,17 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                             AcceptButton.setVisibility(View.VISIBLE);
                         }
                         if(mJob.getStatus().equals("active")) {
-                            mDatabase.child("notifications").child(mJob.getNotification()).setValue(" ");
-                            mDatabase.child("jobs").child(mJob.getUid()).child("popperUid").setValue(mUid);
-                            mDatabase.child("jobs").child(mJob.getUid()).child("cachepop").setValue(" ");
-
 
                             Logger.d("Popper: Job Status is active");
                             Logger.d("Popper: Job Status is " + mJob.getStatus());
                             Logger.d("Popper: mUid is " + mUid);
                         }
+                        //parentUid = user.getParentUid();
                         AcceptButton.setText("Request Job");
-                        parentUid = user.getParentUid();
                         AcceptButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+
                                 Logger.d("onclick: fbType=" + mType);
                                 Logger.d("onclick: fbType=" + mType);
 
@@ -173,28 +171,103 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                 User popper = (User) tinyDb.getObject("User", User.class);
 
                                 notification = new Notification();
-                                notification.setName(mJob.getTitle());
+                                notification.setTitle(user.getName() + " has requested your job titled " + mJob.getTitle() + ".");
                                 notification.setDescription("Tap to view");
                                 notification.setJobUid(mJob.getUid());
+                                notification.setPopperUid(user.getUid());
                                 notification.setParentUid(popper.getParentUid());
+                                notification.setNeighborUid(mJob.getPosterUid());
 
-                                Toast.makeText(getActivity(), "Accept Clicked", Toast.LENGTH_LONG).show();
+                                notification.setRecieverUid(mJob.getPosterUid());
+                                notification.setType("Job");
+                                notification.setJob(mJob);
 
-                                mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("pending");
-
-                                String notID = mDatabase.child("notification").push().getKey();
+                                String notID = mDatabase.child("notifications").push().getKey();
                                 notification.setUid(notID);
 
-                                mDatabase.child("jobs").child(mJob.getUid()).child("notification").setValue(notID);
-                                mDatabase.child("jobs").child(mJob.getUid()).child("cachpar").setValue(popper.getParentUid());
+                                mDatabase.child("notifications").child(notID).setValue(notification);
 
-                                mDatabase.child("notification").child(notID).setValue(notification);
+                                mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("pending");
+                                mDatabase.child("jobs").child(mJob.getUid()).child("popperCache").setValue(popper.getUid());
+
+                                //mDatabase.child("jobs").child(mJob.getUid()).child("popperUid").setValue(popper.getUid());
+
                                 AcceptButton.setVisibility(View.INVISIBLE);
+
+                                Toast.makeText(getActivity(), "Requested the Job!", Toast.LENGTH_LONG).show();
 
                                 Logger.d(" Popper: acceptButtonClicked User is " + popper.getType());
                                 Logger.d(" Popper: acceptButtonClicked Current User is " + auth.getCurrentUser().getUid());
                                 Logger.d(" Popper: acceptButtonClicked Job Title is " + mJob.getTitle());
                                 Logger.d(" Popper: acceptButtonClicked Job Status is " + mJob.getStatus());
+                            }
+                        });
+                        break;
+                    }
+
+                    case "Neighbor":{
+                        if(mJob.getStatus().equals("pending")){
+                            AcceptButton.setText("Accept Request");
+                            RejectButton.setVisibility(View.VISIBLE);
+                            AcceptButton.setVisibility(View.VISIBLE);
+
+                            Logger.d(" Neighbor: jobStatus is pending");
+                            Logger.d(" Neighbor: job is " + mJob.getStatus());
+                        }
+                        AcceptButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Logger.d(" Neighbor: acceptButtonClicked Job Status is " + mJob.getStatus());
+
+                                notification = new Notification();
+                                notification.setTitle(mJob.getPosterName() + " accepted your job request for the job titled " + mJob.getTitle());
+                                notification.setDescription("Tap to view");
+                                notification.setJobUid(mJob.getUid());
+                                notification.setNeighborUid(user.getUid());
+                                notification.setPopperUid(mJob.getPopperUid());
+                                notification.setParentUid(mJob.getParentUid());
+
+                                notification.setRecieverUid(mJob.getPopperUid());
+                                notification.setType("Job");
+
+                                String notID = mDatabase.child("notifications").push().getKey();
+                                notification.setUid(notID);
+
+                                mDatabase.child("notifications").child(notID).setValue(notification);
+
+                                mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("active");
+                                mDatabase.child("jobs").child(mJob.getUid()).child("popperCache").setValue("");
+                                mDatabase.child("jobs").child(mJob.getUid()).child("popperUid").setValue(mJob.getPopperCache());
+                                mDatabase.child("jobs").child(mJob.getUid()).child("notifications").setValue(notID);
+
+                                Logger.d(" Neighbor: acceptButtonClicked UID is " + mUid);
+                            }
+                        });
+                        RejectButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+
+                                notification = new Notification();
+                                notification.setTitle("Job Request Rejected by " + user.getName());
+                                notification.setDescription("Please contact parent or guardian");
+
+                                notification.setPopperUid(mJob.getPopperUid());
+                                notification.setParentUid(mJob.getParentUid());
+                                notification.setNeighborUid(user.getUid());
+
+                                notification.setType("Job");
+                                notification.setJob(mJob);
+                                notification.setRecieverUid(mJob.getPopperUid());
+
+                                String notID = mDatabase.child("notifications").push().getKey();
+                                notification.setUid(notID);
+
+                                mDatabase.child("notifications").child(notID).setValue(notification);
+
+                                mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("open");
+                                mDatabase.child("jobs").child(mJob.getUid()).child("popperCache").setValue("");
+                                mDatabase.child("jobs").child(mJob.getUid()).child("notification").setValue(notID);
+
                             }
                         });
                         break;
@@ -229,7 +302,7 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                 mDatabase.child("notifications").child(mJob.getNotification()).child("parentUid").setValue("");
 
                                 notification = new Notification();
-                                notification.setName("Parent Accepted Job Request");
+                                notification.setTitle("Parent Accepted Job Request");
                                 notification.setDescription("Tap to view");
                                 notification.setJobUid(mJob.getUid());
                                 notification.setNeighborUid(mJob.getPosterUid());
@@ -264,7 +337,7 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                 mDatabase.child("notifications").child(mJob.getNotification()).setValue("");
 
                                 notification = new Notification();
-                                notification.setName("Job Request Rejected");
+                                notification.setTitle("Job Request Rejected");
                                 notification.setDescription("Find Different Jobs");
                                 notification.setPopperUid(parent.getChildUid());
                                 notification.setParentUid("");
@@ -290,75 +363,6 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                         });
                         break;
 
-                    }
-                    case "Neighbor":{
-                        if(mJob.getStatus().equals("pending")){
-                            AcceptButton.setText("Accept Request");
-                            RejectButton.setVisibility(View.VISIBLE);
-                            AcceptButton.setVisibility(View.VISIBLE);
-
-                            Logger.d(" Neighbor: jobStatus is pending");
-                            Logger.d(" Neighbor: job is " + mJob.getStatus());
-                        }
-                        AcceptButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                mDatabase.child("notifications").child(mJob.getNotification()).setValue("");
-
-                                Logger.d(" Neighbor: acceptButtonClicked Job Status is " + mJob.getStatus());
-
-                                notification = new Notification();
-                                notification.setName("Accepted Job Request");
-                                notification.setDescription("Tap to view");
-                                notification.setJobUid(mJob.getUid());
-                                notification.setNeighborUid("");
-                                notification.setPopperUid(mJob.getPopperUid());
-                                notification.setParentUid(mJob.getParentUid());
-                                Toast.makeText(getActivity(), "Accept Clicked", Toast.LENGTH_LONG).show();
-
-                                mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("active");
-
-                                String notID = mDatabase.child("notification").push().getKey();
-                                notification.setUid(notID);
-                                mDatabase.child("notification").child(notID).setValue(notification);
-
-                                mJob.setStatus("active");
-                                mJob.setPopperUid(mJob.getPopperCache());
-                                mJob.setNotification(notID);
-
-                                mDatabase.child("jobs").child(mJob.getUid()).setValue(mJob);
-
-                                Logger.d(" Neighbor: acceptButtonClicked UID is " + mUid);
-                            }
-                        });
-                        RejectButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                mDatabase.child("notifications").child(mJob.getNotification()).setValue("");
-
-                                Logger.d(" Neighbor: rejectButtonClicked Job Status is " + mJob.getStatus());
-                                Logger.d(" Neighbor: rejectButtonClicked Job Uid is " + mJob.getUid());
-
-                                notification = new Notification();
-                                notification.setName("Job Request Rejected");
-                                notification.setDescription("Please contact parent or guardian");
-                                notification.setPopperUid(user.getChildUid());
-                                notification.setParentUid(mJob.getParentUid());
-
-                                Toast.makeText(getActivity(), "Reject Clicked", Toast.LENGTH_LONG).show();
-
-                                mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("open");
-                                mDatabase.child("jobs").child(mJob.getUid()).child("parentUid").setValue("no parent");
-                                mDatabase.child("jobs").child(mJob.getUid()).child("popperUid").setValue("no popper");
-
-                                String notID = mDatabase.child("notification").push().getKey();
-                                notification.setUid(notID);
-                                mDatabase.child("notification").child(notID).setValue(notification);
-                                mDatabase.child("jobs").child(mJob.getUid()).child("notification").setValue(notID);
-
-                            }
-                        });
-                        break;
                     }
                     default:{
                         //do something

@@ -24,6 +24,12 @@
             android:layout_marginRight="10dp"
             android:layout_marginTop="30dp" />
 
+        <Button
+            android:id="@+id/add_job_location_btn"
+            android:text="Where will the job be located?"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <EditText
             android:id="@+id/add_job_title"
             android:layout_width="match_parent"
@@ -55,7 +61,9 @@
         <Spinner
             android:id="@+id/add_job_category"
             android:layout_width="fill_parent"
-            android:layout_height="40dp" />
+            android:layout_height="40dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp" />
 
         <EditText
             android:id="@+id/add_job_duration"
@@ -82,17 +90,6 @@
             android:layout_marginTop="20dp"
             android:layout_marginRight="15dp"
             android:layout_marginLeft="15dp" />
-
-        <fragment
-            android:id="@+id/place_autocomplete_fragment"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="15dp"
-            android:layout_marginLeft="15dp"
-            android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-            android:layout_marginBottom="20dp"
-            tools:layout="@layout/place_autocomplete_fragment" />
 
         <LinearLayout
             android:layout_width="wrap_content"
