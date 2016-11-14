@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/colorPrimary">
 
     <ScrollView
@@ -19,9 +20,64 @@
         android:orientation="vertical"
             android:background="@color/colorPrimary">
 
+            <RelativeLayout
+                android:id="@+id/job_detail_neighbor_request_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/job_detail_job_requested_by_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Job Request by Carson Jones"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp" />
+
+                <Button
+                    android:id="@+id/job_detail_neighbor_decline_request_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Decline"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+
+                <Button
+                    android:id="@+id/job_detail_neighbor_accept_request_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Accept"
+                    android:layout_alignParentTop="true"
+                    android:layout_toLeftOf="@+id/job_detail_neighbor_decline_request_btn"
+                    android:layout_toStartOf="@+id/job_detail_neighbor_decline_request_btn" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/job_detail_popper_request_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <Button
+                    android:id="@+id/job_detail_popper_request_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Request Job"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+
+            </RelativeLayout>
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="200dp">
+
+
 
             <ImageView
                 android:layout_width="match_parent"
@@ -35,16 +91,6 @@
                 android:orientation="vertical"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true">
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/job_detail_neighbor_profile_pic"
-                    android:layout_width="96dp"
-                    android:layout_height="96dp"
-                    android:src="@drawable/popper_dash_profile_pic"
-                    android:layout_gravity="center"
-                    app:civ_border_width="2dp"
-                    app:civ_border_color="#FF000000"/>
 
                 <TextView
                     android:id="@+id/job_detail_neighbor_name"
@@ -67,25 +113,18 @@
 
             </LinearLayout>
 
-            <Button
-                android:text="Reject Request"
+            <TextView
+                android:id="@+id/job_detail_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
+                tools:text="Open"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:id="@+id/Reject" />
-
-            <Button
-                android:text="Button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/Accept"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_marginLeft="11dp"
-                android:layout_marginStart="11dp" />
+                android:text="Open"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp" />
 
         </RelativeLayout>
 
@@ -159,21 +198,23 @@
                     android:layout_marginLeft="10dp"
                     android:textColor="@color/black" />
 
-                <TextView
+                <org.fabiomsr.moneytextview.MoneyTextView
                     android:id="@+id/job_detail_budget"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:text="$60.00"
-                    android:textSize="20sp"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true"
                     android:layout_marginRight="10dp"
-                    android:textColor="@color/black" />
+                    app:symbol="$"
+                    app:baseTextSize="20sp"
+                    app:decimalDigitsTextSize="15sp"
+                    app:decimalMargin="3dp"
+                    app:includeDecimalSeparator="false" />
 
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/job_detail_time_section"
+                android:id="@+id/job_detail_duration_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/job_detail_budget_section"
@@ -181,6 +222,39 @@
                 android:padding="5dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Estimated Duration"
+                    android:textSize="20sp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginLeft="10dp"
+                    android:textColor="@color/black" />
+
+                <TextView
+                    android:id="@+id/job_detail_duration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginRight="10dp"
+                    android:textColor="@color/black"/>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/job_detail_time_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/job_detail_duration_section"
+                android:layout_marginTop="10dp"
+                android:padding="5dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:visibility="gone">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -211,7 +285,8 @@
                 android:layout_marginTop="10dp"
                 android:padding="5dp"
                 android:paddingLeft="10dp"
-                android:paddingRight="10dp">
+                android:paddingRight="10dp"
+                android:visibility="gone">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -234,6 +309,40 @@
 
             </RelativeLayout>
 
+            <RelativeLayout
+                android:id="@+id/job_detail_poppers_section"
+                android:layout_below="@id/job_detail_date_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+
+                <TextView
+                    android:id="@+id/job_detail_poppers_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="Current Poppers"
+                    android:layout_marginTop="15dp"
+                    android:textColor="@android:color/white"
+                    android:background="@color/colorPrimaryDark"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:id="@+id/job_detail_popper_name"
+                    android:layout_marginTop="10dp"
+                    android:layout_centerHorizontal="true"
+                    android:textSize="20sp"
+                    android:textColor="@color/black"
+                    android:layout_below="@id/job_detail_poppers_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="Carson Jones"/>
+
+
+            </RelativeLayout>
+
+
             <TextView
                 android:id="@+id/job_detail_location_label"
                 android:layout_width="match_parent"
@@ -242,8 +351,8 @@
                 android:text="Location"
                 android:layout_marginTop="15dp"
                 android:textColor="@android:color/white"
-                android:background="@android:color/darker_gray"
-                android:layout_below="@id/job_detail_date_section"
+                android:background="@color/colorPrimaryDark"
+                android:layout_below="@id/job_detail_poppers_section"
                 android:textSize="17sp" />
 
             <com.google.android.gms.maps.MapView
