@@ -42,8 +42,8 @@ public class ParentActivity extends AppCompatActivity {
 
     public final static String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
 
-    @BindView(R.id.parent_viewpager) TabLayout tabLayout;
-    @BindView(R.id.parent_tabs) NonSwipeableViewPager viewPager;
+    @BindView(R.id.parent_tabs) TabLayout tabLayout;
+    @BindView(R.id.parent_viewpager) NonSwipeableViewPager viewPager;
     @BindView(R.id.parent_toolbar) Toolbar myToolbar;
 
     private FirebaseAuth.AuthStateListener authListener;

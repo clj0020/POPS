@@ -33,7 +33,6 @@ public class AddDetailsParentFragment extends Fragment implements View.OnClickLi
 
     private static final String USER_ID = "user_id";
 
-    @BindView(R.id.progress_bar) ProgressBar progressBar;
     @BindView(R.id.parent_first_name) EditText mFirstNameEditText;
     @BindView(R.id.parent_last_name) EditText mLastNameEditText;
     @BindView(R.id.parent_last_four_of_social) EditText mLastFourSocialEditText;

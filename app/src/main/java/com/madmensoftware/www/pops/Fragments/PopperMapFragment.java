@@ -179,7 +179,7 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
 
         mapView.onCreate(mBundle);
         mapView.getMapAsync(this);
-        mGoogleMap.setOnCameraChangeListener(this);
+      //  mGoogleMap.setOnCameraChangeListener(this);
 
         auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
