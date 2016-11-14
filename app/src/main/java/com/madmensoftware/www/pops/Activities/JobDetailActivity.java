@@ -19,19 +19,20 @@ public class JobDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_job_detail);
 
-        Job job = Parcels.unwrap(getIntent().getParcelableExtra("job"));
+        //Job job = Parcels.unwrap(getIntent().getParcelableExtra("job"));
+        String uid = getIntent().getStringExtra("job");
 
         FragmentManager fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.job_detail_fragment_container);
 
         if (fragment == null) {
-            fragment = JobDetailFragment.newInstance(job);
+            fragment = JobDetailFragment.newInstance(uid);
                 fm.beginTransaction()
                         .add(R.id.job_detail_fragment_container, fragment)
                         .commit();
         }
         else {
-            fragment = JobDetailFragment.newInstance(job);
+            fragment = JobDetailFragment.newInstance(uid);
             fm.beginTransaction()
                     .replace(R.id.job_detail_fragment_container, fragment)
                     .commit();

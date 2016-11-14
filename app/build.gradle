@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'com.mutualmobile.gradle.plugins.dexinfo'
 
 android {
     compileSdkVersion 24
@@ -32,40 +33,43 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:design:24.2.1'
-    compile 'com.android.support:multidex:1.0.1'
+    compile 'com.android.support:support-v4:24.2.1'
     compile 'com.android.support:recyclerview-v7:24.2.1'
-    compile 'com.google.android.gms:play-services:9.6.1'
+    // compile 'com.android.support:multidex:1.0.1'
+
+    compile 'com.google.android.gms:play-services:9.8.0'
+    compile 'com.google.android.gms:play-services-maps:9.8.0'
+    compile 'com.google.android.gms:play-services-auth:9.8.0'
+    compile 'com.google.maps.android:android-maps-utils:0.4.+'
+
     compile 'com.google.firebase:firebase-core:9.4.0'
     compile 'com.google.firebase:firebase-auth:9.4.0'
     compile 'com.google.firebase:firebase-database:9.4.0'
     compile 'com.google.firebase:firebase-crash:9.4.0'
-    compile 'com.android.support:support-v4:24.2.1'
-    compile 'org.adw.library:discrete-seekbar:1.0.1'
-    compile 'de.hdodenhof:circleimageview:2.1.0'
-    compile 'org.parceler:parceler-api:1.1.5'
     compile 'com.firebaseui:firebase-ui:0.6.1'
     compile 'com.firebaseui:firebase-ui-database:0.6.1'
     compile 'com.firebaseui:firebase-ui-auth:0.6.1'
-    compile 'com.jakewharton:butterknife:8.4.0'
-    apt 'com.jakewharton:butterknife-compiler:8.4.0'
-    compile 'com.google.android.gms:play-services-maps:9.6.1'
-    compile 'com.google.android.gms:play-services-auth:9.6.1'
-    compile 'com.google.code.gson:gson:2.7'
-    compile 'com.google.maps.android:android-maps-utils:0.4.+'
     compile 'com.firebase:geofire-android:2.1.0'
+
     compile 'com.stripe:stripe-android:+'
     compile 'com.braintreepayments:card-form:2.3.2'
+
+    compile 'org.adw.library:discrete-seekbar:1.0.1'
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+    compile 'org.parceler:parceler-api:1.1.5'
+    compile 'com.jakewharton:butterknife:8.4.0'
+    apt 'com.jakewharton:butterknife-compiler:8.4.0'
+    compile 'com.google.code.gson:gson:2.7'
     testCompile 'junit:junit:4.12'
     apt 'org.parceler:parceler:1.1.5'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4'
     compile 'com.orhanobut:logger:1.15'
-    compile 'frankiesardo:icepick:3.2.0'
-    provided 'frankiesardo:icepick-processor:3.2.0'
     compile 'com.tomergoldst.android:tooltips:1.0.2'
     compile 'com.github.ganfra:material-spinner:1.1.1'
     compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+    compile 'org.fabiomsr:moneytextview:1.0.3'
 }
 
 

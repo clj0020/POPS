@@ -59,12 +59,12 @@ public class NeighborNotificationsViewHolder extends RecyclerView.ViewHolder imp
                 Logger.i("NeighborNotificationViewHolder: There are " + notifications.size() + " notifications.");
                 Logger.i("NeighborNotificationViewHolder: itemPosition is " + itemPosition);
 
-                if (notifications.get(itemPosition).getType() == "Job") {
-                    Intent intent = new Intent(mContext, JobDetailActivity.class);
-                    intent.putExtra("position", itemPosition + "");
-                    intent.putExtra("job", Parcels.wrap(notifications.get(itemPosition).getJob()));
-                    mContext.startActivity(intent);
-                }
+
+                String jobUid = notifications.get(itemPosition).getJobUid();
+                Intent intent = new Intent(mContext, JobDetailActivity.class);
+                intent.putExtra("position", itemPosition + "");
+                intent.putExtra("job", jobUid);
+                mContext.startActivity(intent);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {

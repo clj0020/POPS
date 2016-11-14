@@ -5,6 +5,9 @@ import android.app.Application;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.squareup.leakcanary.LeakCanary;
+import com.squareup.leakcanary.RefWatcher;
+
+import android.content.Context;
 import android.os.StrictMode;
 
 import static android.os.Build.VERSION.SDK_INT;
@@ -17,19 +20,23 @@ public class POPSApplication extends Application {
 
     @Override public void onCreate() {
         super.onCreate();
-        enabledStrictMode();
         LeakCanary.install(this);
+
         FacebookSdk.sdkInitialize(getApplicationContext());
         AppEventsLogger.activateApp(this);
+//        enabledStrictMode();
     }
 
-    private void enabledStrictMode() {
-        if (SDK_INT >= GINGERBREAD) {
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder() //
-                    .detectAll() //
-                    .penaltyLog() //
-                    .penaltyDeath() //
-                    .build());
-        }
-    }
+
+
+//
+//    private void enabledStrictMode() {
+//        if (SDK_INT >= GINGERBREAD) {
+//            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder() //
+//                    .detectAll() //
+//                    .penaltyLog() //
+//                    .penaltyDeath() //
+//                    .build());
+//        }
+//    }
 }

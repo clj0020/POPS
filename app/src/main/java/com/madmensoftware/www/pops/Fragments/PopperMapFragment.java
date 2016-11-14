@@ -196,7 +196,7 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
                 Job job = (Job) marker.getTag();
                 Intent intent = new Intent(getActivity(), JobDetailActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putParcelable("job", Parcels.wrap(job));
+                bundle.putString("job", job.getUid());
                 intent.putExtras(bundle);
                 startActivity(intent);
             }

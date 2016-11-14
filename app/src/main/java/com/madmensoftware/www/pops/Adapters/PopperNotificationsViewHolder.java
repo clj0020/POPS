@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -13,7 +14,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Activities.JobDetailActivity;
+import com.madmensoftware.www.pops.Helpers.TinyDB;
+import com.madmensoftware.www.pops.Models.Job;
 import com.madmensoftware.www.pops.Models.Notification;
+import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 import com.orhanobut.logger.Logger;
 
@@ -54,17 +58,16 @@ public class PopperNotificationsViewHolder extends RecyclerView.ViewHolder imple
 
                 int itemPosition = getLayoutPosition();
 
-                Logger.i("NeighborNotificationViewHolder: There are " + notifications.size() + " notifications.");
-                Logger.i("NeighborNotificationViewHolder: itemPosition is " + itemPosition);
+                Logger.i("PopperNotificationViewHolder: There are " + notifications.size() + " notifications.");
+                Logger.i("PopperNotificationViewHolder: itemPosition is " + itemPosition);
 
+                    Logger.i("PopperNotificationViewHolder: Notification Type is Job.");
 
-
-                if (notifications.get(itemPosition).getType() == "Job") {
-                    Intent intent = new Intent(mContext, JobDetailActivity.class);
-                    intent.putExtra("position", itemPosition + "");
-                    intent.putExtra("job", Parcels.wrap(notifications.get(itemPosition).getJob()));
-                    mContext.startActivity(intent);
-                }
+                    String jobUid = notifications.get(itemPosition).getJobUid();
+                Intent intent = new Intent(mContext, JobDetailActivity.class);
+                intent.putExtra("position", getLayoutPosition() + "");
+                intent.putExtra("job", jobUid);
+                mContext.startActivity(intent);
             }
 
             @Override

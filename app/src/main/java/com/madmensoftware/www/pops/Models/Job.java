@@ -18,6 +18,8 @@ public class Job {
     String posterUid;
     String posterName;
     String popperUid;
+    String popperName;
+    String popperNameCache;
     String Uid;
     String parentUid;
     long startTime;
@@ -75,6 +77,22 @@ public class Job {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getPopperName() {
+        return popperName;
+    }
+
+    public void setPopperName(String popperName) {
+        this.popperName = popperName;
+    }
+
+    public String getPopperNameCache() {
+        return popperNameCache;
+    }
+
+    public void setPopperNameCache(String popperNameCache) {
+        this.popperNameCache = popperNameCache;
     }
 
     public String getDescription() {

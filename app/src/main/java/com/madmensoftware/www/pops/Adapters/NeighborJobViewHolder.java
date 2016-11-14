@@ -65,7 +65,8 @@ public class NeighborJobViewHolder extends RecyclerView.ViewHolder implements Vi
 
                 Intent intent = new Intent(mContext, JobDetailActivity.class);
                 intent.putExtra("position", itemPosition + "");
-                intent.putExtra("job", Parcels.wrap(jobs.get(itemPosition)));
+               // intent.putExtra("job", Parcels.wrap(jobs.get(itemPosition)));
+                intent.putExtra("job", jobs.get(itemPosition).getUid());
                 mContext.startActivity(intent);
             }
 
