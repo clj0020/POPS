@@ -46,7 +46,7 @@ public class User {
     Boolean paymentAdded;
 
     public User() {
-        paymentAdded = false;
+       // paymentAdded = false;
     }
 
 
