@@ -43,11 +43,12 @@ public class User {
     String stripeAccountId;
     String stripeApiSecretKey;
     String stripeApiPublishableKey;
-
+    Boolean paymentAdded;
 
     public User() {
-        //goalDate = new Date();
+        paymentAdded = false;
     }
+
 
     public String getUid() {
         return uid;
@@ -249,6 +250,19 @@ public class User {
 
     public void setStripeApiPublishableKey(String stripeApiPublishableKey) {
         this.stripeApiPublishableKey = stripeApiPublishableKey;
+    }
+
+    public boolean getPaymentAdded(){return paymentAdded;}
+
+
+    //Switches bool of payment added if false then true if true then false
+    public void setPaymentAdded(){
+        if(paymentAdded == false) {
+            paymentAdded = true;
+        }
+        else if(paymentAdded == false){
+            paymentAdded = false;
+        }
     }
 
 
