@@ -29,6 +29,7 @@ import com.madmensoftware.www.pops.Fragments.PopperMapFragment;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
+import com.madmensoftware.www.pops.Services.PollService;
 import com.orhanobut.logger.Logger;
 
 import org.parceler.Parcels;
@@ -52,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
 //        auth.signOut();
 
         Logger.i(auth.toString());
+
+        Intent i = PollService.newIntent(getApplicationContext());
+        getApplicationContext().startService(i);
 
         authListener = new FirebaseAuth.AuthStateListener() {
             @Override

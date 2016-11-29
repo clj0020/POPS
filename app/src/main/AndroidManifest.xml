@@ -30,7 +30,6 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
 
-
         <activity
             android:name=".Activities.MainActivity"
             android:theme="@style/AppTheme">
@@ -40,32 +39,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
-
-
         <activity
             android:name=".Activities.LoginActivity"
-            android:theme="@style/AppTheme"
-            android:parentActivityName=".Activities.LandingPageActivity">
-
+            android:parentActivityName=".Activities.LandingPageActivity"
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Activities.LandingPageActivity" />
-
         </activity>
-
         <activity
             android:name=".Activities.SignUpActivityUpdated"
             android:label="@string/title_activity_sign_up_updated"
             android:parentActivityName=".Activities.LandingPageActivity"
             android:theme="@style/AppTheme">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Activities.LandingPageActivity" />
         </activity>
-
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -112,7 +102,9 @@
         <activity android:name=".Activities.ParentSettingsActivity" />
         <activity android:name=".Activities.PopperSettingsActivity" />
         <activity android:name=".Activities.TypePickerActivity" />
-        <activity android:name=".Activities.LandingPageActivity"></activity>
+        <activity android:name=".Activities.LandingPageActivity" />
+        <activity android:name=".Activities.AddPaymentInformationActivity"></activity>
+        <service android:name=".Services.PollService" />
     </application>
 
 </manifest>
