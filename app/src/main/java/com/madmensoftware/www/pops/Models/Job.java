@@ -29,6 +29,12 @@ public class Job {
     double latitude;
     long clockInTime;
     long completionTime;
+    long totalTime;
+    double subtotal;
+    double transactionFee;
+    double total;
+
+
 
     public Job() {
 
@@ -215,6 +221,39 @@ public class Job {
 
     public void setCompletionTime(long completionTime) {
         this.completionTime = completionTime;
+    }
+
+
+    public long getTotalTime() {
+        return totalTime;
+    }
+
+    public void setTotalTime(long totalTime) {
+        this.totalTime = totalTime;
+    }
+
+    public double getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(double subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    public double getTransactionFee() {
+        return transactionFee;
+    }
+
+    public void setTransactionFee(double transactionFee) {
+        this.transactionFee = transactionFee;
+    }
+
+    public double getTotal() {
+        return total;
+    }
+
+    public void setTotal(double total) {
+        this.total = total;
     }
 
 }

@@ -74,6 +74,23 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/job_detail_neighbor_pay_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <Button
+                    android:id="@+id/job_detail_neighbor_pay_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Pay for Job"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
                 android:id="@+id/job_detail_popper_job_start_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_neighbor_payment_overview"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/login_gradient"
+    tools:context="com.madmensoftware.www.pops.Activities.NeighborPaymentOverviewActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Job Completed!"
+        android:layout_gravity="center_horizontal"
+        android:textSize="30sp"
+        android:layout_marginTop="30dp"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Here are the details of your payment:"
+        android:layout_gravity="center_horizontal"
+        android:textSize="22sp"
+        android:layout_marginBottom="20dp"
+        android:textColor="@color/black" />
+
+    <LinearLayout
+        android:id="@+id/neighbor_payment_overview_start_time_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:id="@+id/neighbor_payment_overview_start_time_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Time - "
+            android:layout_weight="0.5"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/neighbor_payment_overview_start_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="1:00pm 12/05/16"
+            android:layout_weight="0.5"
+            android:gravity="right"
+            android:layout_marginRight="20dp"
+            android:layout_marginEnd="20dp"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/neighbor_payment_overview_completion_time_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:id="@+id/neighbor_payment_overview_completion_time_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Completion Time - "
+            android:layout_weight="0.5"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/neighbor_payment_overview_completion_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="2:00pm 12/05/16"
+            android:layout_weight="0.5"
+            android:gravity="right"
+            android:layout_marginRight="20dp"
+            android:layout_marginEnd="20dp"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/neighbor_payment_overview_total_time_taken_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:id="@+id/neighbor_payment_overview_total_time_taken_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total Time - "
+            android:layout_weight="0.5"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/neighbor_payment_overview_total_time_taken"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="2 hours"
+            android:layout_weight="0.5"
+            android:gravity="right"
+            android:layout_marginRight="20dp"
+            android:layout_marginEnd="20dp"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/neighbor_payment_overview_price_rate_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:id="@+id/neighbor_payment_overview_price_rate_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Price Rate - "
+            android:layout_weight="0.5"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/neighbor_payment_overview_price_rate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="$20.00 an hour"
+            android:layout_weight="0.5"
+            android:gravity="right"
+            android:layout_marginRight="20dp"
+            android:layout_marginEnd="20dp"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/neighbor_payment_overview_subtotal_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:id="@+id/neighbor_payment_overview_subtotal_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sub Total - "
+            android:layout_weight="0.5"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+
+        <TextView
+            android:id="@+id/neighbor_payment_overview_subtotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="$40.00"
+            android:layout_weight="0.5"
+            android:gravity="right"
+            android:layout_marginRight="20dp"
+            android:layout_marginEnd="20dp"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/neighbor_payment_overview_transaction_fee_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:id="@+id/neighbor_payment_overview_transaction_fee_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Transaction Fee - "
+            android:layout_weight="0.5"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/neighbor_payment_overview_transaction_fee"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="$2.50"
+            android:layout_weight="0.5"
+            android:gravity="right"
+            android:layout_marginRight="20dp"
+            android:layout_marginEnd="20dp"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/neighbor_payment_overview_total_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:id="@+id/neighbor_payment_overview_total_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="Total - "
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:textSize="20sp"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/neighbor_payment_overview_total"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            tools:text="$42.50"
+            android:gravity="right"
+            android:layout_marginRight="20dp"
+            android:layout_marginEnd="20dp"
+            android:textSize="20sp"
+            android:textColor="@color/black" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Would you like to tip your popper?"
+            android:layout_weight="0.5"/>
+
+        <EditText
+            android:id="@+id/neighbor_payment_overview_tip_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_edittext"
+            android:hint="$0.00"
+            android:inputType="number"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_weight="0.5"/>
+
+
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/neighbor_payment_overview_pay_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/login_button"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="50dp"
+        android:text="Pay"/>
+
+</LinearLayout>

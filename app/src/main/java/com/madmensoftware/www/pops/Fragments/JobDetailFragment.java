@@ -38,7 +38,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.madmensoftware.www.pops.Activities.JobDetailActivity;
 import com.madmensoftware.www.pops.Activities.NeighborActivity;
+import com.madmensoftware.www.pops.Activities.NeighborPaymentOverviewActivity;
 import com.madmensoftware.www.pops.Activities.PopperActivity;
 import com.madmensoftware.www.pops.Adapters.NeighborJobAdapter;
 import com.madmensoftware.www.pops.Adapters.NeighborJobViewHolder;
@@ -92,6 +94,9 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
     @BindView(R.id.job_detail_neighbor_request_job_start_textview) TextView mNeighborRequestJobStartTextView;
     @BindView(R.id.job_detail_neighbor_in_progress_container) RelativeLayout mNeighborInProgressContainer;
     @BindView(R.id.job_detail_neighbor_in_progress_finish_btn) Button mNeighborInProgressFinishButton;
+    @BindView(R.id.job_detail_neighbor_pay_container) RelativeLayout mNeighborPayContainer;
+    @BindView(R.id.job_detail_neighbor_pay_btn) Button mNeighborPayButton;
+
 
 
     @BindView(R.id.job_detail_popper_request_container) RelativeLayout mPopperRequestContainer;
@@ -345,6 +350,7 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                         mNeighborInProgressContainer.setVisibility(View.VISIBLE);
                                     }
                                     else if (mJob.getStatus().equals("complete")) {
+                                        mNeighborPayContainer.setVisibility(View.VISIBLE);
                                         mJobDetailTimesContainer.setVisibility(View.VISIBLE);
                                         mJobStartTime.setText(formatDateAndTime(mJob.getStartTime()));
                                         mJobCompletionTime.setText(formatDateAndTime(mJob.getCompletionTime()));
@@ -456,18 +462,44 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                         }
                                     });
 
+
                                     mNeighborInProgressFinishButton.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
                                             Date currentDate = Calendar.getInstance().getTime();
                                             long currentTime = currentDate.getTime();
 
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("complete");
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("completionTime").setValue(currentTime);
+                                            mJob.setStatus("complete");
+                                            mJob.setCompletionTime(currentTime);
+
+                                            mJob.setTotalTime(totalTimeDifference(mJob.getStartTime(), mJob.getCompletionTime()));
+                                            mJob.setSubtotal(mJob.getBudget() * mJob.getTotalTime());
+                                            mJob.setTransactionFee(mJob.getSubtotal() * 0.1);
+                                            mJob.setTotal(mJob.getSubtotal() + mJob.getTransactionFee());
+
+
+                                            mDatabase.child("jobs").child(mJob.getUid()).setValue(mJob);
+
+
+
+
 
                                             Logger.i("Completion Time" + formatDateAndTime(currentTime));
+
+                                            //startActivity(new Intent(getActivity(), NeighborPaymentOverviewActivity.class));
                                         }
                                     });
+
+                                    mNeighborPayButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            TinyDB tinyDb = new TinyDB(getActivity());
+                                            tinyDb.putString("job-uid", mJob.getUid());
+
+                                            startActivity(new Intent(getActivity(), NeighborPaymentOverviewActivity.class));
+                                        }
+                                    });
+
 
 
                                     break;
@@ -655,6 +687,19 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
         String currentData = sdf.format(date); // Get Date String according to date format
 
         return currentData;
+    }
+
+    public long totalTimeDifference(long startTime, long completionTime) {
+
+        long difference = completionTime - startTime;
+
+        long secondsInMilli = 1000;
+        long minutesInMilli = secondsInMilli * 60;
+        long hoursInMilli = minutesInMilli * 60;
+
+        long elapsedHours = difference / hoursInMilli;
+
+        return elapsedHours;
     }
 
 }
