@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +30,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.vision.text.Text;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -54,6 +56,7 @@ import org.fabiomsr.moneytextview.MoneyTextView;
 import org.parceler.Parcels;
 
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -77,9 +80,8 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
     @BindView(R.id.job_detail_budget) MoneyTextView mJobBudget;
     @BindView(R.id.job_detail_status) TextView mJobStatus;
     @BindView(R.id.job_detail_duration) TextView mJobDuration;
-
-    @BindView(R.id.job_detail_popper_request_container) RelativeLayout mPopperRequestContainer;
-    @BindView(R.id.job_detail_popper_request_btn) Button mPopperRequestJobButton;
+    @BindView(R.id.job_detail_start_time_text_view) TextView mJobStartTime;
+    @BindView(R.id.job_detail_completion_time_text_view) TextView mJobCompletionTime;
 
     @BindView(R.id.job_detail_neighbor_request_container) RelativeLayout mNeighborRequestContainer;
     @BindView(R.id.job_detail_neighbor_accept_request_btn) Button mNeighborAcceptRequestButton;
@@ -88,11 +90,20 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
     @BindView(R.id.job_detail_neighbor_accept_job_start_btn) Button mNeighborAcceptJobStartRequestButton;
     @BindView(R.id.job_detail_neighbor_reject_job_start_btn) Button mNeighborRejectJobStartButton;
     @BindView(R.id.job_detail_neighbor_request_job_start_textview) TextView mNeighborRequestJobStartTextView;
+    @BindView(R.id.job_detail_neighbor_in_progress_container) RelativeLayout mNeighborInProgressContainer;
+    @BindView(R.id.job_detail_neighbor_in_progress_finish_btn) Button mNeighborInProgressFinishButton;
 
 
+    @BindView(R.id.job_detail_popper_request_container) RelativeLayout mPopperRequestContainer;
+    @BindView(R.id.job_detail_popper_request_btn) Button mPopperRequestJobButton;
     @BindView(R.id.job_detail_popper_job_start_container) RelativeLayout mPopperJobStartContainer;
     @BindView(R.id.job_detail_popper_job_start_btn) Button mPopperJobStartButton;
     @BindView(R.id.job_detail_popper_job_cancel_btn) Button mPopperJobCancelButton;
+    @BindView(R.id.job_detail_popper_in_progress_container) RelativeLayout mPopperInProgressContainer;
+    @BindView(R.id.job_detail_popper_in_progress_finish_btn) Button mPopperInProgressFinishButton;
+    @BindView(R.id.job_detail_times_container) LinearLayout mJobDetailTimesContainer;
+    @BindView(R.id.job_detail_popper_complete_container) RelativeLayout mPopperJobCompleteContainer;
+    @BindView(R.id.job_detail_popper_complete_textview) TextView mPopperJobCompleteTextView;
 
     @BindView(R.id.job_detail_poppers_section) RelativeLayout mPoppersSection;
     @BindView(R.id.job_detail_popper_name) TextView mPopperNameTextView;
@@ -201,8 +212,29 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                         Logger.d("Popper: mUid is " + mUid);
 
                                         mPopperJobStartContainer.setVisibility(View.VISIBLE);
+                                    }
+                                    if (mJob.getStatus().equals("neighborRejectedJobStart")) {
+                                        mPopperRequestContainer.setVisibility(View.GONE);
+
+                                        mPopperJobStartContainer.setVisibility(View.VISIBLE);
+                                    }
+
+                                    if (mJob.getStatus().equals("inProgress")) {
+                                        mPopperRequestContainer.setVisibility(View.GONE);
+                                        mPopperJobStartContainer.setVisibility(View.GONE);
+                                      //  mPopperInProgressContainer.setVisibility(View.VISIBLE);
 
                                     }
+                                    if (mJob.getStatus().equals("complete")) {
+                                        mPopperJobCompleteContainer.setVisibility(View.VISIBLE);
+                                        mPopperRequestContainer.setVisibility(View.GONE);
+                                        mPopperJobStartContainer.setVisibility(View.GONE);
+
+                                        mJobDetailTimesContainer.setVisibility(View.VISIBLE);
+                                        mJobStartTime.setText(formatDateAndTime(mJob.getStartTime()));
+                                        mJobCompletionTime.setText(formatDateAndTime(mJob.getCompletionTime()));
+                                    }
+
 
                                     //parentUid = user.getParentUid();
 
@@ -278,6 +310,18 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                         }
                                     });
 
+                                    mPopperInProgressFinishButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Date currentDate = Calendar.getInstance().getTime();
+                                            long currentTime = currentDate.getTime();
+
+                                            mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("complete");
+                                            mDatabase.child("jobs").child(mJob.getUid()).child("completionTime").setValue(currentTime);
+
+                                        }
+                                    });
+
                                     break;
                                 }
 
@@ -285,6 +329,7 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                     if(mJob.getStatus().equals("pending")){
                                         mNeighborRequestContainer.setVisibility(View.VISIBLE);
                                         mNeighborRequestJobStartContainer.setVisibility(View.GONE);
+                                        mNeighborInProgressContainer.setVisibility(View.GONE);
 
                                         Logger.d(" Neighbor: jobStatus is pending");
                                         Logger.d(" Neighbor: job is " + mJob.getStatus());
@@ -292,10 +337,22 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                     else if (mJob.getStatus().equals("waitingForNeighborToStart")) {
                                         mNeighborRequestContainer.setVisibility(View.GONE);
                                         mNeighborRequestJobStartContainer.setVisibility(View.VISIBLE);
-
+                                        mNeighborInProgressContainer.setVisibility(View.GONE);
+                                    }
+                                    else if (mJob.getStatus().equals("inProgress")) {
+                                        mNeighborRequestContainer.setVisibility(View.GONE);
+                                        mNeighborRequestJobStartContainer.setVisibility(View.GONE);
+                                        mNeighborInProgressContainer.setVisibility(View.VISIBLE);
+                                    }
+                                    else if (mJob.getStatus().equals("complete")) {
+                                        mJobDetailTimesContainer.setVisibility(View.VISIBLE);
+                                        mJobStartTime.setText(formatDateAndTime(mJob.getStartTime()));
+                                        mJobCompletionTime.setText(formatDateAndTime(mJob.getCompletionTime()));
                                     }
                                     else {
                                         mNeighborRequestContainer.setVisibility(View.GONE);
+                                        mNeighborInProgressContainer.setVisibility(View.GONE);
+                                        mNeighborRequestJobStartContainer.setVisibility(View.GONE);
                                     }
 
                                     mNeighborAcceptRequestButton.setOnClickListener(new View.OnClickListener() {
@@ -373,6 +430,42 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                         @Override
                                         public void onClick(View v) {
 
+                                            Date currentDate = Calendar.getInstance().getTime();
+                                            long currentTime = currentDate.getTime();
+
+                                            mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("inProgress");
+                                            mDatabase.child("jobs").child(mJob.getUid()).child("startTime").setValue(currentTime);
+
+                                            Toast.makeText(getActivity(), "The job is starting at " + currentTime, Toast.LENGTH_LONG).show();
+
+
+                                            Logger.i("Start Time" + formatDateAndTime(currentTime));
+                                            mNeighborRequestJobStartContainer.setVisibility(View.GONE);
+                                        }
+                                    });
+
+                                    mNeighborRejectJobStartButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("neighborRejectedJobStart");
+                                            mDatabase.child("jobs").child(mJob.getUid()).child("clockInTime").setValue(0);
+
+                                            Toast.makeText(getActivity(), "You have rejected " + mJob.getPopperName() + "'s request to start the job.", Toast.LENGTH_LONG).show();
+
+                                            mNeighborRequestJobStartContainer.setVisibility(View.GONE);
+                                        }
+                                    });
+
+                                    mNeighborInProgressFinishButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Date currentDate = Calendar.getInstance().getTime();
+                                            long currentTime = currentDate.getTime();
+
+                                            mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("complete");
+                                            mDatabase.child("jobs").child(mJob.getUid()).child("completionTime").setValue(currentTime);
+
+                                            Logger.i("Completion Time" + formatDateAndTime(currentTime));
                                         }
                                     });
 
@@ -554,6 +647,14 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 //        notification.put("uid", uid);
 
        // ref.child("notifications").child(uid).setValue(notification);
+    }
+
+    public String formatDateAndTime(long time) {
+        Date date = new Date(time);
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm MM-dd-yyyy"); // Set your date format
+        String currentData = sdf.format(date); // Get Date String according to date format
+
+        return currentData;
     }
 
 }

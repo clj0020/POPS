@@ -182,8 +182,6 @@ public class NeighborActivity extends AppCompatActivity {
                 case R.id.action_add_job:
 
                     if(user.getPaymentAdded() == false) {
-
-
                         CharSequence accept = "Add";
                         CharSequence reject = "Later";
                         CharSequence message = "To post jobs you have to finish signing up. Add your Payment information to continue.";
@@ -194,7 +192,7 @@ public class NeighborActivity extends AppCompatActivity {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface arg0, int arg1) {
-
+                                        startActivity(new Intent(NeighborActivity.this, AddPaymentInformationActivity.class));
                                     }
                                 });
 

@@ -276,7 +276,7 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                                     // whenever data at this location is updated.
                                     User mUser = dataSnapshot.getValue(User.class);
 
-                                    if (mUser.hasPaymentInfo() == "true") {
+                                    if (mUser.getPaymentAdded() == true) {
 
                                         String jobId = mDatabase.child("jobs").push().getKey();
                                         job.setUid(jobId);

@@ -43,7 +43,7 @@ public class User {
     String stripeAccountId;
     String stripeApiSecretKey;
     String stripeApiPublishableKey;
-    String hasPaymentInfo;
+    boolean paymentAdded;
 
 
     public User() {
@@ -253,14 +253,14 @@ public class User {
     }
 
 
-    public String hasPaymentInfo() {
-        return hasPaymentInfo;
+
+    public boolean getPaymentAdded() {
+        return paymentAdded;
     }
 
-    public void setHasPaymentInfo(String hasPaymentInfo) {
-        this.hasPaymentInfo = hasPaymentInfo;
+    public void setPaymentAdded(boolean paymentAdded) {
+        this.paymentAdded = paymentAdded;
     }
-
 
 
 

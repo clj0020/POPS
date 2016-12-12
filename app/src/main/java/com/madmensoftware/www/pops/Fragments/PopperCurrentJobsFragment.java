@@ -42,7 +42,7 @@ public class PopperCurrentJobsFragment extends Fragment {
     private DatabaseReference mFirebaseDatabaseReference;
 
     private LinearLayoutManager linearLayoutManager;
-    private FirebaseRecyclerAdapter<Job, NeighborJobViewHolder> mFirebaseAdapter;
+    private FirebaseRecyclerAdapter<Job, PopperJobViewHolder> mFirebaseAdapter;
     private PopperJobAdapter mJobAdapter;
     private PopperCurrentJobsAdapter mAdapter;
 

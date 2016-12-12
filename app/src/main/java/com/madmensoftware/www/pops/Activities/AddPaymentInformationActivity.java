@@ -132,10 +132,13 @@ public class AddPaymentInformationActivity extends AppCompatActivity implements 
             geofire.setLocation(jobId, new GeoLocation(job.getLatitude(), job.getLongitude()));
 
 
-            user.setHasPaymentInfo("true");
+            user.setPaymentAdded(true);
 
             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
             FirebaseDatabase.getInstance().getReference().child("users").child(firebaseUser.getUid()).setValue(user);
+            FirebaseDatabase.getInstance().getReference().child("users").child(firebaseUser.getUid()).child("paymentAdded").setValue(true);
+
+
 
             //mDatabase.child("users").child(firebaseUser.getUid()).child("hasPaymentInfo").setValue(true);
 
@@ -151,6 +154,13 @@ public class AddPaymentInformationActivity extends AppCompatActivity implements 
             tinyDB.putObject("User", user);
             startActivity(new Intent(AddPaymentInformationActivity.this, MainActivity.class));
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(AddPaymentInformationActivity.this, MainActivity.class));
+        finish();
     }
 
     private class CreateCustomerTask extends AsyncTask<Token, Integer, Customer> {

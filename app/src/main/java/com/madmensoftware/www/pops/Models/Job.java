@@ -28,6 +28,7 @@ public class Job {
     double longitude;
     double latitude;
     long clockInTime;
+    long completionTime;
 
     public Job() {
 
@@ -206,6 +207,14 @@ public class Job {
 
     public void setClockInTime(long clockInTime) {
         this.clockInTime = clockInTime;
+    }
+
+    public long getCompletionTime() {
+        return completionTime;
+    }
+
+    public void setCompletionTime(long completionTime) {
+        this.completionTime = completionTime;
     }
 
 }

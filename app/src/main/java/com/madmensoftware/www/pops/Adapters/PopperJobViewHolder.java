@@ -14,8 +14,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Activities.JobDetailActivity;
+import com.madmensoftware.www.pops.Activities.MainActivity;
 import com.madmensoftware.www.pops.Models.Job;
 import com.madmensoftware.www.pops.R;
+import com.orhanobut.logger.Logger;
 
 import org.parceler.Parcels;
 
@@ -63,11 +65,19 @@ public class PopperJobViewHolder extends RecyclerView.ViewHolder implements View
                 Log.i("PopperJobViewHolder", " jobsSize is " + jobs.size());
                 Log.i("PopperJobViewHolder", " itemPosition is " + itemPosition);
 
-                Intent intent = new Intent(mContext, JobDetailActivity.class);
-                intent.putExtra("position", itemPosition + "");
+                try {
+                    Intent intent = new Intent(mContext, JobDetailActivity.class);
+                    intent.putExtra("position", itemPosition + "");
 //                intent.putExtra("job", Parcels.wrap(jobs.get(itemPosition)));
-                intent.putExtra("job", jobs.get(itemPosition).getUid());
-                mContext.startActivity(intent);
+                    intent.putExtra("job", jobs.get(itemPosition).getUid());
+                    mContext.startActivity(intent);
+                }
+                catch(ArrayIndexOutOfBoundsException e) {
+                    Logger.i("Exception at PopperJobViewHolder: " + e);
+                    mContext.startActivity(new Intent(mContext, MainActivity.class));
+                }
+
+
             }
 
             @Override

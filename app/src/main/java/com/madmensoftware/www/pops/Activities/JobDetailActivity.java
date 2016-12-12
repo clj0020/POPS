@@ -1,5 +1,6 @@
 package com.madmensoftware.www.pops.Activities;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
@@ -37,6 +38,13 @@ public class JobDetailActivity extends AppCompatActivity {
                     .replace(R.id.job_detail_fragment_container, fragment)
                     .commit();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(JobDetailActivity.this, MainActivity.class));
+        finish();
     }
 
 }

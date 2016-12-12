@@ -30,7 +30,7 @@
                     android:id="@+id/job_detail_job_requested_by_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Job Request by Carson Jones"
+                    android:text="Job Request"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
@@ -109,7 +109,7 @@
                     android:id="@+id/job_detail_neighbor_request_job_start_textview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Job Request by Carson Jones"
+                    android:text="Carson wants to start working on the job. Do you accept?"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
@@ -135,7 +135,56 @@
 
             </RelativeLayout>
 
+            <RelativeLayout
+                android:id="@+id/job_detail_popper_in_progress_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
 
+                <Button
+                    android:id="@+id/job_detail_popper_in_progress_finish_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Job Complete"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/job_detail_neighbor_in_progress_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <Button
+                    android:id="@+id/job_detail_neighbor_in_progress_finish_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Job Complete"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/job_detail_popper_complete_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/job_detail_popper_complete_textview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Job Complete - Waiting for Neighbor to Pay"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+
+            </RelativeLayout>
 
             <RelativeLayout
             android:layout_width="match_parent"
@@ -150,6 +199,7 @@
                 android:src="@drawable/popper_dash_bg" />
 
             <LinearLayout
+                android:id="@+id/job_detail_neighbor_info_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -177,22 +227,98 @@
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/job_detail_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="Open"
-                android:textSize="20sp"
-                android:textColor="@color/black"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentRight="true"
-                android:text="Open"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="10dp" />
+            </RelativeLayout>
 
-        </RelativeLayout>
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-        <RelativeLayout
+                <TextView
+                    android:id="@+id/job_detail_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Open"
+                    android:textSize="24sp"
+                    android:textColor="@color/black"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:text="Open"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:textStyle="normal|bold" />
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:weightSum="1"
+                    android:id="@+id/job_detail_times_container"
+                    android:layout_marginTop="20dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.5"
+                        android:id="@+id/job_detail_start_time_container">
+
+                        <TextView
+                            android:text="Start Time"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/job_detail_start_time_label"
+                            android:gravity="center_horizontal"
+                            android:textColor="@color/black"
+                            android:textSize="20sp"
+                            android:textStyle="normal|bold" />
+
+                        <TextView
+                            android:text="TextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/job_detail_start_time_text_view"
+                            android:gravity="center_horizontal"
+                            tools:text="1:00pm 01/21/2016"
+                            android:textSize="16sp"
+                            android:textColor="@color/black" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.5"
+                        android:id="@+id/job_detail_completion_time_container">
+
+                        <TextView
+                            android:text="Completion Time"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/job_detail_completion_time_label"
+                            android:gravity="center_horizontal"
+                            android:textColor="@color/black"
+                            android:textSize="20sp"
+                            android:textStyle="normal|bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/job_detail_completion_time_text_view"
+                            android:gravity="center_horizontal"
+                            tools:text="3:00pm 01/21/2016"
+                            android:textSize="16sp"
+                            android:textColor="@color/black" />
+                    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -228,6 +354,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="56dp"
                 android:layout_marginLeft="56dp"/>
+
 
             <TextView
                 android:id="@+id/job_detail_details_label"
