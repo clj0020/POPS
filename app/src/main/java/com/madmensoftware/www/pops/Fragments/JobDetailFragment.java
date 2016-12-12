@@ -35,6 +35,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.madmensoftware.www.pops.Activities.NeighborActivity;
 import com.madmensoftware.www.pops.Activities.PopperActivity;
 import com.madmensoftware.www.pops.Adapters.NeighborJobAdapter;
@@ -53,7 +54,9 @@ import org.fabiomsr.moneytextview.MoneyTextView;
 import org.parceler.Parcels;
 
 import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -197,22 +200,30 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                             TinyDB tinyDb = new TinyDB(getActivity());
                                             User popper = (User) tinyDb.getObject("User", User.class);
 
-                                            notification = new Notification();
-                                            notification.setTitle(user.getName() + " has requested your job titled " + mJob.getTitle() + ".");
-                                            notification.setDescription("Tap to view");
-                                            notification.setJobUid(mJob.getUid());
-                                            notification.setPopperUid(user.getUid());
-                                            notification.setParentUid(popper.getParentUid());
-                                            notification.setNeighborUid(mJob.getPosterUid());
+                                            sendNotificationToUser(mJob,
+                                                    mJob.getPosterUid(),
+                                                    user.getUid(),
+                                                    mJob.getPosterUid(),
+                                                    user.getName() + " has requested your job titled " + mJob.getTitle() + ".",
+                                                    "Tap to view",
+                                                    "Job");
 
-                                            notification.setRecieverUid(mJob.getPosterUid());
-                                            notification.setType("Job");
-                                            notification.setJob(mJob);
-
-                                            String notID = mDatabase.child("notifications").push().getKey();
-                                            notification.setUid(notID);
-
-                                            mDatabase.child("notifications").child(notID).setValue(notification);
+//                                            notification = new Notification();
+//                                            notification.setTitle(user.getName() + " has requested your job titled " + mJob.getTitle() + ".");
+//                                            notification.setDescription("Tap to view");
+//                                            notification.setJobUid(mJob.getUid());
+//                                            notification.setPopperUid(user.getUid());
+//                                            notification.setParentUid(popper.getParentUid());
+//                                            notification.setNeighborUid(mJob.getPosterUid());
+//
+//                                            notification.setRecieverUid(mJob.getPosterUid());
+//                                            notification.setType("Job");
+//                                            notification.setJob(mJob);
+//
+//                                            String notID = mDatabase.child("notifications").push().getKey();
+//                                            notification.setUid(notID);
+//
+//                                            mDatabase.child("notifications").child(notID).setValue(notification);
 
                                             mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("pending");
                                             mDatabase.child("jobs").child(mJob.getUid()).child("popperCache").setValue(popper.getUid());
@@ -280,6 +291,7 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
                                             mNeighborRequestContainer.setVisibility(View.GONE);
                                             Toast.makeText(getActivity(), "You have accepted the job request!", Toast.LENGTH_LONG).show();
+
                                             startActivity(new Intent(getActivity(), NeighborActivity.class));
                                         }
                                     });
@@ -475,6 +487,24 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onDestroy() {
         super.onDestroy();
+    }
+
+    public static void sendNotificationToUser(final Job job, final String neighborUid, final String popperUid, final String recieverUid, final String title, final String description, final String type) {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+
+        Map notification = new HashMap<>();
+        notification.put("job", job);
+        notification.put("neighborUid", neighborUid);
+        notification.put("popperUid", popperUid);
+        notification.put("recieverUid", recieverUid);
+        notification.put("title", title);
+        notification.put("description", description);
+        notification.put("type", type);
+
+        String uid = ref.child("notifications").push().getKey();
+        notification.put("uid", uid);
+
+        ref.child("notifications").child(uid).setValue(notification);
     }
 
 }

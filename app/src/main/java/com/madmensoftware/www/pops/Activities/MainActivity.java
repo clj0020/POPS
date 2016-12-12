@@ -1,5 +1,6 @@
 package com.madmensoftware.www.pops.Activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -31,6 +32,7 @@ import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 import com.madmensoftware.www.pops.Services.PollService;
 import com.orhanobut.logger.Logger;
+import com.squareup.haha.perflib.Main;
 
 import org.parceler.Parcels;
 
@@ -43,6 +45,10 @@ public class MainActivity extends AppCompatActivity {
     private String type;
     private User user;
 
+    public static Intent newIntent(Context context) {
+        return new Intent(context, MainActivity.class);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,8 +60,9 @@ public class MainActivity extends AppCompatActivity {
 
         Logger.i(auth.toString());
 
-        Intent i = PollService.newIntent(getApplicationContext());
-        getApplicationContext().startService(i);
+        //auth.signOut();
+
+        //PollService.setServiceAlarm(getApplicationContext(), true);
 
         authListener = new FirebaseAuth.AuthStateListener() {
             @Override
