@@ -4,13 +4,16 @@ package com.madmensoftware.www.pops.Services;
  * Created by carson on 11/30/2016.
  */
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -52,7 +55,36 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
+
+            // Send a notification
+            Resources resources = getResources();
+            Intent intent2 = MainActivity.newIntent(this);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent2, 0);
+
+            // TODO: UnHardCode the Notification Content
+            Notification notification = new android.support.v7.app.NotificationCompat.Builder(this)
+                    .setTicker(remoteMessage.getNotification().getBody())
+                    .setSmallIcon(R.drawable.pops_logo)
+                    .setContentTitle(remoteMessage.getNotification().getBody())
+                    .setContentText(remoteMessage.getNotification().getBody())
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+                    .build();
+
+//        Notification notification = new NotificationCompat.Builder(this)
+//                .setTicker(resources.getString(R.string.notification_title))
+//                .setSmallIcon(android.R.drawable.ic_menu_agenda)
+//                .setContentTitle(resources.getString(R.string.notification_title))
+//                .setContentText(resources.getString(R.string.notification_text))
+//                .setContentIntent(pendingIntent)
+//                .setAutoCancel(true)
+//                .build();
+
+            NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
+            notificationManagerCompat.notify(0, notification);
         }
+
+
 
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.

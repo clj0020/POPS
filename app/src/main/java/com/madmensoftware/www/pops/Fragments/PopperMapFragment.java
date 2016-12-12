@@ -237,18 +237,7 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
         return view;
     }
 
-//    public static void sendNotificationToUser(final String username, final String message) {
-//        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-//
-//        Map notification = new HashMap<>();
-//        notification.put("username", username);
-//        notification.put("message", message);
-//
-//        String uid = ref.child("notifications").push().getKey();
-//        notification.put("uid", uid);
-//
-//        ref.child("notifications").child(uid).setValue(notification);
-//    }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {

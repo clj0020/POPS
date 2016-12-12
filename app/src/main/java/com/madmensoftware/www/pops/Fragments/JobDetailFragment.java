@@ -54,6 +54,8 @@ import org.fabiomsr.moneytextview.MoneyTextView;
 import org.parceler.Parcels;
 
 import java.text.NumberFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -78,9 +80,19 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
     @BindView(R.id.job_detail_popper_request_container) RelativeLayout mPopperRequestContainer;
     @BindView(R.id.job_detail_popper_request_btn) Button mPopperRequestJobButton;
+
     @BindView(R.id.job_detail_neighbor_request_container) RelativeLayout mNeighborRequestContainer;
     @BindView(R.id.job_detail_neighbor_accept_request_btn) Button mNeighborAcceptRequestButton;
     @BindView(R.id.job_detail_neighbor_decline_request_btn) Button mNeighborDeclineRequestButton;
+    @BindView(R.id.job_detail_neighbor_request_job_start_container) RelativeLayout mNeighborRequestJobStartContainer;
+    @BindView(R.id.job_detail_neighbor_accept_job_start_btn) Button mNeighborAcceptJobStartRequestButton;
+    @BindView(R.id.job_detail_neighbor_reject_job_start_btn) Button mNeighborRejectJobStartButton;
+    @BindView(R.id.job_detail_neighbor_request_job_start_textview) TextView mNeighborRequestJobStartTextView;
+
+
+    @BindView(R.id.job_detail_popper_job_start_container) RelativeLayout mPopperJobStartContainer;
+    @BindView(R.id.job_detail_popper_job_start_btn) Button mPopperJobStartButton;
+    @BindView(R.id.job_detail_popper_job_cancel_btn) Button mPopperJobCancelButton;
 
     @BindView(R.id.job_detail_poppers_section) RelativeLayout mPoppersSection;
     @BindView(R.id.job_detail_popper_name) TextView mPopperNameTextView;
@@ -180,12 +192,16 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
                                     if(mJob.getStatus().equals("open")){
                                         mPopperRequestContainer.setVisibility(View.VISIBLE);
+                                        mPopperJobStartContainer.setVisibility(View.GONE);
                                     }
                                     if(mJob.getStatus().equals("active")) {
                                         mPopperRequestContainer.setVisibility(View.GONE);
                                         Logger.d("Popper: Job Status is active");
                                         Logger.d("Popper: Job Status is " + mJob.getStatus());
                                         Logger.d("Popper: mUid is " + mUid);
+
+                                        mPopperJobStartContainer.setVisibility(View.VISIBLE);
+
                                     }
 
                                     //parentUid = user.getParentUid();
@@ -200,13 +216,15 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                             TinyDB tinyDb = new TinyDB(getActivity());
                                             User popper = (User) tinyDb.getObject("User", User.class);
 
-                                            sendNotificationToUser(mJob,
-                                                    mJob.getPosterUid(),
-                                                    user.getUid(),
-                                                    mJob.getPosterUid(),
-                                                    user.getName() + " has requested your job titled " + mJob.getTitle() + ".",
-                                                    "Tap to view",
-                                                    "Job");
+                                            sendNotificationToUser(popper.getUid(), mJob.getPosterUid(), popper.getName() + " has requested your job " + mJob.getTitle());
+
+//                                            sendNotificationToUser(mJob,
+//                                                    mJob.getPosterUid(),
+//                                                    user.getUid(),
+//                                                    mJob.getPosterUid(),
+//                                                    user.getName() + " has requested your job titled " + mJob.getTitle() + ".",
+//                                                    "Tap to view",
+//                                                    "Job");
 
 //                                            notification = new Notification();
 //                                            notification.setTitle(user.getName() + " has requested your job titled " + mJob.getTitle() + ".");
@@ -243,15 +261,38 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                             Logger.d(" Popper: acceptButtonClicked Job Status is " + mJob.getStatus());
                                         }
                                     });
+
+
+                                    mPopperJobStartButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            TinyDB tinyDb = new TinyDB(getActivity());
+                                            User popper = (User) tinyDb.getObject("User", User.class);
+
+                                            Date currentDate = Calendar.getInstance().getTime();
+                                            long currentTime = currentDate.getTime();
+
+                                            mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("waitingForNeighborToStart");
+                                            mDatabase.child("jobs").child(mJob.getUid()).child("clockInTime").setValue(currentTime);
+
+                                        }
+                                    });
+
                                     break;
                                 }
 
                                 case "Neighbor":{
                                     if(mJob.getStatus().equals("pending")){
                                         mNeighborRequestContainer.setVisibility(View.VISIBLE);
+                                        mNeighborRequestJobStartContainer.setVisibility(View.GONE);
 
                                         Logger.d(" Neighbor: jobStatus is pending");
                                         Logger.d(" Neighbor: job is " + mJob.getStatus());
+                                    }
+                                    else if (mJob.getStatus().equals("waitingForNeighborToStart")) {
+                                        mNeighborRequestContainer.setVisibility(View.GONE);
+                                        mNeighborRequestJobStartContainer.setVisibility(View.VISIBLE);
+
                                     }
                                     else {
                                         mNeighborRequestContainer.setVisibility(View.GONE);
@@ -327,6 +368,15 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                             startActivity(new Intent(getActivity(), NeighborActivity.class));
                                         }
                                     });
+
+                                    mNeighborAcceptJobStartRequestButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+
+                                        }
+                                    });
+
+
                                     break;
                                 }
 //                    case "Parent":{
@@ -489,22 +539,21 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
         super.onDestroy();
     }
 
-    public static void sendNotificationToUser(final Job job, final String neighborUid, final String popperUid, final String recieverUid, final String title, final String description, final String type) {
+    public static void sendNotificationToUser(final String recieverUid, final String senderUid, final String message) {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
 
         Map notification = new HashMap<>();
-        notification.put("job", job);
-        notification.put("neighborUid", neighborUid);
-        notification.put("popperUid", popperUid);
         notification.put("recieverUid", recieverUid);
-        notification.put("title", title);
-        notification.put("description", description);
-        notification.put("type", type);
+        notification.put("senderUid", senderUid);
+        notification.put("message", message);
 
-        String uid = ref.child("notifications").push().getKey();
-        notification.put("uid", uid);
+        ref.child("notifications").push().setValue(notification);
 
-        ref.child("notifications").child(uid).setValue(notification);
+        ref.child("notifications").child(recieverUid + senderUid).setValue(notification);
+//        String uid = ref.child("notifications").push().getKey();
+//        notification.put("uid", uid);
+
+       // ref.child("notifications").child(uid).setValue(notification);
     }
 
 }

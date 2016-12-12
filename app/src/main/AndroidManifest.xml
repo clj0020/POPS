@@ -104,7 +104,6 @@
         <activity android:name=".Activities.TypePickerActivity" />
         <activity android:name=".Activities.LandingPageActivity" />
         <activity android:name=".Activities.AddPaymentInformationActivity"></activity>
-        <service android:name=".Services.PollService" />
         <!-- [START firebase_service] -->
         <service
             android:name=".Services.MyFirebaseMessagingService">

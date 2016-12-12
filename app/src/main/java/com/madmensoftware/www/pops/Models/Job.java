@@ -27,6 +27,7 @@ public class Job {
     String popperCache;
     double longitude;
     double latitude;
+    long clockInTime;
 
     public Job() {
 
@@ -197,6 +198,14 @@ public class Job {
 
     public void setLatitude(double latitude) {
         this.latitude = latitude;
+    }
+
+    public long getClockInTime() {
+        return clockInTime;
+    }
+
+    public void setClockInTime(long clockInTime) {
+        this.clockInTime = clockInTime;
     }
 
 }

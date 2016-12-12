@@ -132,15 +132,17 @@ public class AddPaymentInformationActivity extends AppCompatActivity implements 
             geofire.setLocation(jobId, new GeoLocation(job.getLatitude(), job.getLongitude()));
 
 
-            user.setHasPaymentInfo(true);
+            user.setHasPaymentInfo("true");
 
             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
             FirebaseDatabase.getInstance().getReference().child("users").child(firebaseUser.getUid()).setValue(user);
 
+            //mDatabase.child("users").child(firebaseUser.getUid()).child("hasPaymentInfo").setValue(true);
+
             tinyDB.putObject("User", user);
 
             Toast.makeText(AddPaymentInformationActivity.this, "Job Added Successfully", Toast.LENGTH_LONG).show();
-            startActivity(new Intent(AddPaymentInformationActivity.this, MainActivity.class));
+            startActivity(new Intent(AddPaymentInformationActivity.this, NeighborActivity.class));
         }
         else {
             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();

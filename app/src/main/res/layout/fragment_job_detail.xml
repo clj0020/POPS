@@ -73,7 +73,71 @@
 
             </RelativeLayout>
 
-        <RelativeLayout
+            <RelativeLayout
+                android:id="@+id/job_detail_popper_job_start_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <Button
+                    android:id="@+id/job_detail_popper_job_start_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Start Job"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+
+                <Button
+                    android:id="@+id/job_detail_popper_job_cancel_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cancel Job"
+                    android:layout_alignParentTop="true"
+                    android:layout_toLeftOf="@+id/job_detail_popper_job_start_btn"
+                    android:layout_toStartOf="@+id/job_detail_popper_job_start_btn" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/job_detail_neighbor_request_job_start_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/job_detail_neighbor_request_job_start_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Job Request by Carson Jones"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp" />
+
+                <Button
+                    android:id="@+id/job_detail_neighbor_accept_job_start_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Accept"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+
+                <Button
+                    android:id="@+id/job_detail_neighbor_reject_job_start_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reject"
+                    android:layout_alignParentTop="true"
+                    android:layout_toLeftOf="@+id/job_detail_neighbor_accept_job_start_btn"
+                    android:layout_toStartOf="@+id/job_detail_neighbor_accept_job_start_btn" />
+
+            </RelativeLayout>
+
+
+
+            <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="200dp">
 
