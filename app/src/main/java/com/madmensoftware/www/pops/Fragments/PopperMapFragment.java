@@ -186,9 +186,9 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
         // We want to reuse the info window for all the markers,
         // so let's create only one class member instance
         infoWindow = (ViewGroup) inflater.inflate(R.layout.map_marker_layout, null);
-        infoTitle = (TextView)infoWindow.findViewById(R.id.title);
-        infoSnippet = (TextView)infoWindow.findViewById(R.id.snippet);
-        infoButton = (Button) infoWindow.findViewById(R.id.button);
+        infoTitle = (TextView)infoWindow.findViewById(R.id.map_marker_title);
+        infoSnippet = (TextView)infoWindow.findViewById(R.id.map_marker_snippet);
+        infoButton = (Button) infoWindow.findViewById(R.id.map_marker_button);
 
         infoButtonListener = new OnInfoWindowElemTouchListener(infoButton, getResources().getDrawable(android.R.drawable.btn_default), getResources().getDrawable(android.R.drawable.btn_default)) {
             @Override
@@ -232,8 +232,23 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
         // TODO: Make the popper map query change based on a slider's value in the filter pop up
         geoQuery = geoFire.queryAtLocation(new GeoLocation(gpsTracker.getLatitude(), gpsTracker.getLongitude()), 10);
 
+       // sendNotificationToUser(auth.getCurrentUser().getUid(), "Testing the notifications.");
+
         return view;
     }
+
+//    public static void sendNotificationToUser(final String username, final String message) {
+//        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+//
+//        Map notification = new HashMap<>();
+//        notification.put("username", username);
+//        notification.put("message", message);
+//
+//        String uid = ref.child("notifications").push().getKey();
+//        notification.put("uid", uid);
+//
+//        ref.child("notifications").child(uid).setValue(notification);
+//    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {

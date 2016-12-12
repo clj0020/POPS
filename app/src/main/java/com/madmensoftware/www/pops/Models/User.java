@@ -43,7 +43,12 @@ public class User {
     String stripeAccountId;
     String stripeApiSecretKey;
     String stripeApiPublishableKey;
+<<<<<<< HEAD
     Boolean paymentAdded;
+=======
+    boolean hasPaymentInfo;
+
+>>>>>>> 6b4b831d85fb6ff8d0d4d13b7abeab814a0f3a8f
 
     public User() {
        // paymentAdded = false;
@@ -263,6 +268,15 @@ public class User {
         else if(paymentAdded == false){
             paymentAdded = false;
         }
+    }
+
+
+    public boolean hasPaymentInfo() {
+        return hasPaymentInfo;
+    }
+
+    public void setHasPaymentInfo(boolean hasPaymentInfo) {
+        this.hasPaymentInfo = hasPaymentInfo;
     }
 
 

@@ -23,6 +23,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.madmensoftware.www.pops.Fragments.PopperCheckInFragment;
 import com.madmensoftware.www.pops.Fragments.PopperDashboardFragment;
 import com.madmensoftware.www.pops.Fragments.PopperJobsFragment;
@@ -30,6 +31,7 @@ import com.madmensoftware.www.pops.Fragments.PopperMapFragment;
 import com.madmensoftware.www.pops.Fragments.PopperNotificationsFragment;
 import com.madmensoftware.www.pops.Helpers.NonSwipeableViewPager;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
+import com.madmensoftware.www.pops.Models.Job;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 import com.orhanobut.logger.Logger;
@@ -37,7 +39,9 @@ import com.orhanobut.logger.Logger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -92,7 +96,6 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
 
         mCallbackManager = CallbackManager.Factory.create();
 
-
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         setupViewPager(viewPager);
@@ -112,13 +115,14 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
             }
         };
 
+        FirebaseMessaging.getInstance().subscribeToTopic("user_"+ auth.getCurrentUser().getUid());
+
         mDatabase.child("users").child(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User mUser = dataSnapshot.getValue(User.class);
                 TinyDB tinyDb = new TinyDB(getApplicationContext());
                 tinyDb.putObject("User", mUser);
-
             }
             @Override
             public void onCancelled(DatabaseError error) {
@@ -219,5 +223,7 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
         }
 
     }
+
+
 
 }

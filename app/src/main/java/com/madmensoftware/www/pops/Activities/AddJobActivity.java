@@ -1,27 +1,16 @@
 package com.madmensoftware.www.pops.Activities;
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
-import android.content.pm.PackageManager;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Calendar;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.provider.Settings;
+
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -33,7 +22,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -44,28 +32,19 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStates;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.PlaceLikelihood;
-import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
-import com.google.android.gms.location.places.ui.PlaceSelectionListener;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.madmensoftware.www.pops.Helpers.GPSTracker;
+import com.google.firebase.database.ValueEventListener;
+import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.Job;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
@@ -272,7 +251,7 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                             Toast.makeText(this, "Please choose a location for the job.", Toast.LENGTH_LONG).show();
                         }
                         else {
-                            Job job = new Job();
+                            final Job job = new Job();
                             job.setPosterUid(uid);
                             job.setPosterName(user.getName());
                             job.setTitle(title);
@@ -285,15 +264,46 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                             job.setLatitude(latitude);
                             job.setLongitude(longitude);
 
-                            String jobId = mDatabase.child("jobs").push().getKey();
-                            job.setUid(jobId);
-                            mDatabase.child("jobs").child(jobId).setValue(job);
+                            // Write a message to the database
+                            FirebaseDatabase database = FirebaseDatabase.getInstance();
+                            DatabaseReference ref = database.getReference("users/" + auth.getCurrentUser().getUid());
 
-                            geofire = new GeoFire(mDatabase.child("jobs_location"));
-                            geofire.setLocation(jobId, new GeoLocation(latitude, longitude));
+                            // Read from the database
+                            ref.addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    // This method is called once with the initial value and again
+                                    // whenever data at this location is updated.
+                                    User mUser = dataSnapshot.getValue(User.class);
 
-                            Toast.makeText(AddJobActivity.this, "Job Added Successfully", Toast.LENGTH_LONG).show();
-                            startActivity(new Intent(AddJobActivity.this, NeighborActivity.class));
+                                    if (mUser.hasPaymentInfo()) {
+                                        String jobId = mDatabase.child("jobs").push().getKey();
+                                        job.setUid(jobId);
+                                        mDatabase.child("jobs").child(jobId).setValue(job);
+
+                                        geofire = new GeoFire(mDatabase.child("jobs_location"));
+                                        geofire.setLocation(jobId, new GeoLocation(latitude, longitude));
+
+                                        Toast.makeText(AddJobActivity.this, "Job Added Successfully", Toast.LENGTH_LONG).show();
+                                        startActivity(new Intent(AddJobActivity.this, NeighborActivity.class));
+                                    }
+                                    else {
+                                        TinyDB tinyDB = new TinyDB(getApplicationContext());
+                                        tinyDB.putObject("job", job);
+                                        tinyDB.putBoolean("add_job", true);
+                                        tinyDB.putObject("User", mUser);
+                                        startActivity(new Intent(AddJobActivity.this, AddPaymentInformationActivity.class));
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError error) {
+                                    // Failed to read value
+
+                                }
+                            });
+
+
                         }
                     }
                 break;

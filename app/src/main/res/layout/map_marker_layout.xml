@@ -11,7 +11,7 @@
         android:layout_marginRight="10dp" >
 
         <TextView
-            android:id="@+id/title"
+            android:id="@+id/map_marker_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18sp"
@@ -19,18 +19,20 @@
             android:textColor="@color/colorPrimaryDark"/>
 
         <TextView
-            android:id="@+id/snippet"
+            android:id="@+id/map_marker_snippet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="snippet"
             android:textColor="@color/colorPrimaryDark"/>
 
+        <Button
+            android:id="@+id/map_marker_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="View Job" />
+
     </LinearLayout>
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="View Job" />
+
 
 </LinearLayout>

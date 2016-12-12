@@ -28,6 +28,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.madmensoftware.www.pops.Fragments.NeighborJobsFragment;
 import com.madmensoftware.www.pops.Fragments.NeighborNotificationsFragment;
 import com.madmensoftware.www.pops.Helpers.NonSwipeableViewPager;
@@ -151,6 +152,8 @@ public class NeighborActivity extends AppCompatActivity {
                     }
                 }
             };
+
+            FirebaseMessaging.getInstance().subscribeToTopic("user_"+ auth.getCurrentUser().getUid());
         }
 
         @Override
