@@ -1,5 +1,6 @@
 package com.madmensoftware.www.pops.Activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -9,11 +10,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
@@ -177,17 +180,48 @@ public class NeighborActivity extends AppCompatActivity {
                     LoginManager.getInstance().logOut();
                     return true;
                 case R.id.action_add_job:
-                    Intent neighborIntent = new Intent(NeighborActivity.this, AddJobActivity.class);
-                    Bundle neighborBundle = new Bundle();
-                    neighborBundle.putParcelable("User", Parcels.wrap(user));
-                    neighborIntent.putExtras(neighborBundle);
-                    startActivity(neighborIntent);
-                    return true;
+
+                    if(user.getPaymentAdded() == false) {
+
+
+                        CharSequence accept = "Add";
+                        CharSequence reject = "Later";
+                        CharSequence message = "To post jobs you have to finish signing up. Add your Payment information to continue.";
+
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                        alertDialogBuilder.setMessage(message);
+                        alertDialogBuilder.setPositiveButton(accept,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface arg0, int arg1) {
+
+                                    }
+                                });
+
+                        alertDialogBuilder.setNegativeButton(reject, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        });
+
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        alertDialog.show();
+
+                    }
+                    else {
+                        Intent neighborIntent = new Intent(NeighborActivity.this, AddJobActivity.class);
+                        Bundle neighborBundle = new Bundle();
+                        neighborBundle.putParcelable("User", Parcels.wrap(user));
+                        neighborIntent.putExtras(neighborBundle);
+                        startActivity(neighborIntent);
+                        return true;
+                    }
                 case R.id.action_test_purchase:
                     TinyDB tinyDB = new TinyDB(getApplicationContext());
                     User neighbor = (User) tinyDB.getObject("User", User.class);
 
-                    mDatabase.child("users").child(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                    mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if(dataSnapshot.exists()) {
