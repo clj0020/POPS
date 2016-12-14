@@ -237,8 +237,6 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
         return view;
     }
 
-
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;

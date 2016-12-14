@@ -66,28 +66,38 @@ public class PopperCurrentJobsFragment extends Fragment {
         linearLayoutManager = new LinearLayoutManager(getActivity());
 
         mRef = FirebaseDatabase.getInstance().getReference();
-        Query jobQuery = mRef.child("jobs").orderByChild("popperUid").equalTo(auth.getCurrentUser().getUid());
 
+        jobRecyclerview.setLayoutManager(linearLayoutManager);
+        return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        Query jobQuery = mRef.child("jobs").orderByChild("popperUid").equalTo(auth.getCurrentUser().getUid());
         mJobAdapter = new PopperJobAdapter(Job.class, R.layout.job_list_row, PopperJobViewHolder.class, jobQuery, getContext());
+
         mJobAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
                 int friendlyMessageCount = mJobAdapter.getItemCount();
-                int lastVisiblePosition =
-                        linearLayoutManager.findLastCompletelyVisibleItemPosition();
-                if (lastVisiblePosition == -1 ||
-                        (positionStart >= (friendlyMessageCount - 1) &&
-                                lastVisiblePosition == (positionStart - 1))) {
+                int lastVisiblePosition = linearLayoutManager.findLastCompletelyVisibleItemPosition();
+                if (lastVisiblePosition == -1 || (positionStart >= (friendlyMessageCount - 1) && lastVisiblePosition == (positionStart - 1))) {
                     jobRecyclerview.scrollToPosition(positionStart);
                 }
             }
         });
 
-        jobRecyclerview.setLayoutManager(linearLayoutManager);
         jobRecyclerview.setAdapter(mJobAdapter);
+    }
 
-        return view;
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        mJobAdapter.cleanup();
     }
 
 }
