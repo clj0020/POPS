@@ -128,6 +128,21 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
         return currentData;
     }
 
+    public void paymentFinished(String result) {
+        if (result.substring(0, 3).equals("100")) {
+            Logger.i("Payment Successful!");
+            Logger.i("Job UID is " + result.substring(3));
+
+            String jobUid = result.substring(3);
+
+            mDatabase.child("jobs").child(jobUid).child("status").setValue("paid");
+            
+        }
+        else {
+            Logger.i("Payment Unsuccessful - " + result);
+        }
+    }
+
     private class CreateChargeTask extends AsyncTask<Object, Integer, String> {
         // Do the long-running work in here
         protected String doInBackground(Object... params) {
@@ -166,19 +181,24 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
                 //chargeParams.put("application_fee", applicationFee);
 
                 Charge charge = Charge.create(chargeParams);
+
+                return "100" + job.getUid();
             } catch (CardException e) {
                 // The card has been declined
+                return "Error - " + e.getMessage();
             } catch (APIException e) {
                 e.printStackTrace();
+                return "Error - " + e.getMessage();
             } catch (InvalidRequestException e) {
                 e.printStackTrace();
+                return "Error - " + e.getMessage();
             } catch (APIConnectionException e) {
                 e.printStackTrace();
+                return "Error - " + e.getMessage();
             } catch (AuthenticationException e) {
                 e.printStackTrace();
+                return "Error - " + e.getMessage();
             }
-
-            return "";
         }
 
         // This is called each time you call publishProgress()
@@ -188,6 +208,7 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
 
         // This is called when doInBackground() is finished
         protected void onPostExecute(String result) {
+            paymentFinished(result);
             super.onPostExecute(result);
         }
     }
