@@ -117,6 +117,7 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
     @BindView(R.id.mapView) MapView mMapView;
 
     private Job mJob;
+    private User mUser;
     private String mJobUid;
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
@@ -129,6 +130,10 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
     private String mType;
     private String type;
     private String parentUid;
+    private ValueEventListener mJobListener;
+    private ValueEventListener mUserListener;
+    private DatabaseReference mJobDatabaseReference;
+    private DatabaseReference mUserDatabaseReference;
 
 //    public static JobDetailFragment newInstance(Job job) {
 //        JobDetailFragment jobDetailFragment= new JobDetailFragment();
@@ -156,6 +161,9 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
         auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        mJobDatabaseReference = FirebaseDatabase.getInstance().getReference().child("jobs").child(mJobUid);
+        mUserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(auth.getCurrentUser().getUid());
     }
 
     @Override
@@ -164,7 +172,38 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
         ButterKnife.bind(this, view);
         Logger.d("onCreateView");
 
-        mDatabase.child("jobs").child(mJobUid).addValueEventListener(new ValueEventListener() {
+        mMapView.onCreate(savedInstanceState);
+        mMapView.onResume(); // needed to get the map to display immediately
+        mMapView.getMapAsync(this);
+
+        Logger.d("onCreateView: fbType=" + mType);
+        Logger.d("onCreate: uid = " + mUid);
+        Logger.d("onCreate: type = " + type);
+
+        return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        ValueEventListener userListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mUser = dataSnapshot.getValue(User.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+
+        mUserDatabaseReference.addListenerForSingleValueEvent(userListener);
+
+        mUserListener = userListener;
+
+        ValueEventListener jobListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mJob = dataSnapshot.getValue(Job.class);
@@ -193,67 +232,59 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
                     Logger.d("Outside onDataChange: jobStatus: " + mJob.getStatus());
 
-                    mDatabase.child("users/" + auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            final User user = dataSnapshot.getValue(User.class);
+                    mType = mUser.getType();
 
-                            Logger.d("onDataChangedCalled Job Status is " + mJob.getStatus());
+                    switch (mType){
+                        case "Popper":{
 
-                            mType = user.getType();
-                            type = mType;
+                            if(mJob.getStatus().equals("open")){
+                                mPopperRequestContainer.setVisibility(View.VISIBLE);
+                                mPopperJobStartContainer.setVisibility(View.GONE);
+                            }
+                            if(mJob.getStatus().equals("active")) {
+                                mPopperRequestContainer.setVisibility(View.GONE);
+                                Logger.d("Popper: Job Status is active");
+                                Logger.d("Popper: Job Status is " + mJob.getStatus());
+                                Logger.d("Popper: mUid is " + mUid);
 
-                            switch (mType){
-                                case "Popper":{
+                                mPopperJobStartContainer.setVisibility(View.VISIBLE);
+                            }
+                            if (mJob.getStatus().equals("neighborRejectedJobStart")) {
+                                mPopperRequestContainer.setVisibility(View.GONE);
 
-                                    if(mJob.getStatus().equals("open")){
-                                        mPopperRequestContainer.setVisibility(View.VISIBLE);
-                                        mPopperJobStartContainer.setVisibility(View.GONE);
-                                    }
-                                    if(mJob.getStatus().equals("active")) {
-                                        mPopperRequestContainer.setVisibility(View.GONE);
-                                        Logger.d("Popper: Job Status is active");
-                                        Logger.d("Popper: Job Status is " + mJob.getStatus());
-                                        Logger.d("Popper: mUid is " + mUid);
+                                mPopperJobStartContainer.setVisibility(View.VISIBLE);
+                            }
 
-                                        mPopperJobStartContainer.setVisibility(View.VISIBLE);
-                                    }
-                                    if (mJob.getStatus().equals("neighborRejectedJobStart")) {
-                                        mPopperRequestContainer.setVisibility(View.GONE);
+                            if (mJob.getStatus().equals("inProgress")) {
+                                mPopperRequestContainer.setVisibility(View.GONE);
+                                mPopperJobStartContainer.setVisibility(View.GONE);
+                                //  mPopperInProgressContainer.setVisibility(View.VISIBLE);
 
-                                        mPopperJobStartContainer.setVisibility(View.VISIBLE);
-                                    }
+                            }
+                            if (mJob.getStatus().equals("complete")) {
+                                mPopperJobCompleteContainer.setVisibility(View.VISIBLE);
+                                mPopperRequestContainer.setVisibility(View.GONE);
+                                mPopperJobStartContainer.setVisibility(View.GONE);
 
-                                    if (mJob.getStatus().equals("inProgress")) {
-                                        mPopperRequestContainer.setVisibility(View.GONE);
-                                        mPopperJobStartContainer.setVisibility(View.GONE);
-                                      //  mPopperInProgressContainer.setVisibility(View.VISIBLE);
-
-                                    }
-                                    if (mJob.getStatus().equals("complete")) {
-                                        mPopperJobCompleteContainer.setVisibility(View.VISIBLE);
-                                        mPopperRequestContainer.setVisibility(View.GONE);
-                                        mPopperJobStartContainer.setVisibility(View.GONE);
-
-                                        mJobDetailTimesContainer.setVisibility(View.VISIBLE);
-                                        mJobStartTime.setText(formatDateAndTime(mJob.getStartTime()));
-                                        mJobCompletionTime.setText(formatDateAndTime(mJob.getCompletionTime()));
-                                    }
+                                mJobDetailTimesContainer.setVisibility(View.VISIBLE);
+                                mJobStartTime.setText(formatDateAndTime(mJob.getStartTime()));
+                                mJobCompletionTime.setText(formatDateAndTime(mJob.getCompletionTime()));
+                            }
 
 
-                                    //parentUid = user.getParentUid();
+                            //parentUid = user.getParentUid();
 
-                                    mPopperRequestJobButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
+                            mPopperRequestJobButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
 
-                                            Logger.d("onclick: fbType=" + mType);
-                                            Logger.d("onclick: fbType=" + mType);
+                                    Logger.d("onclick: fbType=" + mType);
+                                    Logger.d("onclick: fbType=" + mType);
 
-                                            TinyDB tinyDb = new TinyDB(getActivity());
-                                            User popper = (User) tinyDb.getObject("User", User.class);
+                                    TinyDB tinyDb = new TinyDB(getActivity());
+                                    User popper = (User) tinyDb.getObject("User", User.class);
 
-                                            sendNotificationToUser(popper.getUid(), mJob.getPosterUid(), popper.getName() + " has requested your job " + mJob.getTitle());
+                                    sendNotificationToUser(popper.getUid(), mJob.getPosterUid(), popper.getName() + " has requested your job " + mJob.getTitle());
 
 //                                            sendNotificationToUser(mJob,
 //                                                    mJob.getPosterUid(),
@@ -280,230 +311,233 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 //
 //                                            mDatabase.child("notifications").child(notID).setValue(notification);
 
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("pending");
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("popperCache").setValue(popper.getUid());
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("popperNameCache").setValue(popper.getName());
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("pending");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("popperCache").setValue(popper.getUid());
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("popperNameCache").setValue(popper.getName());
 
-                                            //mDatabase.child("jobs").child(mJob.getUid()).child("popperUid").setValue(popper.getUid());
-
-
-                                            mPopperRequestContainer.setVisibility(View.GONE);
-                                            Toast.makeText(getActivity(), "Requested the Job!", Toast.LENGTH_LONG).show();
-                                            startActivity(new Intent(getActivity(), PopperActivity.class));
+                                    //mDatabase.child("jobs").child(mJob.getUid()).child("popperUid").setValue(popper.getUid());
 
 
-                                            Logger.d(" Popper: acceptButtonClicked User is " + popper.getType());
-                                            Logger.d(" Popper: acceptButtonClicked Current User is " + auth.getCurrentUser().getUid());
-                                            Logger.d(" Popper: acceptButtonClicked Job Title is " + mJob.getTitle());
-                                            Logger.d(" Popper: acceptButtonClicked Job Status is " + mJob.getStatus());
-                                        }
-                                    });
+                                    mPopperRequestContainer.setVisibility(View.GONE);
+                                    Toast.makeText(getActivity(), "Requested the Job!", Toast.LENGTH_LONG).show();
+                                    //startActivity(new Intent(getActivity(), PopperActivity.class));
 
 
-                                    mPopperJobStartButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            TinyDB tinyDb = new TinyDB(getActivity());
-                                            User popper = (User) tinyDb.getObject("User", User.class);
+                                    //Logger.d(" Popper: acceptButtonClicked User is " + popper.getType());
+//                                    Logger.d(" Popper: acceptButtonClicked Current User is " + auth.getCurrentUser().getUid());
+//                                    Logger.d(" Popper: acceptButtonClicked Job Title is " + mJob.getTitle());
+//                                    Logger.d(" Popper: acceptButtonClicked Job Status is " + mJob.getStatus());
+                                }
+                            });
 
-                                            Date currentDate = Calendar.getInstance().getTime();
-                                            long currentTime = currentDate.getTime();
 
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("waitingForNeighborToStart");
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("clockInTime").setValue(currentTime);
+                            mPopperJobStartButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    TinyDB tinyDb = new TinyDB(getActivity());
+                                    User popper = (User) tinyDb.getObject("User", User.class);
 
-                                        }
-                                    });
+                                    Date currentDate = Calendar.getInstance().getTime();
+                                    long currentTime = currentDate.getTime();
 
-                                    mPopperInProgressFinishButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            Date currentDate = Calendar.getInstance().getTime();
-                                            long currentTime = currentDate.getTime();
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("waitingForNeighborToStart");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("clockInTime").setValue(currentTime);
 
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("complete");
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("completionTime").setValue(currentTime);
+                                }
+                            });
 
-                                        }
-                                    });
+                            mPopperInProgressFinishButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Date currentDate = Calendar.getInstance().getTime();
+                                    long currentTime = currentDate.getTime();
 
-                                    break;
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("complete");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("completionTime").setValue(currentTime);
+
+                                }
+                            });
+
+                            break;
+                        }
+
+                        case "Neighbor":{
+                            if(mJob.getStatus().equals("pending")){
+                                mNeighborRequestContainer.setVisibility(View.VISIBLE);
+                                mNeighborRequestJobStartContainer.setVisibility(View.GONE);
+                                mNeighborInProgressContainer.setVisibility(View.GONE);
+
+                                Logger.d(" Neighbor: jobStatus is pending");
+                                Logger.d(" Neighbor: job is " + mJob.getStatus());
+                            }
+                            else if (mJob.getStatus().equals("waitingForNeighborToStart")) {
+                                mNeighborRequestContainer.setVisibility(View.GONE);
+                                mNeighborRequestJobStartContainer.setVisibility(View.VISIBLE);
+                                mNeighborInProgressContainer.setVisibility(View.GONE);
+                            }
+                            else if (mJob.getStatus().equals("inProgress")) {
+                                mNeighborRequestContainer.setVisibility(View.GONE);
+                                mNeighborRequestJobStartContainer.setVisibility(View.GONE);
+                                mNeighborInProgressContainer.setVisibility(View.VISIBLE);
+                            }
+                            else if (mJob.getStatus().equals("complete")) {
+                                mNeighborPayContainer.setVisibility(View.VISIBLE);
+                                mJobDetailTimesContainer.setVisibility(View.VISIBLE);
+                                mJobStartTime.setText(formatDateAndTime(mJob.getStartTime()));
+                                mJobCompletionTime.setText(formatDateAndTime(mJob.getCompletionTime()));
+                            }
+                            else {
+                                mNeighborRequestContainer.setVisibility(View.GONE);
+                                mNeighborInProgressContainer.setVisibility(View.GONE);
+                                mNeighborRequestJobStartContainer.setVisibility(View.GONE);
+                            }
+
+                            mNeighborAcceptRequestButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Logger.d(" Neighbor: acceptButtonClicked Job Status is " + mJob.getStatus());
+
+                                    notification = new Notification();
+                                    notification.setTitle(mJob.getPosterName() + " accepted your job request for the job titled " + mJob.getTitle());
+                                    notification.setDescription("Tap to view");
+                                    notification.setJobUid(mJob.getUid());
+                                    notification.setNeighborUid(mUser.getUid());
+
+                                    //notification.setPopperUid(mJob.getPopperUid());
+                                    //notification.setParentUid(mJob.getParentUid());
+
+                                    notification.setRecieverUid(mJob.getPopperCache());
+                                    notification.setType("Job");
+                                    notification.setJob(mJob);
+
+                                    String notID = mDatabase.child("notifications").push().getKey();
+                                    notification.setUid(notID);
+
+                                    mDatabase.child("notifications").child(notID).setValue(notification);
+
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("active");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("popperName").setValue(mJob.getPopperNameCache());
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("popperUid").setValue(mJob.getPopperCache());
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("popperCache").setValue("");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("popperNameCache").setValue("");
+                                    // mDatabase.child("jobs").child(mJob.getUid()).child("notifications").setValue(notID);
+
+                                    Logger.d(" Neighbor: acceptButtonClicked UID is " + mUid);
+
+                                    mNeighborRequestContainer.setVisibility(View.GONE);
+                                    Toast.makeText(getActivity(), "You have accepted the job request!", Toast.LENGTH_LONG).show();
+
+                                    //startActivity(new Intent(getActivity(), NeighborActivity.class));
+                                }
+                            });
+
+                            mNeighborDeclineRequestButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+
+                                    notification = new Notification();
+                                    notification.setTitle("Job Request Rejected by " + mUser.getName());
+                                    notification.setDescription("Please contact parent or guardian");
+
+                                    notification.setPopperUid(mJob.getPopperUid());
+                                    notification.setParentUid(mJob.getParentUid());
+                                    notification.setNeighborUid(mUser.getUid());
+
+                                    notification.setType("Job");
+                                    notification.setJob(mJob);
+                                    notification.setRecieverUid(mJob.getPopperUid());
+
+                                    String notID = mDatabase.child("notifications").push().getKey();
+                                    notification.setUid(notID);
+
+                                    mDatabase.child("notifications").child(notID).setValue(notification);
+
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("open");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("popperCache").setValue("");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("popperNameCache").setValue("");
+                                    //mDatabase.child("jobs").child(mJob.getUid()).child("notification").setValue(notID);
+
+                                    mNeighborRequestContainer.setVisibility(View.GONE);
+                                    Toast.makeText(getActivity(), "You have declined the job request.", Toast.LENGTH_LONG).show();
+                                   // startActivity(new Intent(getActivity(), NeighborActivity.class));
+                                }
+                            });
+
+                            mNeighborAcceptJobStartRequestButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+
+                                    Date currentDate = Calendar.getInstance().getTime();
+                                    long currentTime = currentDate.getTime();
+
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("inProgress");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("startTime").setValue(currentTime);
+
+                                    Toast.makeText(getActivity(), "The job is starting at " + currentTime, Toast.LENGTH_LONG).show();
+
+
+                                    Logger.i("Start Time" + formatDateAndTime(currentTime));
+                                    mNeighborRequestJobStartContainer.setVisibility(View.GONE);
+                                }
+                            });
+
+                            mNeighborRejectJobStartButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("neighborRejectedJobStart");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("clockInTime").setValue(0);
+
+                                    Toast.makeText(getActivity(), "You have rejected " + mJob.getPopperName() + "'s request to start the job.", Toast.LENGTH_LONG).show();
+
+                                    mNeighborRequestJobStartContainer.setVisibility(View.GONE);
+                                }
+                            });
+
+
+                            mNeighborInProgressFinishButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Date currentDate = Calendar.getInstance().getTime();
+                                    long currentTime = currentDate.getTime();
+
+                                    mJob.setStatus("complete");
+                                    mJob.setCompletionTime(currentTime);
+
+                                    mJob.setTotalTime(totalTimeDifference(mJob.getStartTime(), mJob.getCompletionTime()));
+                                    mJob.setSubtotal(mJob.getBudget() * mJob.getTotalTime());
+                                    mJob.setTransactionFee(mJob.getSubtotal() * 0.1);
+                                    mJob.setTotal(mJob.getSubtotal() + mJob.getTransactionFee());
+
+
+                                    mDatabase.child("jobs").child(mJob.getUid()).setValue(mJob);
+
+
+
+
+
+                                    Logger.i("Completion Time" + formatDateAndTime(currentTime));
+
+                                    //startActivity(new Intent(getActivity(), NeighborPaymentOverviewActivity.class));
+                                }
+                            });
+
+                            mNeighborPayButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    TinyDB tinyDb = new TinyDB(getActivity());
+                                    tinyDb.putString("job-uid", mJob.getUid());
+
+                                    Intent intent = new Intent(getActivity(), NeighborPaymentOverviewActivity.class);
+//                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
                                 }
 
-                                case "Neighbor":{
-                                    if(mJob.getStatus().equals("pending")){
-                                        mNeighborRequestContainer.setVisibility(View.VISIBLE);
-                                        mNeighborRequestJobStartContainer.setVisibility(View.GONE);
-                                        mNeighborInProgressContainer.setVisibility(View.GONE);
-
-                                        Logger.d(" Neighbor: jobStatus is pending");
-                                        Logger.d(" Neighbor: job is " + mJob.getStatus());
-                                    }
-                                    else if (mJob.getStatus().equals("waitingForNeighborToStart")) {
-                                        mNeighborRequestContainer.setVisibility(View.GONE);
-                                        mNeighborRequestJobStartContainer.setVisibility(View.VISIBLE);
-                                        mNeighborInProgressContainer.setVisibility(View.GONE);
-                                    }
-                                    else if (mJob.getStatus().equals("inProgress")) {
-                                        mNeighborRequestContainer.setVisibility(View.GONE);
-                                        mNeighborRequestJobStartContainer.setVisibility(View.GONE);
-                                        mNeighborInProgressContainer.setVisibility(View.VISIBLE);
-                                    }
-                                    else if (mJob.getStatus().equals("complete")) {
-                                        mNeighborPayContainer.setVisibility(View.VISIBLE);
-                                        mJobDetailTimesContainer.setVisibility(View.VISIBLE);
-                                        mJobStartTime.setText(formatDateAndTime(mJob.getStartTime()));
-                                        mJobCompletionTime.setText(formatDateAndTime(mJob.getCompletionTime()));
-                                    }
-                                    else {
-                                        mNeighborRequestContainer.setVisibility(View.GONE);
-                                        mNeighborInProgressContainer.setVisibility(View.GONE);
-                                        mNeighborRequestJobStartContainer.setVisibility(View.GONE);
-                                    }
-
-                                    mNeighborAcceptRequestButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            Logger.d(" Neighbor: acceptButtonClicked Job Status is " + mJob.getStatus());
-
-                                            notification = new Notification();
-                                            notification.setTitle(mJob.getPosterName() + " accepted your job request for the job titled " + mJob.getTitle());
-                                            notification.setDescription("Tap to view");
-                                            notification.setJobUid(mJob.getUid());
-                                            notification.setNeighborUid(user.getUid());
-
-                                            //notification.setPopperUid(mJob.getPopperUid());
-                                            //notification.setParentUid(mJob.getParentUid());
-
-                                            notification.setRecieverUid(mJob.getPopperCache());
-                                            notification.setType("Job");
-                                            notification.setJob(mJob);
-
-                                            String notID = mDatabase.child("notifications").push().getKey();
-                                            notification.setUid(notID);
-
-                                            mDatabase.child("notifications").child(notID).setValue(notification);
-
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("active");
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("popperName").setValue(mJob.getPopperNameCache());
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("popperUid").setValue(mJob.getPopperCache());
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("popperCache").setValue("");
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("popperNameCache").setValue("");
-                                            // mDatabase.child("jobs").child(mJob.getUid()).child("notifications").setValue(notID);
-
-                                            Logger.d(" Neighbor: acceptButtonClicked UID is " + mUid);
-
-                                            mNeighborRequestContainer.setVisibility(View.GONE);
-                                            Toast.makeText(getActivity(), "You have accepted the job request!", Toast.LENGTH_LONG).show();
-
-                                            startActivity(new Intent(getActivity(), NeighborActivity.class));
-                                        }
-                                    });
-
-                                    mNeighborDeclineRequestButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-
-                                            notification = new Notification();
-                                            notification.setTitle("Job Request Rejected by " + user.getName());
-                                            notification.setDescription("Please contact parent or guardian");
-
-                                            notification.setPopperUid(mJob.getPopperUid());
-                                            notification.setParentUid(mJob.getParentUid());
-                                            notification.setNeighborUid(user.getUid());
-
-                                            notification.setType("Job");
-                                            notification.setJob(mJob);
-                                            notification.setRecieverUid(mJob.getPopperUid());
-
-                                            String notID = mDatabase.child("notifications").push().getKey();
-                                            notification.setUid(notID);
-
-                                            mDatabase.child("notifications").child(notID).setValue(notification);
-
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("open");
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("popperCache").setValue("");
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("popperNameCache").setValue("");
-                                            //mDatabase.child("jobs").child(mJob.getUid()).child("notification").setValue(notID);
-
-                                            mNeighborRequestContainer.setVisibility(View.GONE);
-                                            Toast.makeText(getActivity(), "You have declined the job request.", Toast.LENGTH_LONG).show();
-                                            startActivity(new Intent(getActivity(), NeighborActivity.class));
-                                        }
-                                    });
-
-                                    mNeighborAcceptJobStartRequestButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-
-                                            Date currentDate = Calendar.getInstance().getTime();
-                                            long currentTime = currentDate.getTime();
-
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("inProgress");
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("startTime").setValue(currentTime);
-
-                                            Toast.makeText(getActivity(), "The job is starting at " + currentTime, Toast.LENGTH_LONG).show();
-
-
-                                            Logger.i("Start Time" + formatDateAndTime(currentTime));
-                                            mNeighborRequestJobStartContainer.setVisibility(View.GONE);
-                                        }
-                                    });
-
-                                    mNeighborRejectJobStartButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("neighborRejectedJobStart");
-                                            mDatabase.child("jobs").child(mJob.getUid()).child("clockInTime").setValue(0);
-
-                                            Toast.makeText(getActivity(), "You have rejected " + mJob.getPopperName() + "'s request to start the job.", Toast.LENGTH_LONG).show();
-
-                                            mNeighborRequestJobStartContainer.setVisibility(View.GONE);
-                                        }
-                                    });
-
-
-                                    mNeighborInProgressFinishButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            Date currentDate = Calendar.getInstance().getTime();
-                                            long currentTime = currentDate.getTime();
-
-                                            mJob.setStatus("complete");
-                                            mJob.setCompletionTime(currentTime);
-
-                                            mJob.setTotalTime(totalTimeDifference(mJob.getStartTime(), mJob.getCompletionTime()));
-                                            mJob.setSubtotal(mJob.getBudget() * mJob.getTotalTime());
-                                            mJob.setTransactionFee(mJob.getSubtotal() * 0.1);
-                                            mJob.setTotal(mJob.getSubtotal() + mJob.getTransactionFee());
-
-
-                                            mDatabase.child("jobs").child(mJob.getUid()).setValue(mJob);
+                            });
 
 
 
-
-
-                                            Logger.i("Completion Time" + formatDateAndTime(currentTime));
-
-                                            //startActivity(new Intent(getActivity(), NeighborPaymentOverviewActivity.class));
-                                        }
-                                    });
-
-                                    mNeighborPayButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            TinyDB tinyDb = new TinyDB(getActivity());
-                                            tinyDb.putString("job-uid", mJob.getUid());
-
-                                            startActivity(new Intent(getActivity(), NeighborPaymentOverviewActivity.class));
-                                        }
-                                    });
-
-
-
-                                    break;
-                                }
+                            break;
+                        }
 //                    case "Parent":{
 //                        if(mJob.getStatus().equals("pending")){
 //                            AcceptButton.setText("Accept Request");
@@ -596,17 +630,10 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 //                        break;
 //
 //                    }
-                                default:{
-                                    //do something
-                                }
-                            }
+                        default:{
+                            //do something
                         }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
+                    }
                 }
             }
 
@@ -614,24 +641,31 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        };
 
-        mMapView.onCreate(savedInstanceState);
-        mMapView.onResume(); // needed to get the map to display immediately
-        mMapView.getMapAsync(this);
+        mJobDatabaseReference.addValueEventListener(jobListener);
 
-        Logger.d("onCreateView: fbType=" + mType);
-        Logger.d("onCreate: uid = " + mUid);
-        Logger.d("onCreate: type = " + type);
+        mJobListener = jobListener;
+    }
 
-        return view;
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mJobListener != null) {
+            mJobDatabaseReference.removeEventListener(mJobListener);
+        }
+
+        if (mUserListener != null) {
+            mUserDatabaseReference.removeEventListener(mUserListener);
+        }
     }
 
     @Override
     public void onMapReady(GoogleMap map) {
         mGoogleMap = map;
         geoFire = new GeoFire(mDatabase.child("jobs_location"));
-        geoFire.getLocation(mJob.getUid(), new LocationCallback() {
+        geoFire.getLocation(mJobUid, new LocationCallback() {
             @Override
             public void onLocationResult(String key, GeoLocation location) {
                 if (location != null) {
@@ -662,6 +696,7 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Logger.i("onDestroy()");
     }
 
     public static void sendNotificationToUser(final String recieverUid, final String senderUid, final String message) {

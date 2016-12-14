@@ -1,5 +1,8 @@
 package com.madmensoftware.www.pops.Activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.gms.fitness.data.Value;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -55,6 +59,9 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
 
+    private ValueEventListener mJobValueEventListener;
+    private DatabaseReference mJobDatabaseReference;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +75,14 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        mDatabase.child("jobs").child(mJobUid).addValueEventListener(new ValueEventListener() {
+        mJobDatabaseReference = mDatabase.child("jobs").child(mJobUid);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        ValueEventListener jobValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mJob = dataSnapshot.getValue(Job.class);
@@ -91,7 +105,7 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
                 mNeighborPayButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                        mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if(dataSnapshot.exists()) {
@@ -106,18 +120,32 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
 
                             @Override
                             public void onCancelled(DatabaseError error) {
+                                Logger.e(error.getMessage());
                             }
 
                         });
                     }
                 });
-
             }
+
             @Override
-            public void onCancelled(DatabaseError error) {
-
+            public void onCancelled(DatabaseError databaseError) {
+                Logger.e(databaseError.getMessage());
             }
-        });
+        };
+
+        mJobDatabaseReference.addValueEventListener(jobValueEventListener);
+
+        mJobValueEventListener = jobValueEventListener;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mJobValueEventListener != null) {
+            mJobDatabaseReference.removeEventListener(mJobValueEventListener);
+        }
     }
 
     public String formatDateAndTime(long time) {
@@ -128,18 +156,48 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
         return currentData;
     }
 
+    // Called after the payment is processed.
     public void paymentFinished(String result) {
+
+        // If the result starts with 100 then success.
         if (result.substring(0, 3).equals("100")) {
             Logger.i("Payment Successful!");
             Logger.i("Job UID is " + result.substring(3));
 
+            // Result should contain the job uid after 100
             String jobUid = result.substring(3);
 
+            // Set the status of the job to paid
             mDatabase.child("jobs").child(jobUid).child("status").setValue("paid");
-            
+
+
+
+            // Build a dialog that tells the user that they were successful.
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Your payment was successful!");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // Go to the Neighbor activity once they click ok
+                    startActivity(new Intent(NeighborPaymentOverviewActivity.this, NeighborActivity.class));
+                }
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
         }
         else {
             Logger.i("Payment Unsuccessful - " + result);
+
+            // Build a dialog that tells the user that they were successful.
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Payment Unsuccessful - " + result);
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // Go to the Neighbor activity once they click ok
+                    //startActivity(new Intent(NeighborPaymentOverviewActivity.this, NeighborActivity.class));
+                }
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
         }
     }
 

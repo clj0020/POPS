@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -49,6 +50,7 @@ public class NeighborJobsFragment extends Fragment {
     private ViewPager viewPager;
     private PopperJobsViewPagerAdapter adapter;
 
+
     public NeighborJobsFragment() {
         // Required empty public constructor
     }
@@ -74,27 +76,41 @@ public class NeighborJobsFragment extends Fragment {
         linearLayoutManager = new LinearLayoutManager(getActivity());
 
         mRef = FirebaseDatabase.getInstance().getReference();
-        Query jobQuery = mRef.child("jobs").orderByChild("posterUid").equalTo(auth.getCurrentUser().getUid());
 
+        jobRecyclerview.setLayoutManager(linearLayoutManager);
+
+        return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        Query jobQuery = mRef.child("jobs").orderByChild("posterUid").equalTo(auth.getCurrentUser().getUid());
         mNeighborJobAdapter = new NeighborJobAdapter(Job.class, R.layout.job_list_row, NeighborJobViewHolder.class, jobQuery, getContext());
+
         mNeighborJobAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
                 int friendlyMessageCount = mNeighborJobAdapter.getItemCount();
-                int lastVisiblePosition =
-                        linearLayoutManager.findLastCompletelyVisibleItemPosition();
-                if (lastVisiblePosition == -1 ||
-                        (positionStart >= (friendlyMessageCount - 1) &&
-                                lastVisiblePosition == (positionStart - 1))) {
+                int lastVisiblePosition = linearLayoutManager.findLastCompletelyVisibleItemPosition();
+                if (lastVisiblePosition == -1 || (positionStart >= (friendlyMessageCount - 1) && lastVisiblePosition == (positionStart - 1))) {
                     jobRecyclerview.scrollToPosition(positionStart);
                 }
             }
         });
 
-        jobRecyclerview.setLayoutManager(linearLayoutManager);
         jobRecyclerview.setAdapter(mNeighborJobAdapter);
-
-        return view;
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        mNeighborJobAdapter.cleanup();
+    }
+
+
+
 }
