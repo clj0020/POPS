@@ -180,6 +180,9 @@ public class NeighborActivity extends AppCompatActivity {
                     LoginManager.getInstance().logOut();
                     return true;
                 case R.id.action_add_job:
+                    TinyDB tinyDB = new TinyDB(getApplicationContext());
+                    //User user = (User) tinyDB.getObject("User", User.class);
+                    Logger.d("paymentAdded", "paymentAdded is " + user.getPaymentAdded());
 
                     if(user.getPaymentAdded() == false) {
                         CharSequence accept = "Add";
@@ -216,7 +219,7 @@ public class NeighborActivity extends AppCompatActivity {
                         return true;
                     }
                 case R.id.action_test_purchase:
-                    TinyDB tinyDB = new TinyDB(getApplicationContext());
+                    tinyDB = new TinyDB(getApplicationContext());
                     User neighbor = (User) tinyDB.getObject("User", User.class);
 
                     mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {

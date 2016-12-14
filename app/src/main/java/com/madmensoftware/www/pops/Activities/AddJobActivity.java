@@ -275,8 +275,11 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                                     // This method is called once with the initial value and again
                                     // whenever data at this location is updated.
                                     User mUser = dataSnapshot.getValue(User.class);
+                                    TinyDB tinyDB = new TinyDB(getApplicationContext());
+                                    User tdbuser = (User) tinyDB.getObject("User", User.class);
+                                    Logger.d("paymentAdded", "paymentAdded is " + tdbuser.getPaymentAdded());
 
-                                    if (mUser.getPaymentAdded() == true) {
+                                    if (mUser.getPaymentAdded() == true || tdbuser.getPaymentAdded() == true) {
 
                                         String jobId = mDatabase.child("jobs").push().getKey();
                                         job.setUid(jobId);
@@ -289,10 +292,11 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                                         startActivity(new Intent(AddJobActivity.this, NeighborActivity.class));
                                     }
                                     else {
-                                        TinyDB tinyDB = new TinyDB(getApplicationContext());
                                         tinyDB.putObject("job", job);
                                         tinyDB.putBoolean("add_job", true);
                                         tinyDB.putObject("User", mUser);
+
+
                                         startActivity(new Intent(AddJobActivity.this, AddPaymentInformationActivity.class));
                                     }
                                 }

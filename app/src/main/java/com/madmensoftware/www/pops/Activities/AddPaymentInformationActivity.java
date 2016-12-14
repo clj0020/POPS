@@ -119,11 +119,12 @@ public class AddPaymentInformationActivity extends AppCompatActivity implements 
         Logger.d("AddUserDetails", "processFinish user is " + user.getName());
 
         user.setStripeCustomerId(customer.getId());
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
         if (tinyDB.getBoolean("add_job")) {
             Job job = (Job) tinyDB.getObject("job", Job.class);
 
-            DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+            //DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
             String jobId = mDatabase.child("jobs").push().getKey();
             job.setUid(jobId);
             mDatabase.child("jobs").child(jobId).setValue(job);
@@ -135,8 +136,10 @@ public class AddPaymentInformationActivity extends AppCompatActivity implements 
             user.setPaymentAdded(true);
 
             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-            FirebaseDatabase.getInstance().getReference().child("users").child(firebaseUser.getUid()).setValue(user);
-            FirebaseDatabase.getInstance().getReference().child("users").child(firebaseUser.getUid()).child("paymentAdded").setValue(true);
+            mDatabase.child("users").child(firebaseUser.getUid()).setValue(user);
+            mDatabase.child("users").child(firebaseUser.getUid()).child("paymentAdded").setValue(true);
+            //mUser.setPaymentAdded(true);
+            //mDatabase.child("users").child(user.getUid()).child("paymentAdded").setValue(true);
 
 
 
@@ -149,6 +152,7 @@ public class AddPaymentInformationActivity extends AppCompatActivity implements 
         }
         else {
             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+            FirebaseDatabase.getInstance().getReference().child("users").child(firebaseUser.getUid()).child("paymentAdded").setValue(true);
             FirebaseDatabase.getInstance().getReference().child("users").child(firebaseUser.getUid()).setValue(user);
 
             tinyDB.putObject("User", user);
