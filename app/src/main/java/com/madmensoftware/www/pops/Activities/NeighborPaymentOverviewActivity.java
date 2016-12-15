@@ -105,6 +105,8 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
                 mNeighborPayButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        // TODO: Set neighbor pay button to enabled if payment doesn't work.
+                        mNeighborPayButton.setEnabled(false);
                         mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {

@@ -386,6 +386,12 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                 mJobStartTime.setText(formatDateAndTime(mJob.getStartTime()));
                                 mJobCompletionTime.setText(formatDateAndTime(mJob.getCompletionTime()));
                             }
+                            else if (mJob.getStatus().equals("paid")) {
+                                mNeighborRequestContainer.setVisibility(View.GONE);
+                                mNeighborRequestJobStartContainer.setVisibility(View.GONE);
+                                mNeighborInProgressContainer.setVisibility(View.GONE);
+                                mNeighborPayContainer.setVisibility(View.GONE);
+                            }
                             else {
                                 mNeighborRequestContainer.setVisibility(View.GONE);
                                 mNeighborInProgressContainer.setVisibility(View.GONE);
@@ -510,10 +516,6 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
 
                                     mDatabase.child("jobs").child(mJob.getUid()).setValue(mJob);
-
-
-
-
 
                                     Logger.i("Completion Time" + formatDateAndTime(currentTime));
 

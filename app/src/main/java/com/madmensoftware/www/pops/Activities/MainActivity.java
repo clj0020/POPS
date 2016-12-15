@@ -45,8 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private String type;
     private User user;
 
-    private DatabaseReference mUserDatabaseReference;
-    private ValueEventListener mUserValueEventListener;
+    //private DatabaseReference mUserDatabaseReference;
+    //private ValueEventListener mUserValueEventListener;
 
     public static Intent newIntent(Context context) {
         return new Intent(context, MainActivity.class);
@@ -75,12 +75,72 @@ public class MainActivity extends AppCompatActivity {
                     uid = mFirebaseUser.getUid();
                     Logger.i("User is authorized, checking for a matching entry in database.");
 
+                    FirebaseDatabase.getInstance().getReference().child("users").child(auth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            // This method is called once with the initial value and again
+                            // whenever data at this location is updated.
+                            if(dataSnapshot.getValue() != null) {
+                                User mUser = dataSnapshot.getValue(User.class);
+                                type = mUser.getType();
+
+                                Logger.i("User entry found, finding user type.");
+
+                                switch (type) {
+                                    case "Popper":
+                                        Logger.i("User type is popper.");
+                                        Intent popperIntent = new Intent(MainActivity.this, PopperActivity.class);
+                                        Bundle popperBundle = new Bundle();
+                                        TinyDB tinyDB = new TinyDB(getApplicationContext());
+                                        tinyDB.putObject("User", mUser);
+                                        popperBundle.putParcelable("User", Parcels.wrap(mUser));
+                                        popperIntent.putExtras(popperBundle);
+                                        startActivity(popperIntent);
+                                        break;
+                                    case "Parent":
+                                        Logger.i("User type is parent.");
+                                        Intent parentIntent = new Intent(MainActivity.this, ParentActivity.class);
+                                        Bundle parentBundle = new Bundle();
+                                        TinyDB tinyDB2 = new TinyDB(getApplicationContext());
+                                        tinyDB2.putObject("User", mUser);
+                                        parentBundle.putParcelable("User", Parcels.wrap(mUser));
+                                        parentIntent.putExtras(parentBundle);
+                                        startActivity(parentIntent);
+                                        break;
+                                    case "Neighbor":
+                                        Logger.i("User type is neighbor.");
+                                        Intent neighborIntent = new Intent(MainActivity.this, NeighborActivity.class);
+                                        Bundle neighborBundle = new Bundle();
+                                        TinyDB tinyDB3 = new TinyDB(getApplicationContext());
+                                        tinyDB3.putObject("User", mUser);
+                                        neighborBundle.putParcelable("User", Parcels.wrap(mUser));
+                                        neighborIntent.putExtras(neighborBundle);
+                                        startActivity(neighborIntent);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                            else {
+                                Intent intent = new Intent(MainActivity.this, TypePickerActivity.class);
+                                Logger.i("User entry not found in database, send to Type Picker.");
+                                startActivity(intent);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
                     Logger.i(firebaseUser.getUid());
+
+
                 }
             }
         };
 
-        mUserDatabaseReference = FirebaseDatabase.getInstance().getReference("users/" + auth.getCurrentUser().getUid());
+
 
     }
 
@@ -95,77 +155,80 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         auth.addAuthStateListener(authListener);
 
-        ValueEventListener userValueEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                if(dataSnapshot.getValue() != null) {
-                    User mUser = dataSnapshot.getValue(User.class);
-                    type = mUser.getType();
+//        if (auth.getCurrentUser() != null) {
+//            ValueEventListener userValueEventListener = new ValueEventListener() {
+//                @Override
+//                public void onDataChange(DataSnapshot dataSnapshot) {
+//                    // This method is called once with the initial value and again
+//                    // whenever data at this location is updated.
+//                    if(dataSnapshot.getValue() != null) {
+//                        User mUser = dataSnapshot.getValue(User.class);
+//                        type = mUser.getType();
+//
+//                        Logger.i("User entry found, finding user type.");
+//
+//                        switch (type) {
+//                            case "Popper":
+//                                Logger.i("User type is popper.");
+//                                Intent popperIntent = new Intent(MainActivity.this, PopperActivity.class);
+//                                Bundle popperBundle = new Bundle();
+//                                TinyDB tinyDB = new TinyDB(getApplicationContext());
+//                                tinyDB.putObject("User", mUser);
+//                                popperBundle.putParcelable("User", Parcels.wrap(mUser));
+//                                popperIntent.putExtras(popperBundle);
+//                                startActivity(popperIntent);
+//                                break;
+//                            case "Parent":
+//                                Logger.i("User type is parent.");
+//                                Intent parentIntent = new Intent(MainActivity.this, ParentActivity.class);
+//                                Bundle parentBundle = new Bundle();
+//                                TinyDB tinyDB2 = new TinyDB(getApplicationContext());
+//                                tinyDB2.putObject("User", mUser);
+//                                parentBundle.putParcelable("User", Parcels.wrap(mUser));
+//                                parentIntent.putExtras(parentBundle);
+//                                startActivity(parentIntent);
+//                                break;
+//                            case "Neighbor":
+//                                Logger.i("User type is neighbor.");
+//                                Intent neighborIntent = new Intent(MainActivity.this, NeighborActivity.class);
+//                                Bundle neighborBundle = new Bundle();
+//                                TinyDB tinyDB3 = new TinyDB(getApplicationContext());
+//                                tinyDB3.putObject("User", mUser);
+//                                neighborBundle.putParcelable("User", Parcels.wrap(mUser));
+//                                neighborIntent.putExtras(neighborBundle);
+//                                startActivity(neighborIntent);
+//                                break;
+//                            default:
+//                                break;
+//                        }
+//                    }
+//                    else {
+//                        Intent intent = new Intent(MainActivity.this, TypePickerActivity.class);
+//                        Logger.i("User entry not found in database, send to Type Picker.");
+//                        startActivity(intent);
+//                    }
+//                }
+//
+//                @Override
+//                public void onCancelled(DatabaseError databaseError) {
+//
+//                }
+//            };
+//
+//            mUserDatabaseReference.addValueEventListener(userValueEventListener);
+//
+//            mUserValueEventListener = userValueEventListener;
+//        }
 
-                    Logger.i("User entry found, finding user type.");
-
-                    switch (type) {
-                        case "Popper":
-                            Logger.i("User type is popper.");
-                            Intent popperIntent = new Intent(MainActivity.this, PopperActivity.class);
-                            Bundle popperBundle = new Bundle();
-                            TinyDB tinyDB = new TinyDB(getApplicationContext());
-                            tinyDB.putObject("User", mUser);
-                            popperBundle.putParcelable("User", Parcels.wrap(mUser));
-                            popperIntent.putExtras(popperBundle);
-                            startActivity(popperIntent);
-                            break;
-                        case "Parent":
-                            Logger.i("User type is parent.");
-                            Intent parentIntent = new Intent(MainActivity.this, ParentActivity.class);
-                            Bundle parentBundle = new Bundle();
-                            TinyDB tinyDB2 = new TinyDB(getApplicationContext());
-                            tinyDB2.putObject("User", mUser);
-                            parentBundle.putParcelable("User", Parcels.wrap(mUser));
-                            parentIntent.putExtras(parentBundle);
-                            startActivity(parentIntent);
-                            break;
-                        case "Neighbor":
-                            Logger.i("User type is neighbor.");
-                            Intent neighborIntent = new Intent(MainActivity.this, NeighborActivity.class);
-                            Bundle neighborBundle = new Bundle();
-                            TinyDB tinyDB3 = new TinyDB(getApplicationContext());
-                            tinyDB3.putObject("User", mUser);
-                            neighborBundle.putParcelable("User", Parcels.wrap(mUser));
-                            neighborIntent.putExtras(neighborBundle);
-                            startActivity(neighborIntent);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                else {
-                    Intent intent = new Intent(MainActivity.this, TypePickerActivity.class);
-                    Logger.i("User entry not found in database, send to Type Picker.");
-                    startActivity(intent);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-
-        mUserDatabaseReference.addValueEventListener(userValueEventListener);
-
-        mUserValueEventListener = userValueEventListener;
     }
 
     @Override
     public void onStop() {
         super.onStop();
 
-        if (mUserValueEventListener != null) {
-            mUserDatabaseReference.removeEventListener(mUserValueEventListener);
-        }
+//        if (mUserValueEventListener != null) {
+//            mUserDatabaseReference.removeEventListener(mUserValueEventListener);
+//        }
         if (authListener != null) {
             auth.removeAuthStateListener(authListener);
         }
