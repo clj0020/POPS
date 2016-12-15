@@ -311,9 +311,10 @@ public class User {
         return paymentAdded;
     }
 
-    public void setPaymentAdded(boolean i){
-        this.paymentAdded = i;
+    public void setPaymentAdded(boolean pa) {
+        this.paymentAdded = pa;
     }
+
 
 
     // Helper methods

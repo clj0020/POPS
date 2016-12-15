@@ -248,7 +248,7 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
                 final User neighbor = new User();
                 neighbor.setType("Neighbor");
                 //neighbor.setUid(firebaseNeighbor.getUid());
-                neighbor.setPaymentAdded2(0);
+                //neighbor.setPaymentAdded(true);
 
                 for (UserInfo profile : firebaseNeighbor.getProviderData()) {
                     // Id of the provider (ex: google.com)
@@ -393,6 +393,8 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
         neighbor.setCity(city);
         neighbor.setState(state);
         neighbor.setZipCode(zipcode);
+
+        neighbor.setName(firstName + " " + lastName);
 
         mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(neighbor);
 

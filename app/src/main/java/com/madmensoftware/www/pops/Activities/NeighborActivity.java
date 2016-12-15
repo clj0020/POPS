@@ -131,13 +131,14 @@ public class NeighborActivity extends AppCompatActivity {
 
                         // Write a message to the database
                         FirebaseDatabase database = FirebaseDatabase.getInstance();
-                        DatabaseReference ref = database.getReference("users/" + uid);
+                        final DatabaseReference ref = database.getReference("users/" + uid);
                         // Read from the database
                         ref.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if(dataSnapshot.exists()) {
                                     User mUser = dataSnapshot.getValue(User.class);
+                                    ref.child("paymentAdded").setValue(true);
                                     user = mUser;
                                 }
                                 else {
@@ -183,8 +184,9 @@ public class NeighborActivity extends AppCompatActivity {
                     TinyDB tinyDB = new TinyDB(getApplicationContext());
                     User user = (User) tinyDB.getObject("User", User.class);
                     Logger.d("paymentAdded", "paymentAdded is " + user.getPaymentAdded());
+                    //Logger.d("paymentAdded", "paymentAdded is " + mFirebaseUser.getPaymentAdded());
 
-                    if(user.getPaymentAdded() != 1) {
+                    if(!user.getPaymentAdded()) {
                         CharSequence accept = "Add";
                         CharSequence reject = "Later";
                         CharSequence message = "To post jobs you have to finish signing up. Add your Payment information to continue.";

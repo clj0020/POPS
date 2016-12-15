@@ -360,14 +360,15 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
     public void processFinish(Customer customer) {
         TinyDB tinyDB = new TinyDB(getApplicationContext());
         User user = (User) tinyDB.getObject("User", User.class);
-        Logger.d("AddUserDetails", "processFinish user is " + user.getName());
+        Logger.d("AddUserDetails", "processFinish user is " + user.getUid());
 
         user.setStripeCustomerId(customer.getId());
-        user.setPaymentAdded();
+        user.setPaymentAdded(true);
         Logger.d("AddUserDetails", "processFinish user is " + user.getPaymentAdded());
 
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         mDatabase.child("users").child(firebaseUser.getUid()).setValue(user);
+        mDatabase.child("users").child(firebaseUser.getUid()).child("paymentAdded").setValue("true");
 
         tinyDB.putObject("User", user);
 
@@ -391,6 +392,22 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
                 }
                 break;
             case "Neighbor":
+                mDatabase.child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists()) {
+                            User neighbor = dataSnapshot.getValue(User.class);
+                            neighbor.setPaymentAdded(true);
+                            mDatabase.child("users").child(neighbor.getUid()).child("paymentAdded").setValue(neighbor.getPaymentAdded());
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        Logger.e(error.getMessage());
+                    }
+
+                });
                 Intent intent = new Intent(AddUserDetails.this, MainActivity.class);
                 startActivity(intent);
                 break;
