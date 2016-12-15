@@ -97,47 +97,6 @@
             android:layout_weight="1"
             android:layout_marginRight="15dp" />
 
-        <!--<EditText-->
-            <!--android:id="@+id/dialog_popper_sign_up_date_of_birth_month"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:background="@drawable/rounded_edittext"-->
-            <!--android:hint="MM"-->
-            <!--android:maxLength="2"-->
-            <!--android:textColor="@color/black"-->
-            <!--android:textColorHint="@color/black"-->
-            <!--android:layout_marginTop="20dp"-->
-            <!--android:layout_marginLeft="15dp"-->
-            <!--android:layout_weight="1.3"/>-->
-
-        <!--<EditText-->
-            <!--android:id="@+id/dialog_popper_sign_up_date_of_birth_day"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:background="@drawable/rounded_edittext"-->
-            <!--android:hint="DD"-->
-            <!--android:maxLength="2"-->
-            <!--android:textColor="@color/black"-->
-            <!--android:textColorHint="@color/black"-->
-            <!--android:layout_marginTop="20dp"-->
-            <!--android:layout_marginLeft="15dp"-->
-            <!--android:layout_weight="1.3"/>-->
-
-        <!--<EditText-->
-            <!--android:id="@+id/dialog_popper_sign_up_date_of_birth_year"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:background="@drawable/rounded_edittext"-->
-            <!--android:hint="YYYY"-->
-            <!--android:maxLength="4"-->
-            <!--android:textColor="@color/black"-->
-            <!--android:textColorHint="@color/black"-->
-            <!--android:layout_marginTop="20dp"-->
-            <!--android:layout_marginRight="15dp"-->
-            <!--android:layout_marginLeft="15dp"-->
-            <!--android:layout_weight="1"/>-->
-
-
     </LinearLayout>
 
     <TextView
