@@ -24,6 +24,8 @@ public class User {
     String name;
     long birthDay;
     String address;
+    String city;
+    String state;
     int age;
     int zipCode;
     String type;
@@ -46,7 +48,7 @@ public class User {
     String stripeAccountId;
     String stripeApiSecretKey;
     String stripeApiPublishableKey;
-    int paymentAdded;
+    boolean paymentAdded;
     double bankStatement;
 
 
@@ -115,6 +117,22 @@ public class User {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 
     public int getAge() {
@@ -289,14 +307,11 @@ public class User {
 
 
 
-    public int getPaymentAdded() {
+    public boolean getPaymentAdded() {
         return paymentAdded;
     }
 
-    public void setPaymentAdded() {
-        this.paymentAdded = 1;
-    }
-    public void setPaymentAdded2(int i){
+    public void setPaymentAdded(boolean i){
         this.paymentAdded = i;
     }
 

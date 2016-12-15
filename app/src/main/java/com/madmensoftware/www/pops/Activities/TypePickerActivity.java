@@ -23,6 +23,7 @@ import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.madmensoftware.www.pops.Dialogs.BasicInfoDialog;
+import com.madmensoftware.www.pops.Dialogs.NeighborSignUpInfoDialog;
 import com.madmensoftware.www.pops.Dialogs.PopperSignUpInfoDialog;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
@@ -34,7 +35,8 @@ import java.util.Calendar;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class TypePickerActivity extends AppCompatActivity implements View.OnClickListener, BasicInfoDialog.BasicInfoDialogCallbacks, GoogleApiClient.OnConnectionFailedListener, PopperSignUpInfoDialog.PopperSignUpInfoDialogCallbacks {
+public class TypePickerActivity extends AppCompatActivity implements View.OnClickListener, BasicInfoDialog.BasicInfoDialogCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        PopperSignUpInfoDialog.PopperSignUpInfoDialogCallbacks, NeighborSignUpInfoDialog.NeighborSignUpInfoDialogCallbacks {
 
     @BindView(R.id.popperBtn) Button mPopperBtn;
     @BindView(R.id.parentBtn) Button mParentBtn;
@@ -302,7 +304,7 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
 //                    startActivity(new Intent(TypePickerActivity.this, MainActivity.class));
 //                }
 
-                showBasicInfoDialog(neighbor);
+                showNeighborSignUpInfoDialog(neighbor);
                 break;
             case R.id.typePickerCancelButton:
                 signOut();
@@ -382,6 +384,27 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
+    @Override
+    public void onNeighborInfoEntered(String firstName, String lastName, String address, String city, String state, int zipcode, User neighbor) {
+
+        neighbor.setFirstName(firstName);
+        neighbor.setLastName(lastName);
+        neighbor.setAddress(address);
+        neighbor.setCity(city);
+        neighbor.setState(state);
+        neighbor.setZipCode(zipcode);
+
+        mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(neighbor);
+
+        if (FacebookIsProvider) {
+            startActivity(new Intent(TypePickerActivity.this, MainActivity.class));
+        }
+        else {
+            startActivity(new Intent(TypePickerActivity.this, MainActivity.class));
+        }
+
+    }
+
     private void showBasicInfoDialog(User popper) {
         FragmentManager fm = getSupportFragmentManager();
         BasicInfoDialog pickRadiusDialog = BasicInfoDialog.newInstance("Some Title", popper);
@@ -392,6 +415,12 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
         FragmentManager fm = getSupportFragmentManager();
         PopperSignUpInfoDialog popperSignUpInfoDialog = PopperSignUpInfoDialog.newInstance("Some Title", popper);
         popperSignUpInfoDialog.show(fm, "fragment_popper_sign_up_info_dialog");
+    }
+
+    private void showNeighborSignUpInfoDialog(User neighbor) {
+        FragmentManager fm = getSupportFragmentManager();
+        NeighborSignUpInfoDialog neighborSignUpInfoDialog = NeighborSignUpInfoDialog.newInstance("Some Title", neighbor);
+        neighborSignUpInfoDialog.show(fm, "fragment_neighbor_sign_up_info_dialog");
     }
 
     // [START on_start_add_listener]
