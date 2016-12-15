@@ -31,6 +31,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
+import com.orhanobut.logger.Logger;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -59,6 +60,9 @@ public class PopperDashboardFragment extends Fragment {
     public String userId;
 
     private PopperDashCallbacks mCallbacks;
+
+    private ValueEventListener mUserValueEventListener;
+    private DatabaseReference mUserDatabaseReference;
 
     public interface PopperDashCallbacks {
         void onSignOutButton();
@@ -101,14 +105,15 @@ public class PopperDashboardFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        auth = FirebaseAuth.getInstance();
+        mUserDatabaseReference = FirebaseDatabase.getInstance().getReference("users/" + auth.getCurrentUser().getUid());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_popper_dashboard, container, false);
         ButterKnife.bind(this, view);
-
-        auth = FirebaseAuth.getInstance();
 
         LayerDrawable stars = (LayerDrawable) mSkillCommunicationStars.getProgressDrawable();
 
@@ -147,31 +152,28 @@ public class PopperDashboardFragment extends Fragment {
             }
         });
 
-        // Write a message to the database
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference ref = database.getReference("users/" + auth.getCurrentUser().getUid());
 
-        // Read from the database
-        ref.addValueEventListener(new ValueEventListener() {
+        return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        ValueEventListener userValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
                 User mUser = dataSnapshot.getValue(User.class);
-
-
                 mNameTextView.setText(mUser.getName());
-
                 if (mUser.getAge() == 0) {
                     // Do not have their age
-
                 }
                 else {
                     mAgeTextView.setText(mUser.getAge() + " years old");
                 }
-
                 //mOrganizationNameTextView.setText(mUser.getOrganizationName());
-
                 if (mUser.getGoal() == 0) {
                     // They have not added a Goal yet
                     mNoGoalContainer.setVisibility(View.VISIBLE);
@@ -188,13 +190,24 @@ public class PopperDashboardFragment extends Fragment {
             }
 
             @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-
+            public void onCancelled(DatabaseError databaseError) {
+                Logger.e(databaseError.getMessage());
             }
-        });
+        };
 
-        return view;
+        mUserDatabaseReference.addValueEventListener(userValueEventListener);
+
+        mUserValueEventListener = userValueEventListener;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mUserValueEventListener != null) {
+            mUserDatabaseReference.removeEventListener(mUserValueEventListener);
+        }
+
     }
 
     @Override

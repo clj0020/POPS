@@ -43,8 +43,20 @@ public class JobDetailActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        startActivity(new Intent(JobDetailActivity.this, MainActivity.class));
+        //startActivity(new Intent(JobDetailActivity.this, MainActivity.class));
         finish();
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+
 
 }
