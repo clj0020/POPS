@@ -122,7 +122,7 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
                 FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                 final User popper = new User();
                 popper.setType("Popper");
-                popper.setUid(firebaseUser.getUid());
+                //popper.setUid(firebaseUser.getUid());
 
                 for (UserInfo profile : firebaseUser.getProviderData()) {
                     // Id of the provider (ex: google.com)
@@ -178,7 +178,7 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
                 FirebaseUser firebaseParent = FirebaseAuth.getInstance().getCurrentUser();
                 final User parent = new User();
                 parent.setType("Parent");
-                parent.setUid(firebaseParent.getUid());
+                //parent.setUid(firebaseParent.getUid());
 
                 for (UserInfo profile : firebaseParent.getProviderData()) {
                     // Id of the provider (ex: google.com)
@@ -242,8 +242,8 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
                 FirebaseUser firebaseNeighbor = FirebaseAuth.getInstance().getCurrentUser();
                 final User neighbor = new User();
                 neighbor.setType("Neighbor");
-                neighbor.setUid(firebaseNeighbor.getUid());
-                neighbor.setPaymentAdded(false);
+                //neighbor.setUid(firebaseNeighbor.getUid());
+                neighbor.setPaymentAdded2(0);
 
                 for (UserInfo profile : firebaseNeighbor.getProviderData()) {
                     // Id of the provider (ex: google.com)
