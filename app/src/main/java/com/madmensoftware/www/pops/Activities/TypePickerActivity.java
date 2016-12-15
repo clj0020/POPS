@@ -246,7 +246,7 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
                 final User neighbor = new User();
                 neighbor.setType("Neighbor");
                 //neighbor.setUid(firebaseNeighbor.getUid());
-                neighbor.setPaymentAdded2(0);
+                //neighbor.setPaymentAdded(true);
 
                 for (UserInfo profile : firebaseNeighbor.getProviderData()) {
                     // Id of the provider (ex: google.com)

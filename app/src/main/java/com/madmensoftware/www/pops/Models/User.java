@@ -46,7 +46,7 @@ public class User {
     String stripeAccountId;
     String stripeApiSecretKey;
     String stripeApiPublishableKey;
-    int paymentAdded;
+    boolean paymentAdded;
     double bankStatement;
 
 
@@ -289,16 +289,14 @@ public class User {
 
 
 
-    public int getPaymentAdded() {
+    public boolean getPaymentAdded() {
         return paymentAdded;
     }
 
-    public void setPaymentAdded() {
-        this.paymentAdded = 1;
+    public void setPaymentAdded(boolean pa) {
+        this.paymentAdded = pa;
     }
-    public void setPaymentAdded2(int i){
-        this.paymentAdded = i;
-    }
+
 
 
     // Helper methods

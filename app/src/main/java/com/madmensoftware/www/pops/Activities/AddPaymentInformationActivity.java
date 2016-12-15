@@ -44,6 +44,7 @@ public class AddPaymentInformationActivity extends AppCompatActivity implements 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_payment_information);
+        Logger.d("addPaymentActivity", "oncreate is ");
 
 
         FragmentManager fm = getSupportFragmentManager();
@@ -116,7 +117,7 @@ public class AddPaymentInformationActivity extends AppCompatActivity implements 
     public void processFinish(Customer customer) {
         TinyDB tinyDB = new TinyDB(getApplicationContext());
         User user = (User) tinyDB.getObject("User", User.class);
-        Logger.d("AddUserDetails", "processFinish user is " + user.getName());
+        Logger.d("AddUserDetails", "processFinish user is " + user.getUid());
 
         user.setStripeCustomerId(customer.getId());
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -133,7 +134,7 @@ public class AddPaymentInformationActivity extends AppCompatActivity implements 
             geofire.setLocation(jobId, new GeoLocation(job.getLatitude(), job.getLongitude()));
 
 
-            user.setPaymentAdded();
+            user.setPaymentAdded(true);
 
             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
             mDatabase.child("users").child(firebaseUser.getUid()).setValue(user);
