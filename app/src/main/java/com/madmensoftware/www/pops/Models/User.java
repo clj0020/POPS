@@ -19,7 +19,10 @@ import java.util.UUID;
 public class User {
 
     String uid;
+    String firstName;
+    String lastName;
     String name;
+    long birthDay;
     String address;
     int age;
     int zipCode;
@@ -74,12 +77,36 @@ public class User {
         this.goal = goal;
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public long getBirthDay() {
+        return birthDay;
+    }
+
+    public void setBirthDay(long birthDay) {
+        this.birthDay = birthDay;
     }
 
     public String getAddress() {

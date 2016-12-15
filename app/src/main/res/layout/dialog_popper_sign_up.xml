@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    tools:background="#000000"
+    android:id="@+id/fragment_popper_sign_up_info_dialog"
+    android:padding="30dp">
+
+    <TextView
+        android:id="@+id/dialog_popper_sign_up_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="We need to know a little bit more about you."
+        android:textSize="20sp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:textColor="@color/white" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1">
+
+        <EditText
+            android:id="@+id/dialog_popper_sign_up_first_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_edittext"
+            android:hint="First Name"
+            android:inputType="textPersonName"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="15dp"
+            android:layout_weight="0.5"/>
+
+        <EditText
+            android:id="@+id/dialog_popper_sign_up_last_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_edittext"
+            android:hint="Last Name"
+            android:inputType="textPersonName"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_weight="0.5"/>
+
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/dialog_popper_sign_up_date_of_birth_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date of Birth (must be 14-19 years old"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="15dp"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.madmensoftware.www.pops.Helpers.NiceSpinner
+            android:id="@+id/dialog_popper_sign_up_date_of_birth_month"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="15dp"
+            android:layout_weight="1" />
+
+        <com.madmensoftware.www.pops.Helpers.NiceSpinner
+            android:id="@+id/dialog_popper_sign_up_date_of_birth_day"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="1.1" />
+
+        <com.madmensoftware.www.pops.Helpers.NiceSpinner
+            android:id="@+id/dialog_popper_sign_up_date_of_birth_year"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="1"
+            android:layout_marginRight="15dp" />
+
+        <!--<EditText-->
+            <!--android:id="@+id/dialog_popper_sign_up_date_of_birth_month"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@drawable/rounded_edittext"-->
+            <!--android:hint="MM"-->
+            <!--android:maxLength="2"-->
+            <!--android:textColor="@color/black"-->
+            <!--android:textColorHint="@color/black"-->
+            <!--android:layout_marginTop="20dp"-->
+            <!--android:layout_marginLeft="15dp"-->
+            <!--android:layout_weight="1.3"/>-->
+
+        <!--<EditText-->
+            <!--android:id="@+id/dialog_popper_sign_up_date_of_birth_day"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@drawable/rounded_edittext"-->
+            <!--android:hint="DD"-->
+            <!--android:maxLength="2"-->
+            <!--android:textColor="@color/black"-->
+            <!--android:textColorHint="@color/black"-->
+            <!--android:layout_marginTop="20dp"-->
+            <!--android:layout_marginLeft="15dp"-->
+            <!--android:layout_weight="1.3"/>-->
+
+        <!--<EditText-->
+            <!--android:id="@+id/dialog_popper_sign_up_date_of_birth_year"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@drawable/rounded_edittext"-->
+            <!--android:hint="YYYY"-->
+            <!--android:maxLength="4"-->
+            <!--android:textColor="@color/black"-->
+            <!--android:textColorHint="@color/black"-->
+            <!--android:layout_marginTop="20dp"-->
+            <!--android:layout_marginRight="15dp"-->
+            <!--android:layout_marginLeft="15dp"-->
+            <!--android:layout_weight="1"/>-->
+
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/dialog_popper_sign_up_organization_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="High School"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="15dp"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+    <com.madmensoftware.www.pops.Helpers.NiceSpinner
+        android:id="@+id/dialog_popper_sign_up_organization_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="10dp"/>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Emergency Contact (Parent or Guardian)"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="15dp"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1">
+
+        <EditText
+            android:id="@+id/dialog_popper_sign_up_emergency_contact_first_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_edittext"
+            android:hint="First Name"
+            android:inputType="textPersonName"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_weight="0.5"/>
+
+        <EditText
+            android:id="@+id/dialog_popper_sign_up_emergency_contact_last_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_edittext"
+            android:hint="Last Name"
+            android:inputType="textPersonName"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_weight="0.5"/>
+
+
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/dialog_popper_sign_up_emergency_contact_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_edittext"
+        android:hint="Email Address"
+        android:inputType="textEmailAddress"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp" />
+
+
+    <Button
+        android:id="@+id/dialog_popper_sign_up_submit_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Continue to App"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp" />
+
+</LinearLayout>

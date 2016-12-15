@@ -4,7 +4,7 @@
     <color name="colorPrimaryDark">#0076B2</color>
     <color name="colorAccent">#C0B101</color>
     <color name="white">#ffffff</color>
-    <color name="black">#000000</color>
+    <color name="black">#b8b8b8</color>
 
     <color name="bg_register">#2e3237</color>
     <color name="bg_main">#428bca</color>
@@ -39,4 +39,9 @@
     <color name="material_purple_a700">#AA00FF</color>
 
     <color name="material_red_a200">#FF5252</color>
+
+    <color name="listview_pressed">#FFE2E2E2</color>
+    <color name="listview_focused">#FF7dbcd3</color>
+    <color name="listview_checked">#FFededed</color>
+    <color name="light_gray">#fff5f5f5</color>
 </resources>
