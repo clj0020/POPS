@@ -23,15 +23,18 @@ import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.madmensoftware.www.pops.Dialogs.BasicInfoDialog;
+import com.madmensoftware.www.pops.Dialogs.PopperSignUpInfoDialog;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 import com.orhanobut.logger.Logger;
 
+import java.util.Calendar;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class TypePickerActivity extends AppCompatActivity implements View.OnClickListener, BasicInfoDialog.BasicInfoDialogCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class TypePickerActivity extends AppCompatActivity implements View.OnClickListener, BasicInfoDialog.BasicInfoDialogCallbacks, GoogleApiClient.OnConnectionFailedListener, PopperSignUpInfoDialog.PopperSignUpInfoDialogCallbacks {
 
     @BindView(R.id.popperBtn) Button mPopperBtn;
     @BindView(R.id.parentBtn) Button mParentBtn;
@@ -171,7 +174,7 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
 
 //                mDatabase.child("users").child(firebaseUser.getUid()).setValue(popper);
 //                showRadiusDialog(popper);
-                showBasicInfoDialog(popper);
+                showPopperSignUpInfoDialog(popper);
                 break;
             case R.id.parentBtn:
                 TinyDB parentTinyDB = new TinyDB(getApplicationContext());
@@ -345,13 +348,50 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
         else {
             startActivity(new Intent(TypePickerActivity.this, MainActivity.class));
         }
+    }
 
+    @Override
+    public void onPopperInfoEntered(String firstName, String lastName, long birthDay, String organization,
+                                    String parentFirstName, String parentLastName, String parentEmail, User popper) {
+
+        popper.setFirstName(firstName);
+        popper.setLastName(lastName);
+        popper.setBirthDay(birthDay);
+        popper.setOrganizationName(organization);
+
+        popper.setName(firstName + " " + lastName);
+
+        long today = Calendar.getInstance().getTimeInMillis();
+        int age = getAgeFromBirthday(today, birthDay);
+        popper.setAge(age);
+
+        mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(popper);
+
+        String notID = mDatabase.child("emergencyContacts").push().getKey();
+
+        mDatabase.child("emergencyContacts").child(notID).child("firstName").setValue(parentFirstName);
+        mDatabase.child("emergencyContacts").child(notID).child("lastName").setValue(parentLastName);
+        mDatabase.child("emergencyContacts").child(notID).child("email").setValue(parentEmail);
+        mDatabase.child("emergencyContacts").child(notID).child("popperUid").setValue(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+        if (FacebookIsProvider) {
+            startActivity(new Intent(TypePickerActivity.this, MainActivity.class));
+        }
+        else {
+            startActivity(new Intent(TypePickerActivity.this, MainActivity.class));
+        }
     }
 
     private void showBasicInfoDialog(User popper) {
         FragmentManager fm = getSupportFragmentManager();
         BasicInfoDialog pickRadiusDialog = BasicInfoDialog.newInstance("Some Title", popper);
         pickRadiusDialog.show(fm, "fragment_edit_name");
+    }
+
+    private void showPopperSignUpInfoDialog(User popper) {
+        FragmentManager fm = getSupportFragmentManager();
+        PopperSignUpInfoDialog popperSignUpInfoDialog = PopperSignUpInfoDialog.newInstance("Some Title", popper);
+        popperSignUpInfoDialog.show(fm, "fragment_popper_sign_up_info_dialog");
     }
 
     // [START on_start_add_listener]
@@ -421,5 +461,14 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public int getAgeFromBirthday(long currentDay, long birthDay) {
+
+        Long time= currentDay / 1000 - birthDay / 1000;
+
+        int years = Math.round(time) / 31536000;
+        //int months = Math.round(time - years * 31536000) / 2628000;
+        return years;
     }
 }

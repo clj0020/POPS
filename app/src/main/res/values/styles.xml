@@ -13,6 +13,14 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style parent="@android:style/Widget.Spinner" name="SpinnerAsEditText">
+        <item name="android:background">@android:drawable/edit_text</item>
+    </style>
+
+    <style name="spinnerItemStyle" parent="android:Widget.TextView.SpinnerItem"></style>
+
+    <style name="spinnerDropDownItemStyle" parent="android:TextAppearance.Widget.TextView.SpinnerItem"></style>
+
     <style name="LinearProgress" parent="Theme.AppCompat.Light">
         <item name="colorAccent">@color/colorPrimaryDark</item>
         <item name="android:minHeight">10dip</item>

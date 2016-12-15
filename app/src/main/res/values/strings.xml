@@ -72,6 +72,14 @@
         <item>Yard Work and Removal</item>
     </string-array>
 
+    <string-array name="organizations_array">
+        <item>Opelika</item>
+        <item>Auburn</item>
+        <item>Russel County</item>
+        <item>Smiths Station</item>
+        <item>Loachapoka</item>
+    </string-array>
+
     <string name="facebook_app_id">263389244057610</string>
     <string name="facebook_application_id" translatable="false">263389244057610</string>
     <string name="fb_login_protocol_scheme">fb263389244057610</string>

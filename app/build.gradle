@@ -71,6 +71,7 @@ dependencies {
     compile 'com.github.ganfra:material-spinner:1.1.1'
     compile 'com.facebook.android:facebook-android-sdk:[4,5)'
     compile 'org.fabiomsr:moneytextview:1.0.3'
+    compile 'com.jaredrummler:material-spinner:1.1.0'
     testCompile 'junit:junit:4.12'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
