@@ -279,7 +279,7 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                                     User tdbuser = (User) tinyDB.getObject("User", User.class);
                                     Logger.d("paymentAdded", "paymentAdded is " + tdbuser.getPaymentAdded());
 
-                                    if (mUser.getPaymentAdded() == true || tdbuser.getPaymentAdded() == true) {
+                                    if (mUser.getPaymentAdded() == 1 || tdbuser.getPaymentAdded() == 1) {
 
                                         String jobId = mDatabase.child("jobs").push().getKey();
                                         job.setUid(jobId);

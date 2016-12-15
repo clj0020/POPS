@@ -181,10 +181,10 @@ public class NeighborActivity extends AppCompatActivity {
                     return true;
                 case R.id.action_add_job:
                     TinyDB tinyDB = new TinyDB(getApplicationContext());
-                    //User user = (User) tinyDB.getObject("User", User.class);
+                    User user = (User) tinyDB.getObject("User", User.class);
                     Logger.d("paymentAdded", "paymentAdded is " + user.getPaymentAdded());
 
-                    if(user.getPaymentAdded() == false) {
+                    if(user.getPaymentAdded() != 1) {
                         CharSequence accept = "Add";
                         CharSequence reject = "Later";
                         CharSequence message = "To post jobs you have to finish signing up. Add your Payment information to continue.";

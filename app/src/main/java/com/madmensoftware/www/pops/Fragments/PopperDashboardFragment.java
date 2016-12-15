@@ -51,9 +51,12 @@ public class PopperDashboardFragment extends Fragment {
     @BindView(R.id.popper_dash_goal_date) TextView mGoalDateTextView;
     @BindView(R.id.popper_menu_btn) ImageButton mSettingsButton;
     @BindView(R.id.popper_dash_goal_progress_bar) ProgressBar mGoalProgressBar;
-    @BindView(R.id.popper_dash_skill_rating_communication) RatingBar mSkillCommunicationStars;
+    //@BindView(R.id.popper_dash_skill_rating_communication) RatingBar mSkillCommunicationStars;
     @BindView(R.id.popper_dash_stats_container) RelativeLayout mStatsContainer;
     @BindView(R.id.popper_dash_no_goal_container) RelativeLayout mNoGoalContainer;
+    @BindView(R.id.bankText) TextView mBankText;
+    @BindView(R.id.cash_out_button) Button mCashOutButton;
+
 
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
@@ -115,11 +118,11 @@ public class PopperDashboardFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_popper_dashboard, container, false);
         ButterKnife.bind(this, view);
 
-        LayerDrawable stars = (LayerDrawable) mSkillCommunicationStars.getProgressDrawable();
-
-        stars.getDrawable(2).setColorFilter(Color.parseColor("#0076B2"), PorterDuff.Mode.SRC_ATOP); // for filled stars
-        stars.getDrawable(1).setColorFilter(Color.parseColor("#D3D3D3"), PorterDuff.Mode.SRC_ATOP); // for half filled stars
-        stars.getDrawable(0).setColorFilter(Color.parseColor("#D3D3D3"), PorterDuff.Mode.SRC_ATOP); // for empty stars
+//        LayerDrawable stars = (LayerDrawable) mSkillCommunicationStars.getProgressDrawable();
+//
+//        stars.getDrawable(2).setColorFilter(Color.parseColor("#0076B2"), PorterDuff.Mode.SRC_ATOP); // for filled stars
+//        stars.getDrawable(1).setColorFilter(Color.parseColor("#D3D3D3"), PorterDuff.Mode.SRC_ATOP); // for half filled stars
+//        stars.getDrawable(0).setColorFilter(Color.parseColor("#D3D3D3"), PorterDuff.Mode.SRC_ATOP); // for empty stars
 
         mSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,6 +169,11 @@ public class PopperDashboardFragment extends Fragment {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
                 User mUser = dataSnapshot.getValue(User.class);
+
+                //BANK
+                mBankText.setText("$" + Double.toString(mUser.getBankStatement()));
+
+
                 mNameTextView.setText(mUser.getName());
                 if (mUser.getAge() == 0) {
                     // Do not have their age

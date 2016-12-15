@@ -81,6 +81,7 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+        Logger.i("onStart Neighborpaymentoverview");
 
         ValueEventListener jobValueEventListener = new ValueEventListener() {
             @Override
@@ -117,6 +118,22 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
                                     hashMap.put("neighbor", neighbor);
                                     hashMap.put("job", mJob);
                                     new NeighborPaymentOverviewActivity.CreateChargeTask().execute(neighbor, mJob);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError error) {
+                                Logger.e(error.getMessage());
+                            }
+
+                        });
+                        mDatabase.child("users").child(mJob.getPopperUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if(dataSnapshot.exists()) {
+                                    User popper = dataSnapshot.getValue(User.class);
+                                    popper.setBankStatemnt(mJob.getTotal());
+                                    mDatabase.child("users").child(popper.getUid()).child("bankStatement").setValue(popper.getBankStatement());
                                 }
                             }
 
@@ -168,10 +185,31 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
 
             // Result should contain the job uid after 100
             String jobUid = result.substring(3);
+            final String popperUid = mJob.getPopperUid();
+            final double total = mJob.getTotal();
+
+
 
             // Set the status of the job to paid
             mDatabase.child("jobs").child(jobUid).child("status").setValue("paid");
 
+
+           /* mDatabase.child(popperUid).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    User mUser = dataSnapshot.getValue(User.class);
+                    mUser.setBankStatemnt(total);
+
+                    mDatabase.child("users").child(popperUid).child("bankStatement").setValue(mUser.getBankStatement());
+                    Logger.d("mUser bank " + mUser.getBankStatement());
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            } );*/
 
 
             // Build a dialog that tells the user that they were successful.

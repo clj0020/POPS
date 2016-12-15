@@ -363,6 +363,8 @@ public class AddUserDetails extends AppCompatActivity implements AddDetailsPoppe
         Logger.d("AddUserDetails", "processFinish user is " + user.getName());
 
         user.setStripeCustomerId(customer.getId());
+        user.setPaymentAdded();
+        Logger.d("AddUserDetails", "processFinish user is " + user.getPaymentAdded());
 
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         mDatabase.child("users").child(firebaseUser.getUid()).setValue(user);

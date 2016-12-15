@@ -43,11 +43,19 @@ public class User {
     String stripeAccountId;
     String stripeApiSecretKey;
     String stripeApiPublishableKey;
-    boolean paymentAdded;
+    int paymentAdded;
+    double bankStatement;
 
 
     public User() {
         //goalDate = new Date();
+    }
+
+    public void setBankStatemnt(double bs){
+        bankStatement = bankStatement + bs;
+    }
+    public double getBankStatement(){
+        return bankStatement;
     }
 
     public String getUid() {
@@ -254,14 +262,16 @@ public class User {
 
 
 
-    public boolean getPaymentAdded() {
+    public int getPaymentAdded() {
         return paymentAdded;
     }
 
-    public void setPaymentAdded(boolean paymentAdded) {
-        this.paymentAdded = paymentAdded;
+    public void setPaymentAdded() {
+        this.paymentAdded = 1;
     }
-
+    public void setPaymentAdded2(int i){
+        this.paymentAdded = i;
+    }
 
 
     // Helper methods

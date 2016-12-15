@@ -133,11 +133,11 @@ public class AddPaymentInformationActivity extends AppCompatActivity implements 
             geofire.setLocation(jobId, new GeoLocation(job.getLatitude(), job.getLongitude()));
 
 
-            user.setPaymentAdded(true);
+            user.setPaymentAdded();
 
             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
             mDatabase.child("users").child(firebaseUser.getUid()).setValue(user);
-            mDatabase.child("users").child(firebaseUser.getUid()).child("paymentAdded").setValue(true);
+            mDatabase.child("users").child(firebaseUser.getUid()).child("paymentAdded").setValue(1);
             //mUser.setPaymentAdded(true);
             //mDatabase.child("users").child(user.getUid()).child("paymentAdded").setValue(true);
 
