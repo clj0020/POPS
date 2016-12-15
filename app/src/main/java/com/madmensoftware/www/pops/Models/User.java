@@ -54,9 +54,9 @@ public class User {
         return uid;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
+//    public void setUid(String uid) {
+//        this.uid = uid;
+//    }
 
     public double getGoal() {
         return goal;

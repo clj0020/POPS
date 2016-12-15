@@ -223,7 +223,7 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
         TinyDB tinyDb = new TinyDB(getActivity());
         mUser = (User) tinyDb.getObject("User", User.class);
 
-        Logger.i("mUser", mUser.getUid());
+        //Logger.i("mUser", mUser.getUid());
 
         geoFire = new GeoFire(mDatabase.child("jobs_location"));
 

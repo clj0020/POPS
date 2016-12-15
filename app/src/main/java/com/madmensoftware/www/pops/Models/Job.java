@@ -20,7 +20,7 @@ public class Job {
     String popperUid;
     String popperName;
     String popperNameCache;
-    String Uid;
+    String uid;
     String parentUid;
     long startTime;
     String notification;
@@ -47,7 +47,7 @@ public class Job {
         this.budget = budget;
     }
 
-    public Job(String title, String description, String category, double budget, int duration, String status, String posterUid, String posterName, String popperUid, double latitude, double longitude, String Uid) {
+    public Job(String title, String description, String category, double budget, int duration, String status, String posterUid, String posterName, String popperUid, double latitude, double longitude) {
         this.title = title;
         this.description = description;
         this.category = category;
@@ -59,7 +59,6 @@ public class Job {
         this.popperUid = popperUid;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.Uid = Uid;
     }
 
     public String getParentUid() {
@@ -71,12 +70,12 @@ public class Job {
     }
 
     public void setUid(String uidTemp){
-        this.Uid = uidTemp;
+        this.uid = uidTemp;
     }
 
     public  String getUid()
     {
-        return Uid;
+        return uid;
     }
 
     public String getTitle() {
