@@ -20,11 +20,11 @@ public class Job {
     String popperUid;
     String popperName;
     String popperNameCache;
+    String popperCache;
     String uid;
     String parentUid;
     long startTime;
     String notification;
-    String popperCache;
     double longitude;
     double latitude;
     long clockInTime;

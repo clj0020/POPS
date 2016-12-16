@@ -127,22 +127,7 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
                             }
 
                         });
-                        mDatabase.child("users").child(mJob.getPopperUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if(dataSnapshot.exists()) {
-                                    User popper = dataSnapshot.getValue(User.class);
-                                    popper.setBankStatemnt(mJob.getTotal());
-                                    mDatabase.child("users").child(popper.getUid()).child("bankStatement").setValue(popper.getBankStatement());
-                                }
-                            }
 
-                            @Override
-                            public void onCancelled(DatabaseError error) {
-                                Logger.e(error.getMessage());
-                            }
-
-                        });
                     }
                 });
             }
@@ -193,7 +178,25 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
             // Set the status of the job to paid
             mDatabase.child("jobs").child(jobUid).child("status").setValue("paid");
 
+            mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).setValue(mJob);
+            mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).setValue(mJob);
 
+            mDatabase.child("users").child(mJob.getPopperUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()) {
+                        User popper = dataSnapshot.getValue(User.class);
+                        popper.setBankStatemnt(mJob.getTotal());
+                        mDatabase.child("users").child(popper.getUid()).child("bankStatement").setValue(popper.getBankStatement());
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    Logger.e(error.getMessage());
+                }
+
+            });
            /* mDatabase.child(popperUid).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {

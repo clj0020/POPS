@@ -371,16 +371,19 @@ public class PopperMapFragment extends Fragment implements GPSTracker.UpdateLoca
                         mDatabase.child("jobs").child(key).addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                Job job = dataSnapshot.getValue(Job.class);
+                                if (dataSnapshot.getValue() != null) {
+                                    Job job = dataSnapshot.getValue(Job.class);
 
+                                    if (job.getStatus().equals("open")) {
+                                        Marker jobMarker = mGoogleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(job.getDescription())
+                                                .title(job.getTitle()));
+                                        jobMarker.setTag(job);
 
-                                Marker jobMarker = mGoogleMap.addMarker(new MarkerOptions()
-                                        .position(new LatLng(latitude, longitude))
-                                        .snippet(job.getDescription())
-                                        .title(job.getTitle()));
-                                jobMarker.setTag(job);
-
-                                markers.put(job.getUid(), jobMarker);
+                                        markers.put(job.getUid(), jobMarker);
+                                    }
+                                }
 
                             }
 
