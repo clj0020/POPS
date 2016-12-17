@@ -20,12 +20,18 @@ import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Dialogs.BasicInfoDialog;
 import com.madmensoftware.www.pops.Dialogs.NeighborSignUpInfoDialog;
 import com.madmensoftware.www.pops.Dialogs.PopperSignUpInfoDialog;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
+import com.madmensoftware.www.pops.Models.EmergencyContact;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 import com.orhanobut.logger.Logger;
@@ -304,6 +310,75 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
 //                    startActivity(new Intent(TypePickerActivity.this, MainActivity.class));
 //                }
 
+                final String email = firebaseNeighbor.getEmail();
+                Logger.i("email " + email);
+
+                final DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+
+
+                //Query emergencyContactQuery = reference.child("emergencyContacts").orderByChild("email").equalTo(email);
+                Query emergencyContactQuery = reference.child("emergencyContact").orderByChild("email").equalTo(email);
+
+                emergencyContactQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        EmergencyContact emergencyContact = dataSnapshot.getValue(EmergencyContact.class);
+                        System.out.println(dataSnapshot.getKey());
+                        Logger.i("snapshot" + emergencyContact);
+                        Logger.i("snapshot emil" + emergencyContact.getEmail());
+
+                        if(emergencyContact.getEmail().equals(email)){
+                            emergencyContact.setParentUid(neighbor.getUid());
+                            neighbor.setType("parent");
+                            Logger.i("snapshot is a parent" );
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+                /*reference.getChild("emergencyContacts").orderByChild("email").equalTo(email).addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
+                        EmergencyContact emergencyContact = dataSnapshot.getValue(EmergencyContact.class);
+                        System.out.println(dataSnapshot.getKey());
+                        Logger.i("snapshot" + emergencyContact);
+                        Logger.i("snapshot emil" + emergencyContact.getEmail());
+
+                        if(emergencyContact.getEmail().equals(email)){
+                            emergencyContact.setParentUid(neighbor.getUid());
+                            neighbor.setType("parent");
+                            Logger.i("snapshot is a parent" );
+
+                        }
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                    // ...
+                });*/
+
                 showNeighborSignUpInfoDialog(neighbor);
                 break;
             case R.id.typePickerCancelButton:
@@ -398,12 +473,14 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
 
         mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(neighbor);
 
+
         if (FacebookIsProvider) {
             startActivity(new Intent(TypePickerActivity.this, MainActivity.class));
         }
         else {
             startActivity(new Intent(TypePickerActivity.this, MainActivity.class));
         }
+
 
     }
 
@@ -415,13 +492,13 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
 
     private void showPopperSignUpInfoDialog(User popper) {
         FragmentManager fm = getSupportFragmentManager();
-        PopperSignUpInfoDialog popperSignUpInfoDialog = PopperSignUpInfoDialog.newInstance("Some Title", popper);
+        PopperSignUpInfoDialog popperSignUpInfoDialog = PopperSignUpInfoDialog.newInstance("One More Step!", popper);
         popperSignUpInfoDialog.show(fm, "fragment_popper_sign_up_info_dialog");
     }
 
     private void showNeighborSignUpInfoDialog(User neighbor) {
         FragmentManager fm = getSupportFragmentManager();
-        NeighborSignUpInfoDialog neighborSignUpInfoDialog = NeighborSignUpInfoDialog.newInstance("Some Title", neighbor);
+        NeighborSignUpInfoDialog neighborSignUpInfoDialog = NeighborSignUpInfoDialog.newInstance("One More Step!", neighbor);
         neighborSignUpInfoDialog.show(fm, "fragment_neighbor_sign_up_info_dialog");
     }
 
