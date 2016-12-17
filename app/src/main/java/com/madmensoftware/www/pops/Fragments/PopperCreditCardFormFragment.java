@@ -22,22 +22,22 @@ import butterknife.ButterKnife;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ParentCreditCardFormFragment extends Fragment implements OnCardFormSubmitListener {
+public class PopperCreditCardFormFragment extends Fragment implements OnCardFormSubmitListener {
 
     @BindView(R.id.popper_bt_card_form) CardForm cardForm;
 
-    private ParentCreditCardFormCallbacks mCallbacks;
+    private PopperCreditCardFormCallbacks mCallbacks;
 
-    public interface ParentCreditCardFormCallbacks {
-        void onParentCreditCardFormSubmit(String cardNumber, String expirationMonth, String expirationYear, String ccv, String postalCode);
+    public interface PopperCreditCardFormCallbacks {
+        void onPopperCreditCardFormSubmit(String cardNumber, String expirationMonth, String expirationYear, String ccv, String postalCode);
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) return;
-        if (activity instanceof ParentCreditCardFormCallbacks) {
-            mCallbacks = (ParentCreditCardFormCallbacks) activity;
+        if (activity instanceof PopperCreditCardFormFragment.PopperCreditCardFormCallbacks) {
+            mCallbacks = (PopperCreditCardFormFragment.PopperCreditCardFormCallbacks) activity;
         } else {
             throw new RuntimeException(activity.toString()
                     + " must implement OnListFragmentInteractionListener");
@@ -47,27 +47,27 @@ public class ParentCreditCardFormFragment extends Fragment implements OnCardForm
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof ParentCreditCardFormCallbacks) {
-            mCallbacks = (ParentCreditCardFormCallbacks) context;
+        if (context instanceof PopperCreditCardFormFragment.PopperCreditCardFormCallbacks) {
+            mCallbacks = (PopperCreditCardFormFragment.PopperCreditCardFormCallbacks) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement onCreditCardFormSubmit");
         }
     }
 
-    public ParentCreditCardFormFragment() {
+    public PopperCreditCardFormFragment() {
         // Required empty public constructor
     }
 
-    public static ParentCreditCardFormFragment newInstance() {
-        ParentCreditCardFormFragment fragment = new ParentCreditCardFormFragment();
+    public static PopperCreditCardFormFragment newInstance() {
+        PopperCreditCardFormFragment fragment = new PopperCreditCardFormFragment();
         Log.i("Neighbor:", " ParentCreditCarmForm created.");
         return fragment;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_parent_credit_card_form, container, false);
+        View view = inflater.inflate(R.layout.fragment_popper_credit_card_form, container, false);
         ButterKnife.bind(this, view);
 
         cardForm.setRequiredFields(getActivity(), true, true, true, true, "Purchase");
@@ -85,7 +85,7 @@ public class ParentCreditCardFormFragment extends Fragment implements OnCardForm
             String expirationYear = cardForm.getExpirationYear();
             String ccv = cardForm.getCvv();
             String postalCode = cardForm.getPostalCode();
-            mCallbacks.onParentCreditCardFormSubmit(cardNumber, expirationMonth, expirationYear, ccv, postalCode);
+            mCallbacks.onPopperCreditCardFormSubmit(cardNumber, expirationMonth, expirationYear, ccv, postalCode);
         }
         else {
             Toast.makeText(getActivity(), "Invalid Payment Info", Toast.LENGTH_SHORT).show();

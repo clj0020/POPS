@@ -3,10 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/popper_past_jobs_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Past Jobs Fragment"
-        android:textColor="@color/black"/>
+        android:layout_height="match_parent"/>
 
 </FrameLayout>

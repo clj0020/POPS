@@ -179,7 +179,10 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
             mDatabase.child("jobs").child(jobUid).child("status").setValue("paid");
 
             mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).setValue(mJob);
+            mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).child("statusCurrent").setValue("inactive");
+
             mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).setValue(mJob);
+            mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).child("statusCurrent").setValue("inactive");
 
             mDatabase.child("users").child(mJob.getPopperUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -273,13 +276,24 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
             try {
                 Map<String, Object> chargeParams = new HashMap<String, Object>();
                 int total = (int) Math.round(job.getTotal() * 100);
-                //int applicationFee = (int) Math.round(job.getTransactionFee() * 100);
-                chargeParams.put("amount", total); // Amount in cents
-                chargeParams.put("currency", "usd");
-                chargeParams.put("customer", user.getStripeCustomerId());
-                chargeParams.put("description", "Charge for POPS Job #" + job.getUid());
-                //chargeParams.put("destination", "acct_18u1uFHfcGmL46Ma");
-                //chargeParams.put("application_fee", applicationFee);
+                if (total > 0) {
+                    //int applicationFee = (int) Math.round(job.getTransactionFee() * 100);
+                    chargeParams.put("amount", total); // Amount in cents
+                    chargeParams.put("currency", "usd");
+                    chargeParams.put("customer", user.getStripeCustomerId());
+                    chargeParams.put("description", "Charge for POPS Job #" + job.getUid());
+                    //chargeParams.put("destination", "acct_18u1uFHfcGmL46Ma");
+                    //chargeParams.put("application_fee", applicationFee);
+                }
+                else {
+                    //int applicationFee = (int) Math.round(job.getTransactionFee() * 100);
+                    chargeParams.put("amount", 25); // Amount in cents
+                    chargeParams.put("currency", "usd");
+                    chargeParams.put("customer", user.getStripeCustomerId());
+                    chargeParams.put("description", "Charge for POPS Job #" + job.getUid());
+                    //chargeParams.put("destination", "acct_18u1uFHfcGmL46Ma");
+                    //chargeParams.put("application_fee", applicationFee);
+                }
 
                 Charge charge = Charge.create(chargeParams);
 
