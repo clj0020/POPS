@@ -25,7 +25,7 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+            android:value="AIzaSyAdOYCXIUjXm7J5NoZ7AriWqSRuEyIApX0" />
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
@@ -77,8 +77,6 @@
         <activity
             android:name=".Activities.NeighborActivity"
             android:theme="@style/AppTheme" />
-        <activity android:name=".Activities.PopperPaymentInfoActivity"
-            android:theme="@style/AppTheme"/>
         <activity
             android:name=".Activities.PopperActivity"
             android:theme="@style/AppTheme" />

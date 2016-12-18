@@ -311,17 +311,26 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 //
 //                                            mDatabase.child("notifications").child(notID).setValue(notification);
 
-                                    mJob.setStatus("pending");
-                                    mJob.setPopperCache(auth.getCurrentUser().getUid());
-                                    mJob.setPopperNameCache(popper.getName());
-
-                                    mDatabase.child("jobs").child(mJob.getUid()).setValue(mJob);
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("pending");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("popperCache").setValue(auth.getCurrentUser().getUid());
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("popperNameCache").setValue(popper.getName());
 
                                     mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).setValue(mJob);
-                                    mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).child("statusCurrent").setValue("active");
+                                    mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).child("status").setValue("active");
+
+
+
+                                    //mDatabase.child("jobs").child(mJob.getUid()).child("popperUid").setValue(popper.getUid());
 
                                     mPopperRequestContainer.setVisibility(View.GONE);
                                     Toast.makeText(getActivity(), "Requested the Job!", Toast.LENGTH_LONG).show();
+                                    //startActivity(new Intent(getActivity(), PopperActivity.class));
+
+
+                                    //Logger.d(" Popper: acceptButtonClicked User is " + popper.getType());
+//                                    Logger.d(" Popper: acceptButtonClicked Current User is " + auth.getCurrentUser().getUid());
+//                                    Logger.d(" Popper: acceptButtonClicked Job Title is " + mJob.getTitle());
+//                                    Logger.d(" Popper: acceptButtonClicked Job Status is " + mJob.getStatus());
                                 }
                             });
 
@@ -335,15 +344,16 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                     Date currentDate = Calendar.getInstance().getTime();
                                     long currentTime = currentDate.getTime();
 
-                                    mJob.setStatus("waitingForNeighborToStart");
-                                    mJob.setClockInTime(currentTime);
-
-                                    mDatabase.child("jobs").child(mJob.getUid()).setValue(mJob);
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("waitingForNeighborToStart");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("clockInTime").setValue(currentTime);
 
                                     mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).setValue(mJob);
-                                    mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).child("statusCurrent").setValue("active");
+                                    mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).child("status").setValue("active");
                                     mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).setValue(mJob);
-                                    mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).child("statusCurrent").setValue("active");
+                                    mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).child("status").setValue("active");
+
+
+
                                 }
                             });
 
@@ -353,15 +363,13 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                     Date currentDate = Calendar.getInstance().getTime();
                                     long currentTime = currentDate.getTime();
 
-                                    mJob.setStatus("complete");
-                                    mJob.setCompletionTime(currentTime);
-
-                                    mDatabase.child("jobs").child(mJob.getUid()).setValue(mJob);
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("complete");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("completionTime").setValue(currentTime);
 
                                     mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).setValue(mJob);
-                                    mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).child("statusCurrent").setValue("active");
                                     mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).setValue(mJob);
-                                    mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).child("statusCurrent").setValue("active");
+
+
                                 }
                             });
 
@@ -428,26 +436,22 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
                                     mDatabase.child("notifications").child(notID).setValue(notification);
 
-                                    mJob.setStatus("active");
-                                    mJob.setPopperName(mJob.getPopperNameCache());
-                                    mJob.setPopperUid(mJob.getPopperCache());
-                                    mJob.setPopperCache("");
-                                    mJob.setPopperNameCache("");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("active");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("popperName").setValue(mJob.getPopperNameCache());
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("popperUid").setValue(mJob.getPopperCache());
 
-
-                                    mDatabase.child("jobs").child(mJob.getUid()).setValue(mJob);
-
-                                    mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).setValue(mJob);
-                                    mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).child("statusCurrent").setValue("active");
-                                    mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).setValue(mJob);
-                                    mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).child("statusCurrent").setValue("active");
-
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("popperCache").setValue("");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("popperNameCache").setValue("");
                                     // mDatabase.child("jobs").child(mJob.getUid()).child("notifications").setValue(notID);
 
                                     Logger.d(" Neighbor: acceptButtonClicked UID is " + mUid);
 
                                     mNeighborRequestContainer.setVisibility(View.GONE);
                                     Toast.makeText(getActivity(), "You have accepted the job request!", Toast.LENGTH_LONG).show();
+
+                                    mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).setValue(mJob);
+                                    mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).setValue(mJob);
+
 
                                     //startActivity(new Intent(getActivity(), NeighborActivity.class));
                                 }
@@ -474,15 +478,12 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
                                     mDatabase.child("notifications").child(notID).setValue(notification);
 
-                                    mJob.setStatus("open");
-                                    mJob.setPopperNameCache("");
-                                    mJob.setPopperCache("");
-
-                                    mDatabase.child("jobs").child(mJob.getUid()).setValue(mJob);
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("open");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("popperCache").setValue("");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("popperNameCache").setValue("");
+                                    //mDatabase.child("jobs").child(mJob.getUid()).child("notification").setValue(notID);
 
                                     mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).setValue(mJob);
-                                    mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).child("statusCurrent").setValue("active");
-
 
                                     mNeighborRequestContainer.setVisibility(View.GONE);
                                     Toast.makeText(getActivity(), "You have declined the job request.", Toast.LENGTH_LONG).show();
@@ -497,18 +498,13 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                     Date currentDate = Calendar.getInstance().getTime();
                                     long currentTime = currentDate.getTime();
 
-                                    mJob.setStatus("inProgress");
-                                    mJob.setStartTime(currentTime);
-
-                                    mDatabase.child("jobs").child(mJob.getUid()).setValue(mJob);
-
-                                    mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).setValue(mJob);
-                                    mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).child("statusCurrent").setValue("active");
-                                    mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).setValue(mJob);
-                                    mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).child("statusCurrent").setValue("active");
-
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("inProgress");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("startTime").setValue(currentTime);
 
                                     Toast.makeText(getActivity(), "The job is starting at " + currentTime, Toast.LENGTH_LONG).show();
+
+                                    mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).setValue(mJob);
+                                    mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).setValue(mJob);
 
                                     Logger.i("Start Time" + formatDateAndTime(currentTime));
                                     mNeighborRequestJobStartContainer.setVisibility(View.GONE);
@@ -518,20 +514,15 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                             mNeighborRejectJobStartButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-
-                                    mJob.setStatus("neighborRejectedJobStart");
-                                    mJob.setClockInTime(0);
-
-                                    mDatabase.child("jobs").child(mJob.getUid()).setValue(mJob);
-
-                                    mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).setValue(mJob);
-                                    mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).child("statusCurrent").setValue("active");
-                                    mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).setValue(mJob);
-                                    mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).child("statusCurrent").setValue("active");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("status").setValue("neighborRejectedJobStart");
+                                    mDatabase.child("jobs").child(mJob.getUid()).child("clockInTime").setValue(0);
 
                                     Toast.makeText(getActivity(), "You have rejected " + mJob.getPopperName() + "'s request to start the job.", Toast.LENGTH_LONG).show();
 
                                     mNeighborRequestJobStartContainer.setVisibility(View.GONE);
+
+                                    mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).setValue(mJob);
+                                    mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).setValue(mJob);
                                 }
                             });
 
@@ -554,10 +545,7 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                     mDatabase.child("jobs").child(mJob.getUid()).setValue(mJob);
 
                                     mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).setValue(mJob);
-                                    mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).child("statusCurrent").setValue("active");
                                     mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).setValue(mJob);
-                                    mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).child("statusCurrent").setValue("active");
-
 
                                     Logger.i("Completion Time" + formatDateAndTime(currentTime));
 

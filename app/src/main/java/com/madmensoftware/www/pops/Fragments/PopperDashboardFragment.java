@@ -3,7 +3,6 @@ package com.madmensoftware.www.pops.Fragments;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.LayerDrawable;
@@ -30,13 +29,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.madmensoftware.www.pops.Activities.PopperPaymentInfoActivity;
-import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 import com.orhanobut.logger.Logger;
-
-import org.parceler.Parcels;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -71,8 +66,6 @@ public class PopperDashboardFragment extends Fragment {
 
     private ValueEventListener mUserValueEventListener;
     private DatabaseReference mUserDatabaseReference;
-
-    private User mUser;
 
     public interface PopperDashCallbacks {
         void onSignOutButton();
@@ -162,18 +155,6 @@ public class PopperDashboardFragment extends Fragment {
             }
         });
 
-        mCashOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Logger.d(getUser().getName());
-                Intent intent = new Intent(getActivity(), PopperPaymentInfoActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("User", Parcels.wrap(getUser()));
-                intent.putExtras(bundle);
-                startActivity(intent);
-            }
-        });
-
 
         return view;
     }
@@ -187,9 +168,7 @@ public class PopperDashboardFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
-                mUser = dataSnapshot.getValue(User.class);
-
-                setUser(mUser);
+                User mUser = dataSnapshot.getValue(User.class);
 
                 //BANK
                 mBankText.setText("$" + Double.toString(mUser.getBankStatement()));
@@ -253,13 +232,5 @@ public class PopperDashboardFragment extends Fragment {
         String dollar = "";
         NumberFormat nf = new DecimalFormat("$#,###.00");
         return nf.format(dbl);
-    }
-
-    public User getUser() {
-        return this.mUser;
-    }
-
-    public void setUser(User user) {
-        this.mUser = user;
     }
 }
