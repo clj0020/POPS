@@ -77,6 +77,8 @@
         <activity
             android:name=".Activities.NeighborActivity"
             android:theme="@style/AppTheme" />
+        <activity android:name=".Activities.PopperPaymentInfoActivity"
+            android:theme="@style/AppTheme"/>
         <activity
             android:name=".Activities.PopperActivity"
             android:theme="@style/AppTheme" />
