@@ -53,7 +53,7 @@ public class PopperPaymentInfoFragment extends Fragment {
      * Required interface for hosting activities
      */
     public interface PopperPaymentInfoCallbacks {
-        void onPopperPaymentInfoSubmit(String address, String city, String state, int zipcode, int lastFourSSN, int phone);
+        void onPopperPaymentInfoSubmit(String address, String city, String state, int zipcode, String lastFourSSN, int phone);
     }
 
     public PopperPaymentInfoFragment() {
@@ -120,8 +120,8 @@ public class PopperPaymentInfoFragment extends Fragment {
                         || isEmpty(mLastFourOfSocialEditText) || isEmpty(mPhoneEditText)) {
                     Toast.makeText(getActivity(), "Please fill out all fields.", Toast.LENGTH_LONG).show();
                 }
-                else if (mLastFourOfSocialEditText.getText().toString().length() != 4) {
-                    Toast.makeText(getActivity(), "Last four of social invalid.", Toast.LENGTH_LONG).show();
+                else if (mLastFourOfSocialEditText.getText().toString().length() != 9) {
+                    Toast.makeText(getActivity(), "SSN invalid.", Toast.LENGTH_LONG).show();
                 }
                 else if (mZipCodeEditText.getText().toString().length() != 5) {
                     Toast.makeText(getActivity(), "Zip code invalid.", Toast.LENGTH_LONG).show();
@@ -130,7 +130,7 @@ public class PopperPaymentInfoFragment extends Fragment {
                     String address = mAddressEditText.getText().toString();
                     String city = mCityEditText.getText().toString();
                     int zipcode = Integer.parseInt(mZipCodeEditText.getText().toString());
-                    int lastFourSSN = Integer.parseInt(mLastFourOfSocialEditText.getText().toString());
+                    String lastFourSSN = mLastFourOfSocialEditText.getText().toString();
                     int phone = Integer.parseInt(mPhoneEditText.getText().toString());
 
                     mCallbacks.onPopperPaymentInfoSubmit(address, city, state, zipcode, lastFourSSN, phone);

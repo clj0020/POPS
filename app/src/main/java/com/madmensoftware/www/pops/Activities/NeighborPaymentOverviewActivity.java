@@ -174,7 +174,6 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
             final double total = mJob.getTotal();
 
 
-
             // Set the status of the job to paid
             mDatabase.child("jobs").child(jobUid).child("status").setValue("paid");
 
@@ -189,8 +188,12 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if(dataSnapshot.exists()) {
                         User popper = dataSnapshot.getValue(User.class);
-                        popper.setBankStatemnt(mJob.getTotal());
-                        mDatabase.child("users").child(popper.getUid()).child("bankStatement").setValue(popper.getBankStatement());
+                        if (mJob.getTotal() == 0) {
+                            mDatabase.child("users").child(popper.getUid()).child("bankStatement").setValue(popper.getBankStatement() + 1);
+                        }
+                        else {
+                            mDatabase.child("users").child(popper.getUid()).child("bankStatement").setValue(popper.getBankStatement() + mJob.getTotal());
+                        }
                     }
                 }
 
@@ -287,7 +290,7 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
                 }
                 else {
                     //int applicationFee = (int) Math.round(job.getTransactionFee() * 100);
-                    chargeParams.put("amount", 25); // Amount in cents
+                    chargeParams.put("amount", 100); // Amount in cents
                     chargeParams.put("currency", "usd");
                     chargeParams.put("customer", user.getStripeCustomerId());
                     chargeParams.put("description", "Charge for POPS Job #" + job.getUid());

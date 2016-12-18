@@ -20,12 +20,17 @@ import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.madmensoftware.www.pops.Dialogs.BasicInfoDialog;
 import com.madmensoftware.www.pops.Dialogs.NeighborSignUpInfoDialog;
 import com.madmensoftware.www.pops.Dialogs.PopperSignUpInfoDialog;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
+import com.madmensoftware.www.pops.Models.EmergencyContact;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 import com.orhanobut.logger.Logger;
@@ -245,14 +250,47 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
             case R.id.neighborBtn:
                 TinyDB neighborTinyDB = new TinyDB(getApplicationContext());
                 FirebaseUser firebaseNeighbor = FirebaseAuth.getInstance().getCurrentUser();
-                final User neighbor = new User();
+                final User user = new User();
 
 
-                neighbor.setType("Neighbor");
+                Query emailQuery = mDatabase.child("emergencyContacts").orderByChild("email").equalTo(mAuth.getCurrentUser().getEmail()).limitToFirst(1);
+                emailQuery.addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        if (dataSnapshot != null) {
+                            EmergencyContact parent = dataSnapshot.getValue(EmergencyContact.class);
+                            user.setType("Parent");
+                            user.setChildUid(parent.getPopperUid());
+                        }
+                    }
 
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
 
                 //neighbor.setUid(firebaseNeighbor.getUid());
                 //neighbor.setPaymentAdded(true);
+
+                if (user.getType() == null) {
+                    user.setType("Neighbor");
+                }
 
                 for (UserInfo profile : firebaseNeighbor.getProviderData()) {
                     // Id of the provider (ex: google.com)
@@ -264,8 +302,8 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
                     String name = profile.getDisplayName();
                     String email = profile.getEmail();
 
-                    neighbor.setName(name);
-                    neighbor.setEmail(email);
+                    user.setName(name);
+                    user.setEmail(email);
 //                    if (providerId.equals("facebook.com")) {
 //                        GraphRequest request = GraphRequest.newMeRequest(
 //                                (AccessToken) tinyDB.getObject("FacebookToken", AccessToken.class),
@@ -308,7 +346,7 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
 //                    startActivity(new Intent(TypePickerActivity.this, MainActivity.class));
 //                }
 
-                showNeighborSignUpInfoDialog(neighbor);
+                showNeighborSignUpInfoDialog(user);
                 break;
             case R.id.typePickerCancelButton:
                 signOut();
@@ -379,7 +417,7 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
         mDatabase.child("emergencyContacts").child(notID).child("lastName").setValue(parentLastName);
         mDatabase.child("emergencyContacts").child(notID).child("email").setValue(parentEmail);
         mDatabase.child("emergencyContacts").child(notID).child("popperUid").setValue(FirebaseAuth.getInstance().getCurrentUser().getUid());
-
+        
         if (FacebookIsProvider) {
             startActivity(new Intent(TypePickerActivity.this, MainActivity.class));
         }
