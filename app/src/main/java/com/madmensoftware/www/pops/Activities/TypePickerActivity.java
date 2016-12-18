@@ -417,7 +417,7 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
         mDatabase.child("emergencyContacts").child(notID).child("lastName").setValue(parentLastName);
         mDatabase.child("emergencyContacts").child(notID).child("email").setValue(parentEmail);
         mDatabase.child("emergencyContacts").child(notID).child("popperUid").setValue(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        
+
         if (FacebookIsProvider) {
             startActivity(new Intent(TypePickerActivity.this, MainActivity.class));
         }
