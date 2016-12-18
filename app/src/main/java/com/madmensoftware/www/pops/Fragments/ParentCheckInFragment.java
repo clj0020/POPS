@@ -121,8 +121,6 @@ public class ParentCheckInFragment extends Fragment implements GPSTracker.Update
 
                 mCallbacks.onCheckIn(latitude, longitude);
 
-
-
                 Log.i("ParentCheckIn", "CheckInBtn: UserUID=" + uid);
                 //Log.i("PopperCheckIn", "CheckInBtn: CurrentTime=" + currentTime);
                 Log.i("ParentCheckIn", "CheckInBtn: CurrentLocation:  Latitude=" + gpsTracker.getLatitude() + " Longitude=" + gpsTracker.getLongitude());

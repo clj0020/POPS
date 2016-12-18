@@ -1,62 +1,50 @@
 package com.madmensoftware.www.pops.Models;
 
 /**
- * Created by chandler on 12/16/16.
+ * Created by carson on 12/17/2016.
  */
 
 public class EmergencyContact {
-
     String popperUid;
-    String email;
+    String lastName;
     String firstName;
-    String LastName;
-    String phone;
-    String parentUid;
+    String email;
 
-
-    public EmergencyContact()
-    {
+    public EmergencyContact() {
 
     }
 
-    public void setParentUid(String uid){
-        parentUid = uid;
-    }
-    public String getParentUid()
-    {
-        return parentUid;
-    }
-
-    public void setPopperUid(String uid){
-        popperUid = uid;
-    }
-    public String getPopperUid(){
+    public String getPopperUid() {
         return popperUid;
     }
-    public void setEmail(String em){
-        email = em;
+
+    public void setPopperUid(String popperUid) {
+        this.popperUid = popperUid;
     }
-    public String getEmail(){
-        return email;
+
+    public String getLastName() {
+        return lastName;
     }
-    public String getFirstName(){
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getFirstName() {
         return firstName;
     }
-    public String getLastName(){
-        return LastName;
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
-    public String getPhone(){
-        return phone;
+
+    public String getEmail() {
+        return email;
     }
-    public void setFirstName(String fn){
-        firstName = fn;
+
+    public void setEmail(String email) {
+        this.email = email;
     }
-    public void setLastName(String ln){
-        LastName = ln;
-    }
-    public void setPhone(String phoneN){
-        phone = phoneN;
-    }
+
 
 }
-

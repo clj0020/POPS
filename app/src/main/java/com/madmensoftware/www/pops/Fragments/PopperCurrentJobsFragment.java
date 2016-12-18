@@ -75,12 +75,8 @@ public class PopperCurrentJobsFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-<<<<<<< HEAD
 
-        Query jobQuery = mRef.child("job-poppers").child(auth.getCurrentUser().getUid()).orderByChild("status").equalTo("active");
-=======
         Query jobQuery = mRef.child("job-poppers").child(auth.getCurrentUser().getUid()).orderByChild("statusCurrent").equalTo("active");
->>>>>>> b5bcc397245a6b221d1b6a95b57eac1c4f6da840
         mJobAdapter = new PopperJobAdapter(Job.class, R.layout.job_list_row, PopperJobViewHolder.class, jobQuery, getContext());
 
         mJobAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
