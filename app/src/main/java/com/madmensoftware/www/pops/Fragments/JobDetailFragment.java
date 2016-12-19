@@ -379,6 +379,8 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                                 mDatabase.child("job-parents").child(popper.getParentUid()).child(mJob.getUid()).setValue(mJob);
                                                 mDatabase.child("job-parents").child(popper.getParentUid()).child(mJob.getUid()).child("statusCurrent").setValue("active");
 
+
+                                                mPopperJobStartContainer.setVisibility(View.GONE);
                                             }
                                         });
 
@@ -738,6 +740,8 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                                         mDatabase.child("job-parents").child(mJob.getParentUid()).child(mJob.getUid()).child("statusCurrent").setValue("active");
 
                                                         Logger.i("Completion Time" + formatDateAndTime(currentTime));
+
+                                                        mNeighborInProgressContainer.setVisibility(View.GONE);
                                                     }
                                                 });
 
