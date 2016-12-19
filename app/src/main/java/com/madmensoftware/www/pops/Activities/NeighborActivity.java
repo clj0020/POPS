@@ -194,7 +194,7 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
                     Logger.d("paymentAdded", "paymentAdded is " + user.getPaymentAdded());
                     //Logger.d("paymentAdded", "paymentAdded is " + mFirebaseUser.getPaymentAdded());
 
-                    if(!user.getPaymentAdded()) {
+                    if(user.getStripeCustomerId() == null) {
                         CharSequence accept = "Add";
                         CharSequence reject = "Later";
                         CharSequence message = "To post jobs you have to finish signing up. Add your Payment information to continue.";
@@ -218,7 +218,6 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
 
                         AlertDialog alertDialog = alertDialogBuilder.create();
                         alertDialog.show();
-
                     }
                     else {
                         Intent neighborIntent = new Intent(NeighborActivity.this, AddJobActivity.class);
