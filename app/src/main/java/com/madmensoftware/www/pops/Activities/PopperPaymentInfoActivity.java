@@ -212,7 +212,6 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
         int expMonth = Integer.parseInt(expirationMonth);
         int expYear = Integer.parseInt(expirationYear);
 
-
         Card card = new Card(
                 cardNumber,
                 expMonth,
@@ -468,8 +467,6 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
 
 
                 Transfer.create(transferParams);
-
-
             } catch (AuthenticationException e) {
                 e.printStackTrace();
             } catch (InvalidRequestException e) {

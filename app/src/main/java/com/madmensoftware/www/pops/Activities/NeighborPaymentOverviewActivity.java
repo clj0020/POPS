@@ -292,6 +292,7 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
                 }
                 else {
                     //int applicationFee = (int) Math.round(job.getTransactionFee() * 100);
+                    chargeParams.put("amount", 25); // Amount in cents
                     chargeParams.put("amount", 100); // Amount in cents
                     chargeParams.put("currency", "usd");
                     chargeParams.put("customer", user.getStripeCustomerId());

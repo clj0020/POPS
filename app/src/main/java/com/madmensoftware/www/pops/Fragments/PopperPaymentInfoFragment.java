@@ -121,7 +121,7 @@ public class PopperPaymentInfoFragment extends Fragment {
                     Toast.makeText(getActivity(), "Please fill out all fields.", Toast.LENGTH_LONG).show();
                 }
                 else if (mLastFourOfSocialEditText.getText().toString().length() != 9) {
-                    Toast.makeText(getActivity(), "SSN invalid.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), "Last four of social invalid.", Toast.LENGTH_LONG).show();
                 }
                 else if (mZipCodeEditText.getText().toString().length() != 5) {
                     Toast.makeText(getActivity(), "Zip code invalid.", Toast.LENGTH_LONG).show();

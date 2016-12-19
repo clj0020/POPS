@@ -252,6 +252,9 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
             case R.id.neighborBtn:
                 TinyDB neighborTinyDB = new TinyDB(getApplicationContext());
                 FirebaseUser firebaseNeighbor = FirebaseAuth.getInstance().getCurrentUser();
+
+
+
                 final User user = new User();
 
 

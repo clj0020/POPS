@@ -21,6 +21,8 @@ import android.widget.Toast;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -31,6 +33,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.madmensoftware.www.pops.Fragments.NeighborJobsFragment;
 import com.madmensoftware.www.pops.Fragments.NeighborNotificationsFragment;
+import com.madmensoftware.www.pops.Fragments.ParentCheckInFragment;
 import com.madmensoftware.www.pops.Helpers.NonSwipeableViewPager;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
@@ -49,6 +52,8 @@ import org.parceler.Parcels;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +64,7 @@ import butterknife.ButterKnife;
 /**
  * Created by carsonjones on 8/30/16.
  */
-public class NeighborActivity extends AppCompatActivity {
+public class NeighborActivity extends AppCompatActivity implements ParentCheckInFragment.ParentCheckInCallbacks {
         public final static String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
         private static final String PUBLISHIBLE_TEST_KEY = "pk_test_9SdGQF1ZibEEnbJ3vYmBaAFj";
         private static final String SECRET_TEST_KEY = "sk_test_I9UFP4mZBd3kq6W7w9zDenGq";
@@ -74,10 +79,13 @@ public class NeighborActivity extends AppCompatActivity {
         public FirebaseUser mFirebaseUser;
         private CallbackManager mCallbackManager;
         private User user;
-        public String uid;
+        private GeoFire geofire;
+    public String uid;
         private int[] tabIcons = {
                 R.mipmap.ic_jobs,
-                R.mipmap.ic_notifications
+                R.mipmap.ic_notifications,
+                R.mipmap.ic_check_in
+
         };
 
         @Override
@@ -125,9 +133,9 @@ public class NeighborActivity extends AppCompatActivity {
                         mFirebaseUser = firebaseUser;
                         uid = mFirebaseUser.getUid();
 
-                        setupViewPager(viewPager, uid);
+                        setupViewPager(viewPager, uid, user);
                         tabLayout.setupWithViewPager(viewPager);
-                        setupTabIcons();
+                        setupTabIcons(user);
 
                         // Write a message to the database
                         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -136,7 +144,7 @@ public class NeighborActivity extends AppCompatActivity {
                         ref.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                if(dataSnapshot.exists()) {
+                                if(dataSnapshot.getValue() != null) {
                                     User mUser = dataSnapshot.getValue(User.class);
                                     ref.child("paymentAdded").setValue(true);
                                     user = mUser;
@@ -246,16 +254,25 @@ public class NeighborActivity extends AppCompatActivity {
             }
         }
 
-        private void setupTabIcons() {
-            tabLayout.getTabAt(0).setIcon(tabIcons[0]);
-            tabLayout.getTabAt(1).setIcon(tabIcons[1]);
+        private void setupTabIcons(User user) {
+            if(user.getParentUid() == null) {
+                tabLayout.getTabAt(0).setIcon(tabIcons[0]);
+                tabLayout.getTabAt(1).setIcon(tabIcons[1]);
+            }
+            else {
+                tabLayout.getTabAt(2).setIcon(tabIcons[2]);
+            }
+
         }
 
-        private void setupViewPager(ViewPager viewPager, String uid) {
+        private void setupViewPager(ViewPager viewPager, String uid, User user) {
             ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
             adapter.addFragment(NeighborJobsFragment.newInstance(uid), "Jobs");
             adapter.addFragment(NeighborNotificationsFragment.newInstance(uid), "Notifications");
 
+            if(user.getParentUid() != null) {
+                adapter.addFragment(ParentCheckInFragment.newInstance(), "Check In");
+            }
             viewPager.setAdapter(adapter);
         }
 
@@ -344,5 +361,21 @@ public class NeighborActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
         }
+    }
+    @Override
+    public void onCheckIn(double latitude, double longitude) {
+        String uid = auth.getCurrentUser().getUid();
+        Date currentDate = Calendar.getInstance().getTime();
+        long currentTime = currentDate.getTime();
+
+        Logger.d(currentTime);
+
+        String checkInId = mDatabase.child("users").child(uid).child("check-in").push().getKey();
+        mDatabase.child("users").child(uid).child("check-in").child(checkInId).setValue(currentTime);
+
+        geofire = new GeoFire(mDatabase.child("check_in_location"));
+        geofire.setLocation(checkInId, new GeoLocation(latitude, longitude));
+
+        Toast.makeText(this, "Successfully Checked In!", Toast.LENGTH_LONG).show();
     }
 }
