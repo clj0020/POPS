@@ -436,7 +436,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Pay"
+                    android:text="Pay (per hour)"
                     android:textSize="20sp"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
@@ -471,8 +471,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Estimated Duration"
-                    android:textSize="20sp"
+                    android:text="Estimated Duration (in hours)"
+                    android:textSize="16sp"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
                     android:layout_marginLeft="10dp"
@@ -482,7 +482,7 @@
                     android:id="@+id/job_detail_duration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="20sp"
+                    android:textSize="16sp"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true"
                     android:layout_marginRight="10dp"
@@ -491,7 +491,7 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/job_detail_time_section"
+                android:id="@+id/job_detail_date_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/job_detail_duration_section"
@@ -504,40 +504,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Time"
-                    android:textSize="20sp"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginLeft="10dp"
-                    android:textColor="@color/black" />
-
-                <TextView
-                    android:id="@+id/job_detail_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginRight="10dp"/>
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/job_detail_date_section"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/job_detail_time_section"
-                android:layout_marginTop="10dp"
-                android:padding="5dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:visibility="gone">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Date"
-                    android:textSize="20sp"
+                    android:text="Scheduled Date"
+                    android:textSize="16sp"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
                     android:layout_marginLeft="10dp"
@@ -547,8 +515,9 @@
                     android:id="@+id/job_detail_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="20sp"
+                    android:textSize="16sp"
                     android:layout_alignParentRight="true"
+                    android:textColor="@color/black"
                     android:layout_alignParentEnd="true"
                     android:layout_marginRight="10dp"/>
 

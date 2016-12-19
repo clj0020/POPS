@@ -82,8 +82,6 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
     @BindView(R.id.add_job_submit_btn) Button mAddJobButton;
     @BindView(R.id.add_job_date_btn) Button btnDatePicker;
     @BindView(R.id.add_job_time_btn) Button btnTimePicker;
-    @BindView(R.id.add_job_date) EditText mJobDate;
-    @BindView(R.id.add_job_time) EditText mJobTime;
 
     private int mYear, mMonth, mDay, mHour, mMinute;
     private int mJobYear, mJobDay, mJobMonth, mJobHour, mJobMinute;
@@ -242,16 +240,15 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                         int duration = Integer.parseInt(mJobDurationEditText.getText().toString());
 
 
-//                        Calendar calendar = Calendar.getInstance();
-//                        calendar.set(mJobYear, mJobMonth, mJobDay,
-//                                mJobHour, mJobMinute, 0);
-//                        long startTime = calendar.getTimeInMillis();
-//
-//                        if (startTime == 0) {
-//                            Toast.makeText(this, "Please pick a date and a time.", Toast.LENGTH_LONG).show();
-//                        }
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.set(mJobYear, mJobMonth, mJobDay,
+                                mJobHour, mJobMinute, 0);
+                        long startTime = calendar.getTimeInMillis();
 
-                        if (latitude == 0 || longitude == 0) {
+                        if (startTime == 0) {
+                            Toast.makeText(this, "Please pick a date and a time.", Toast.LENGTH_LONG).show();
+                        }
+                        else if (latitude == 0 || longitude == 0) {
                             Toast.makeText(this, "Please choose a location for the job.", Toast.LENGTH_LONG).show();
                         }
                         else {
@@ -259,7 +256,7 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                             job.setPosterUid(uid);
                             job.setPosterName(user.getName());
                             job.setTitle(title);
-                            //job.setStartTime(startTime);
+                            job.setScheduledTime(startTime);
                             job.setDescription(description);
                             job.setDuration(duration);
                             job.setBudget(budget);
@@ -293,38 +290,6 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                                 startActivity(new Intent(AddJobActivity.this, AddPaymentInformationActivity.class));
                             }
 
-//                            // Write a message to the database
-//                            FirebaseDatabase database = FirebaseDatabase.getInstance();
-//                            DatabaseReference ref = database.getReference("users/" + auth.getCurrentUser().getUid());
-//
-//                            // Read from the database
-//                            ref.addValueEventListener(new ValueEventListener() {
-//                                @Override
-//                                public void onDataChange(DataSnapshot dataSnapshot) {
-//                                    // This method is called once with the initial value and again
-//                                    // whenever data at this location is updated.
-//                                    User mUser = dataSnapshot.getValue(User.class);
-//                                    TinyDB tinyDB = new TinyDB(getApplicationContext());
-//                                    User tdbuser = (User) tinyDB.getObject("User", User.class);
-//                                    Logger.d("paymentAdded", "paymentAdded is " + tdbuser.getPaymentAdded());
-//                                    Logger.d("paymentAdded", "paymentAdded is " + mUser.getPaymentAdded());
-//
-//                                    if (mUser.getPaymentAdded() == true || tdbuser.getPaymentAdded() == true) {
-//
-//
-//                                    }
-//                                    else {
-//                                    }
-//                                }
-//
-//                                @Override
-//                                public void onCancelled(DatabaseError error) {
-//                                    // Failed to read value
-//
-//                                }
-//                            });
-
-
                         }
                     }
                 break;
@@ -342,13 +307,10 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                             public void onDateSet(DatePicker view, int year,
                                                   int monthOfYear, int dayOfMonth) {
 
-                                mJobDate.setText((monthOfYear + 1) + "-" + dayOfMonth + "-" + year);
                                 mJobYear = year;
                                 mJobMonth = monthOfYear + 1;
                                 mJobDay = dayOfMonth;
-
-                                btnDatePicker.setText((monthOfYear + 1) + "-" + dayOfMonth + "-" + year);
-
+                                btnDatePicker.setText((monthOfYear + 1) + "/" + dayOfMonth + "/" + year);
                             }
                         }, mYear, mMonth, mDay);
                 datePickerDialog.show();

@@ -29,7 +29,7 @@ public class Job {
     double latitude;
     long clockInTime;
     long completionTime;
-    long totalTime;
+    long totalTime;long scheduledTime;
     double subtotal;
     double transactionFee;
     double total;
@@ -222,6 +222,13 @@ public class Job {
         this.completionTime = completionTime;
     }
 
+    public long getScheduledTime() {
+        return scheduledTime;
+    }
+
+    public void setScheduledTime(long scheduledTime) {
+        this.scheduledTime = scheduledTime;
+    }
 
     public long getTotalTime() {
         return totalTime;

@@ -24,12 +24,6 @@
             android:layout_marginRight="10dp"
             android:layout_marginTop="30dp" />
 
-        <Button
-            android:id="@+id/add_job_location_btn"
-            android:text="Where will the job be located?"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
         <EditText
             android:id="@+id/add_job_title"
             android:layout_width="match_parent"
@@ -70,7 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_edittext"
-            android:hint="Estimated Job Duration"
+            android:hint="Estimated Job Duration (in hours)"
             android:inputType="number"
             android:textColor="@color/black"
             android:textColorHint="@color/black"
@@ -87,57 +81,59 @@
             android:layout_marginRight="15dp"
             android:layout_marginTop="20dp"
             android:background="@drawable/rounded_edittext"
-            android:hint="Job Budget"
+            android:hint="Job Budget (per hour)"
             android:inputType="number"
             android:textColor="@color/black"
             android:textColorHint="@color/black" />
 
-        <!--<LinearLayout-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:orientation="horizontal"-->
-            <!--android:gravity="center">-->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:text="Where will the job be located?"
+            android:textColor="@color/black"
+            android:textSize="16sp"/>
 
-            <!--<EditText-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:id="@+id/add_job_date"-->
-                <!--android:background="@drawable/rounded_edittext"-->
-                <!--android:layout_width="200dp" />-->
-
-            <!--<Button-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:text="SELECT DATE"-->
-                <!--android:id="@+id/add_job_date_btn"-->
-                <!--android:layout_marginLeft="30dp" />-->
+        <Button
+            android:id="@+id/add_job_location_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:text="Click here to add job location" />
 
 
-        <!--</LinearLayout>-->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:text="Enter the date and time you want the job done."
+            android:textColor="@color/black"
+            android:textSize="16sp" />
 
-        <!--<LinearLayout-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:orientation="horizontal"-->
-            <!--android:gravity="center"-->
-            <!--android:weightSum="1">-->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:weightSum="1"
+            android:layout_marginBottom="20dp">
 
-            <!--<EditText-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:background="@drawable/rounded_edittext"-->
-                <!--android:id="@+id/add_job_time"-->
-                <!--android:layout_weight=".5"-->
-                <!--android:layout_width="200dp" />-->
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/add_job_date_btn"
+                android:text="SELECT DATE"
+                android:layout_weight=".5" />
 
-            <!--<Button-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:text="SELECT TIME"-->
-                <!--android:id="@+id/add_job_time_btn"-->
-                <!--android:layout_weight=".5"-->
-                <!--android:layout_marginLeft="30dp" />-->
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SELECT TIME"
+                android:id="@+id/add_job_time_btn"
+                android:layout_weight=".5" />
 
 
-        <!--</LinearLayout>-->
+        </LinearLayout>
 
 
         <Button

@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -101,6 +102,9 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
     @BindView(R.id.job_detail_parent_request_container) RelativeLayout mParentRequestContainer;
     @BindView(R.id.job_detail_parent_accept_request_btn) Button mParentAcceptRequestButton;
     @BindView(R.id.job_detail_parent_decline_request_btn) Button mParentDeclineRequestButton;
+
+    @BindView(R.id.job_detail_date_section) RelativeLayout mJobScheduledDateContainer;
+    @BindView(R.id.job_detail_date) TextView mJobScheduledDate;
 
 
     @BindView(R.id.job_detail_popper_request_container) RelativeLayout mPopperRequestContainer;
@@ -217,15 +221,20 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
                                 mJobDuration.setText(String.valueOf(mJob.getDuration()) + " hours");
                                 mJobStatus.setText(mJob.getStatus());
 
-                                if (mJob.getStatus() == "active") {
+                                if (mJob.getStatus().equals("open") || mJob.getStatus().equals("waitingForParentApproval")
+                                        || mJob.getStatus().equals("pending") || mJob.getStatus().equals("active")
+                                        || mJob.getStatus().equals("waitingForNeighborToStart") || mJob.getStatus().equals("neighborRejectedJobStart")) {
+                                    mJobScheduledDateContainer.setVisibility(View.VISIBLE);
+                                    mJobScheduledDate.setText(formatDateAndTime(mJob.getScheduledTime()));
+                                }
+                                else {
+                                    mJobScheduledDateContainer.setVisibility(View.GONE);
+                                }
+                                if (mJob.getStatus().equals("active") || mJob.getStatus().equals("waitingForNeighborToStart")
+                                        || mJob.getStatus().equals("neighborRejectedJobStart")) {
                                     mPoppersSection.setVisibility(View.VISIBLE);
                                     mPopperNameTextView.setText(mJob.getPopperName());
                                 }
-                                else {
-                                    mPoppersSection.setVisibility(View.GONE);
-                                }
-
-                                Logger.d("Outside onDataChange: jobStatus: " + mJob.getStatus());
 
                                 mType = mUser.getType();
 
@@ -955,7 +964,7 @@ public class JobDetailFragment extends Fragment implements OnMapReadyCallback {
 
     public String formatDateAndTime(long time) {
         Date date = new Date(time);
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm MM-dd-yyyy"); // Set your date format
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a MM-dd-yyyy"); // Set your date format
         String currentData = sdf.format(date); // Get Date String according to date format
 
         return currentData;

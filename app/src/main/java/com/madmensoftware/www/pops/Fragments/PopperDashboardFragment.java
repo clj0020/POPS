@@ -34,6 +34,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.madmensoftware.www.pops.Activities.AddPaymentInformationActivity;
+import com.madmensoftware.www.pops.Activities.NeighborActivity;
 import com.madmensoftware.www.pops.Activities.PopperActivity;
 import com.madmensoftware.www.pops.Activities.PopperPaymentInfoActivity;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
@@ -47,6 +49,7 @@ import com.stripe.exception.CardException;
 import com.stripe.exception.InvalidRequestException;
 import com.stripe.model.Transfer;
 
+import org.fabiomsr.moneytextview.MoneyTextView;
 import org.parceler.Parcels;
 
 import java.text.DecimalFormat;
@@ -72,8 +75,9 @@ public class PopperDashboardFragment extends Fragment {
     //@BindView(R.id.popper_dash_skill_rating_communication) RatingBar mSkillCommunicationStars;
     @BindView(R.id.popper_dash_stats_container) RelativeLayout mStatsContainer;
     @BindView(R.id.popper_dash_no_goal_container) RelativeLayout mNoGoalContainer;
-    @BindView(R.id.bankText) TextView mBankText;
+    @BindView(R.id.bankText) MoneyTextView mBankText;
     @BindView(R.id.cash_out_button) Button mCashOutButton;
+    @BindView(R.id.add_goal_button) Button mGoalButton;
 
 
     private FirebaseAuth auth;
@@ -143,6 +147,25 @@ public class PopperDashboardFragment extends Fragment {
 //        stars.getDrawable(2).setColorFilter(Color.parseColor("#0076B2"), PorterDuff.Mode.SRC_ATOP); // for filled stars
 //        stars.getDrawable(1).setColorFilter(Color.parseColor("#D3D3D3"), PorterDuff.Mode.SRC_ATOP); // for half filled stars
 //        stars.getDrawable(0).setColorFilter(Color.parseColor("#D3D3D3"), PorterDuff.Mode.SRC_ATOP); // for empty stars
+
+        mGoalButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                android.support.v7.app.AlertDialog.Builder alertDialogBuilder = new android.support.v7.app.AlertDialog.Builder(getActivity());
+                alertDialogBuilder.setMessage("Ability to add goals in BETA version.");
+                alertDialogBuilder.setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface arg0, int arg1) {
+
+                            }
+                        });
+
+
+                android.support.v7.app.AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+            }
+        });
 
         mSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -226,7 +249,7 @@ public class PopperDashboardFragment extends Fragment {
                 setUser(mUser);
 
                 //BANK
-                mBankText.setText("$" + Double.toString(mUser.getBankStatement()));
+                mBankText.setAmount(Float.valueOf(String.valueOf(mUser.getBankStatement())));
 
 
                 mNameTextView.setText(mUser.getName());

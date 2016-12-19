@@ -1,11 +1,10 @@
-
-    <ScrollView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white"
-        tools:context="com.madmensoftware.www.pops.Fragments.PopperDashboardFragment">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
+    tools:context="com.madmensoftware.www.pops.Fragments.PopperDashboardFragment">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -40,15 +39,15 @@
                     android:layout_centerHorizontal="true"
                     android:layout_centerVertical="true">
 
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        xmlns:app="http://schemas.android.com/apk/res-auto"
-                        android:id="@+id/profile_image"
-                        android:layout_width="96dp"
-                        android:layout_height="96dp"
-                        android:src="@drawable/popper_dash_profile_pic"
-                        android:layout_gravity="center"
-                        app:civ_border_width="2dp"
-                        app:civ_border_color="#FF000000"/>
+                    <!--<de.hdodenhof.circleimageview.CircleImageView-->
+                        <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+                        <!--android:id="@+id/profile_image"-->
+                        <!--android:layout_width="96dp"-->
+                        <!--android:layout_height="96dp"-->
+                        <!--android:src="@drawable/popper_dash_profile_pic"-->
+                        <!--android:layout_gravity="center"-->
+                        <!--app:civ_border_width="2dp"-->
+                        <!--app:civ_border_color="#FF000000"/>-->
 
                     <TextView
                         android:id="@+id/popper_dash_name"
@@ -569,7 +568,6 @@
 
 
 
-
             </LinearLayout>
 
             <TextView
@@ -587,7 +585,7 @@
                 android:textSize="17sp" />
 
 
-            <TextView
+            <org.fabiomsr.moneytextview.MoneyTextView
                 android:id="@+id/bankText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -599,7 +597,12 @@
                 android:textSize="22sp"
                 android:layout_below="@+id/popper_dash_skills_label"
                 android:layout_centerHorizontal="true"
-                />
+                app:symbol="$"
+                app:baseTextSize="20sp"
+                app:decimalDigitsTextSize="15sp"
+                app:decimalMargin="3dp"
+                app:includeDecimalSeparator="false" />/>
+
             <Button
                 android:id="@+id/cash_out_button"
                 android:layout_width="wrap_content"
