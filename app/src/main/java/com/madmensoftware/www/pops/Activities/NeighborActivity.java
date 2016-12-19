@@ -16,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.CallbackManager;
@@ -52,6 +53,7 @@ import com.stripe.model.Customer;
 import org.parceler.Parcels;
 
 import java.net.URL;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -83,7 +85,7 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
         private GeoFire geofire;
         private boolean isParent;
 
-        public User mUser;
+        private User user;
         private DatabaseReference mUserDatabaseReference;
         private ValueEventListener mUserValueEventListener;
 
@@ -104,7 +106,7 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
         }
 
 
-    @Override
+        @Override
         public void onStop() {
             super.onStop();
             if (mAuthListener != null) {
@@ -122,19 +124,18 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
             
             setSupportActionBar(myToolbar);
 
-//            Bundle b = this.getIntent().getExtras();
-//            if (b != null) {
-//                mUser = Parcels.unwrap(b.getParcelable("User"));
-//            }
-
-            TinyDB tinyDB = new TinyDB(getApplicationContext());
-            mUser = (User) tinyDB.getObject("User", User.class);
+            Bundle b = this.getIntent().getExtras();
+            if (b != null) {
+                user = Parcels.unwrap(b.getParcelable("User"));
+            }
+////            else {
+//                TinyDB tinyDB = new TinyDB(getApplicationContext());
+//                mUser = (User) tinyDB.getObject("User", User.class);
+////            }
 
             mAuth = FirebaseAuth.getInstance();
 
-            setupViewPager(viewPager, mAuth.getCurrentUser().getUid(), mUser);
-            tabLayout.setupWithViewPager(viewPager);
-            setupTabIcons(getUser());
+
 //            Bundle b = this.getIntent().getExtras();
 //            if (b != null) {
 //                user = Parcels.unwrap(b.getParcelable("User"));
@@ -148,6 +149,38 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
                     if (firebaseUser == null) {
                         startActivity(new Intent(NeighborActivity.this, LoginActivity.class));
                         finish();
+                    }
+                    else {
+                        mFirebaseUser = firebaseUser;
+                        uid = mFirebaseUser.getUid();
+
+                        setupViewPager(viewPager, uid, user);
+                        tabLayout.setupWithViewPager(viewPager);
+                        setupTabIcons(user);
+
+                        // Write a message to the database
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        final DatabaseReference ref = database.getReference("users/" + uid);
+                        // Read from the database
+                        ref.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if(dataSnapshot.getValue() != null) {
+                                    User mUser = dataSnapshot.getValue(User.class);
+
+
+                                    ref.child("paymentAdded").setValue(true);
+                                    user = mUser;
+                                }
+                                else {
+                                    mAuth.signOut();
+                                }
+                            }
+                            @Override
+                            public void onCancelled(DatabaseError error) {
+
+                            }
+                        });
                     }
                 }
             };
@@ -227,11 +260,11 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
         }
 
         private void setupTabIcons(User user) {
-            if (user != null) {
+            if (user == null) {
                 Logger.e("User passed is null!");
             }
             else {
-                if (user.getChildUid() != null) {
+                if (user.getIsParent()) {
                     tabLayout.getTabAt(0).setIcon(tabIcons[0]);
                     tabLayout.getTabAt(1).setIcon(tabIcons[1]);
                 } else {
@@ -350,22 +383,25 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
         Date currentDate = Calendar.getInstance().getTime();
         long currentTime = currentDate.getTime();
 
+
+        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+
         Logger.d(currentTime);
 
-        String checkInId = mDatabase.child("users").child(uid).child("check-in").push().getKey();
-        mDatabase.child("users").child(uid).child("check-in").child(checkInId).setValue(currentTime);
+        TinyDB tinyDb = new TinyDB(getApplicationContext());
+        User mUser = (User) tinyDb.getObject("User", User.class);
 
-        geofire = new GeoFire(mDatabase.child("check_in_location"));
-        geofire.setLocation(checkInId, new GeoLocation(latitude, longitude));
+        //mDatabase.child("users").child(uid).child("check-in").child("response").setValue(currentTime);
+        FirebaseDatabase.getInstance().getReference().child("users").child(mUser.getChildUid()).child("checkIn").child("checkInRequest").setValue(currentDateTimeString);
+        FirebaseDatabase.getInstance().getReference().child("users").child(mUser.getChildUid()).child("checkIn").child("checkInStatus").setValue("Waiting For Response");
 
-        Toast.makeText(this, "Successfully Checked In!", Toast.LENGTH_LONG).show();
+        FirebaseDatabase.getInstance().getReference().child("users").child(uid).child("checkIn").child("checkInRequest").setValue(currentDateTimeString);
+        FirebaseDatabase.getInstance().getReference().child("users").child(uid).child("checkIn").child("checkInStatus").setValue("Waiting For Response");
+
+//        geofire = new GeoFire(mDatabase.child("check_in_location"));
+//        geofire.setLocation(checkInId, new GeoLocation(latitude, longitude));
+
+        Toast.makeText(this, "Requested Checked In!", Toast.LENGTH_LONG).show();
     }
 
-    public User getUser() {
-        return this.mUser;
-    }
-
-    public void setUser(User mUser) {
-        this.mUser = mUser;
-    }
 }

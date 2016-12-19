@@ -233,7 +233,6 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
 
                                 TinyDB tinyDB = new TinyDB(getApplicationContext());
                                 User popper = (User) tinyDB.getObject("User", User.class);
-
                                 Map<String, Object> accountMap = new HashMap<String, Object>();
                                 accountMap.put("popper", popper);
                                 accountMap.put("token", token);
@@ -355,8 +354,6 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
             } catch (APIException e) {
                 e.printStackTrace();
             }
-            Logger.d(account);
-            Logger.d(account.getId());
             return account;
         }
 
@@ -405,15 +402,15 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
                 Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground externalAccountID is " + externalAccount.getId());
 
             } catch (AuthenticationException e) {
-                Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground AuthenticationException:" + e.getMessage());
+                Logger.d("AddUserDetails: " + "updateParentAccountTask doInBackground AuthenticationException:" + e.getMessage());
             } catch (InvalidRequestException e) {
                 Logger.d("AddUserDetails: " + "updateParentAccountTask doInBackground InvalidRequestException:" + e.getMessage());
             } catch (APIConnectionException e) {
-                Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground APIConnectionException:" + e.getMessage());
+                Logger.d("AddUserDetails: " + "updateParentAccountTask doInBackground APIConnectionException:" + e.getMessage());
             } catch (CardException e) {
-                Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground CardException:" + e.getMessage());
+                Logger.d("AddUserDetails: " + "updateParentAccountTask doInBackground CardException:" + e.getMessage());
             } catch (APIException e) {
-                Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground APIException:" + e.getMessage());
+                Logger.d("AddUserDetails: " + "updateParentAccountTask doInBackground APIException:" + e.getMessage());
             }
 
             return externalAccount;
