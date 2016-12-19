@@ -173,9 +173,10 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
             final String popperUid = mJob.getPopperUid();
             final double total = mJob.getTotal();
 
+            mJob.setStatus("paid");
 
             // Set the status of the job to paid
-            mDatabase.child("jobs").child(jobUid).child("status").setValue("paid");
+            mDatabase.child("jobs").child(jobUid).setValue(mJob);
 
             mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).setValue(mJob);
             mDatabase.child("job-poppers").child(mJob.getPopperUid()).child(mJob.getUid()).child("statusCurrent").setValue("inactive");
@@ -183,16 +184,17 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
             mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).setValue(mJob);
             mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).child("statusCurrent").setValue("inactive");
 
+
             mDatabase.child("users").child(mJob.getPopperUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    if(dataSnapshot.exists()) {
+                    if(dataSnapshot.getValue() != null) {
                         User popper = dataSnapshot.getValue(User.class);
-                        if (mJob.getTotal() == 0) {
-                            mDatabase.child("users").child(popper.getUid()).child("bankStatement").setValue(popper.getBankStatement() + 1);
+                        if (mJob.getSubtotal() == 0) {
+                            mDatabase.child("users").child(mJob.getPopperUid()).child("bankStatement").setValue(popper.getBankStatement() + 1);
                         }
                         else {
-                            mDatabase.child("users").child(popper.getUid()).child("bankStatement").setValue(popper.getBankStatement() + mJob.getTotal());
+                            mDatabase.child("users").child(mJob.getPopperUid()).child("bankStatement").setValue(popper.getBankStatement() + mJob.getSubtotal());
                         }
                     }
                 }

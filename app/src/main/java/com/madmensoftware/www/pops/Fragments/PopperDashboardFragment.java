@@ -1,11 +1,15 @@
 package com.madmensoftware.www.pops.Fragments;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.LayerDrawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -22,6 +26,7 @@ import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -29,13 +34,26 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.madmensoftware.www.pops.Activities.PopperActivity;
+import com.madmensoftware.www.pops.Activities.PopperPaymentInfoActivity;
+import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 import com.orhanobut.logger.Logger;
+import com.stripe.exception.APIConnectionException;
+import com.stripe.exception.APIException;
+import com.stripe.exception.AuthenticationException;
+import com.stripe.exception.CardException;
+import com.stripe.exception.InvalidRequestException;
+import com.stripe.model.Transfer;
+
+import org.parceler.Parcels;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -66,6 +84,8 @@ public class PopperDashboardFragment extends Fragment {
 
     private ValueEventListener mUserValueEventListener;
     private DatabaseReference mUserDatabaseReference;
+
+    private User mUser;
 
     public interface PopperDashCallbacks {
         void onSignOutButton();
@@ -155,6 +175,39 @@ public class PopperDashboardFragment extends Fragment {
             }
         });
 
+        mCashOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (getUser().getStripeAccountId() == null) {
+                    Logger.d(getUser().getName());
+                    Intent intent = new Intent(getActivity(), PopperPaymentInfoActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable("User", Parcels.wrap(getUser()));
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+                }
+                else {
+// Build a dialog that tells the user that they were successful.
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setMessage("You may now cash out. Would you like to?");
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Map<String, Object> accountMap = new HashMap<String, Object>();
+                            accountMap.put("popper", getUser());
+                            new PopperCashOutTask().execute(accountMap);
+                        }
+                    });
+                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                        }
+                    });
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();                }
+
+            }
+        });
+
 
         return view;
     }
@@ -168,7 +221,9 @@ public class PopperDashboardFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
-                User mUser = dataSnapshot.getValue(User.class);
+                mUser = dataSnapshot.getValue(User.class);
+
+                setUser(mUser);
 
                 //BANK
                 mBankText.setText("$" + Double.toString(mUser.getBankStatement()));
@@ -232,5 +287,96 @@ public class PopperDashboardFragment extends Fragment {
         String dollar = "";
         NumberFormat nf = new DecimalFormat("$#,###.00");
         return nf.format(dbl);
+    }
+
+    private class PopperCashOutTask extends AsyncTask<Map<String, Object>, Integer, String> {
+        // Do the long-running work in here
+        protected String doInBackground(Map<String, Object>... params) {
+
+            String result = "";
+            Map<String, Object> accountMap = params[0];
+            User popper = (User) accountMap.get("popper");
+
+//            Customer customer = new Customer();
+////
+////            try {
+////                customer = Customer.retrieve(user.getStripeCustomerId());
+////            } catch (AuthenticationException e) {
+////                e.printStackTrace();
+////            } catch (InvalidRequestException e) {
+////                e.printStackTrace();
+////            } catch (APIConnectionException e) {
+////                e.printStackTrace();
+////            } catch (CardException e) {
+////                e.printStackTrace();
+////            } catch (APIException e) {
+////                e.printStackTrace();
+////            }
+
+
+            // TODO: Change to production api key
+            com.stripe.Stripe.apiKey = "sk_test_I9UFP4mZBd3kq6W7w9zDenGq ";
+            //RequestOptions requestOptions = RequestOptions.builder().setStripeAccount("ca_9COvHdfuphlKUmpxzueVbYA3jnewkr0N").build();
+            try {
+                Map<String, Object> transferParams = new HashMap<String, Object>();
+
+                int total = (int) Math.round(popper.getBankStatement() * 100);
+                transferParams.put("amount", total); // Amount in cents
+                transferParams.put("currency", "usd");
+                transferParams.put("destination", popper.getStripeAccountId());
+                //transferParams.put("method", "instant");
+
+
+                Transfer.create(transferParams);
+
+                result = "100";
+
+            } catch (AuthenticationException e) {
+                result = e.getMessage();
+            } catch (InvalidRequestException e) {
+                result = e.getMessage();
+            } catch (APIConnectionException e) {
+                result = e.getMessage();
+            } catch (CardException e) {
+                result = e.getMessage();
+            } catch (APIException e) {
+                result = e.getMessage();
+            }
+
+            return result;
+        }
+
+        // This is called each time you call publishProgress()
+        protected void onProgressUpdate(Integer... progress) {
+
+        }
+
+        // This is called when doInBackground() is finished
+        protected void onPostExecute(String result) {
+            cashOutFinished(result);
+            super.onPostExecute(result);
+        }
+    }
+
+    public void cashOutFinished(String result) {
+        if (result.equals("100")) {
+            getUser().setBankStatemnt(0);
+
+            mUserDatabaseReference.child("bankStatement").setValue(0);
+
+            Toast.makeText(getActivity(), "Success!!", Toast.LENGTH_LONG).show();
+        }
+        else {
+            Toast.makeText(getActivity(), "Oh no! Something went wrong. Try again!", Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+    public User getUser() {
+        return this.mUser;
+    }
+
+    public void setUser(User user) {
+        this.mUser = user;
     }
 }

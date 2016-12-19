@@ -456,7 +456,7 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
 
             // TODO: Change to production api key
             com.stripe.Stripe.apiKey = "sk_test_I9UFP4mZBd3kq6W7w9zDenGq ";
-//            RequestOptions requestOptions = RequestOptions.builder().setStripeAccount("ca_9COvHdfuphlKUmpxzueVbYA3jnewkr0N").build();
+            //RequestOptions requestOptions = RequestOptions.builder().setStripeAccount("ca_9COvHdfuphlKUmpxzueVbYA3jnewkr0N").build();
             try {
                 Map<String, Object> transferParams = new HashMap<String, Object>();
 
@@ -464,8 +464,12 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
                 transferParams.put("amount", total); // Amount in cents
                 transferParams.put("currency", "usd");
                 transferParams.put("destination", popper.getStripeAccountId());
+                //transferParams.put("method", "instant");
+
 
                 Transfer.create(transferParams);
+
+
             } catch (AuthenticationException e) {
                 e.printStackTrace();
             } catch (InvalidRequestException e) {

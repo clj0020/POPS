@@ -6,6 +6,7 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 tools:background="#000000"
 android:id="@+id/fragment_popper_sign_up_info_dialog"
+    style="@style/AppTheme.InfoDialog"
 android:padding="30dp">
 
     <LinearLayout

@@ -24,7 +24,7 @@ import butterknife.ButterKnife;
  */
 public class ParentCreditCardFormFragment extends Fragment implements OnCardFormSubmitListener {
 
-    @BindView(R.id.parent_bt_card_form) CardForm cardForm;
+    @BindView(R.id.popper_bt_card_form) CardForm cardForm;
 
     private ParentCreditCardFormCallbacks mCallbacks;
 

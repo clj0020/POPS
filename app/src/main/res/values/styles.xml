@@ -13,6 +13,10 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="AppTheme.InfoDialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowSoftInputMode">adjustResize|stateHidden</item>
+    </style>
+
     <style parent="@android:style/Widget.Spinner" name="SpinnerAsEditText">
         <item name="android:background">@android:drawable/edit_text</item>
     </style>

@@ -13,13 +13,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
-import com.firebase.geofire.GeoFire;
-import com.firebase.geofire.GeoLocation;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -29,17 +26,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Fragments.NeighborJobsFragment;
 import com.madmensoftware.www.pops.Fragments.NeighborNotificationsFragment;
-import com.madmensoftware.www.pops.Fragments.ParentCheckInFragment;
 import com.madmensoftware.www.pops.Helpers.NonSwipeableViewPager;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
-import com.orhanobut.logger.Logger;
 
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -48,7 +41,7 @@ import butterknife.ButterKnife;
 /**
  * Created by carsonjones on 8/30/16.
  */
-public class ParentActivity extends AppCompatActivity implements ParentCheckInFragment.ParentCheckInCallbacks{
+public class ParentActivity extends AppCompatActivity {
 
     public final static String EXTRA_USER_ID = "com.madmensoftware.www.pops.userId";
 
@@ -59,30 +52,14 @@ public class ParentActivity extends AppCompatActivity implements ParentCheckInFr
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth auth;
     public FirebaseUser mFirebaseUser;
-    private DatabaseReference mDatabase;
     private CallbackManager mCallbackManager;
-    private GeoFire geofire;
     private User user;
     public String uid;
     private int[] tabIcons = {
             R.mipmap.ic_jobs,
-            R.mipmap.ic_notifications,
-            R.mipmap.ic_check_in
+            R.mipmap.ic_notifications
     };
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        auth.addAuthStateListener(authListener);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (authListener != null) {
-            auth.removeAuthStateListener(authListener);
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +68,6 @@ public class ParentActivity extends AppCompatActivity implements ParentCheckInFr
         setContentView(R.layout.activity_parent);
         ButterKnife.bind(this);
         mCallbackManager = CallbackManager.Factory.create();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         setSupportActionBar(myToolbar);
 
@@ -123,10 +99,10 @@ public class ParentActivity extends AppCompatActivity implements ParentCheckInFr
                     DatabaseReference ref = database.getReference("users/" + uid);
 
                     // Read from the database
-                    ref.addValueEventListener(new ValueEventListener() {
+                    FirebaseDatabase.getInstance().getReference().child("users").child(auth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            if(dataSnapshot.exists()) {
+                            if(dataSnapshot.getValue() != null) {
                                 User mUser = dataSnapshot.getValue(User.class);
                                 user = mUser;
                             }
@@ -143,6 +119,21 @@ public class ParentActivity extends AppCompatActivity implements ParentCheckInFr
             }
         };
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        auth.addAuthStateListener(authListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (authListener != null) {
+            auth.removeAuthStateListener(authListener);
+        }
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -177,16 +168,12 @@ public class ParentActivity extends AppCompatActivity implements ParentCheckInFr
     private void setupTabIcons() {
         tabLayout.getTabAt(0).setIcon(tabIcons[0]);
         tabLayout.getTabAt(1).setIcon(tabIcons[1]);
-        //me
-        tabLayout.getTabAt(2).setIcon(tabIcons[2]);
     }
 
     private void setupViewPager(ViewPager viewPager, String uid) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(NeighborJobsFragment.newInstance(uid), "Jobs");
         adapter.addFragment(NeighborNotificationsFragment.newInstance(uid), "Notifications");
-        //me
-        adapter.addFragment(ParentCheckInFragment.newInstance(), "Check In");
 
         viewPager.setAdapter(adapter);
     }
@@ -219,22 +206,4 @@ public class ParentActivity extends AppCompatActivity implements ParentCheckInFr
             return mFragmentTitleList.get(position);
         }
     }
-
-    @Override
-    public void onCheckIn(double latitude, double longitude) {
-        String uid = auth.getCurrentUser().getUid();
-        Date currentDate = Calendar.getInstance().getTime();
-        long currentTime = currentDate.getTime();
-
-        Logger.d(currentTime);
-
-        String checkInId = mDatabase.child("users").child(uid).child("check-in").push().getKey();
-        mDatabase.child("users").child(uid).child("check-in").child(checkInId).setValue(currentTime);
-
-        geofire = new GeoFire(mDatabase.child("check_in_location"));
-        geofire.setLocation(checkInId, new GeoLocation(latitude, longitude));
-
-        Toast.makeText(this, "Successfully Checked In!", Toast.LENGTH_LONG).show();
-    }
-
 }

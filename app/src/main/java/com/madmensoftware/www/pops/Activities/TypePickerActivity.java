@@ -6,6 +6,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 
 import com.facebook.CallbackManager;
@@ -458,6 +460,7 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
     private void showPopperSignUpInfoDialog(User popper) {
         FragmentManager fm = getSupportFragmentManager();
         PopperSignUpInfoDialog popperSignUpInfoDialog = PopperSignUpInfoDialog.newInstance("Some Title", popper);
+
         popperSignUpInfoDialog.show(fm, "fragment_popper_sign_up_info_dialog");
     }
 
