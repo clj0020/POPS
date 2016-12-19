@@ -16,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.CallbackManager;
@@ -51,6 +52,7 @@ import com.stripe.model.Customer;
 import org.parceler.Parcels;
 
 import java.net.URL;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -71,9 +73,11 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
     
         @BindView(R.id.neighbor_tabs) TabLayout tabLayout;
         @BindView(R.id.neighbor_viewpager) NonSwipeableViewPager viewPager;
-        @BindView(R.id.neighbor_toolbar) Toolbar myToolbar;  
-    
-        private FirebaseAuth.AuthStateListener authListener;
+        @BindView(R.id.neighbor_toolbar) Toolbar myToolbar;
+
+
+
+    private FirebaseAuth.AuthStateListener authListener;
         private FirebaseAuth auth;
         private DatabaseReference mDatabase;
         public FirebaseUser mFirebaseUser;
@@ -146,6 +150,8 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if(dataSnapshot.getValue() != null) {
                                     User mUser = dataSnapshot.getValue(User.class);
+
+
                                     ref.child("paymentAdded").setValue(true);
                                     user = mUser;
                                 }
@@ -368,14 +374,21 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
         Date currentDate = Calendar.getInstance().getTime();
         long currentTime = currentDate.getTime();
 
+
+        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+
         Logger.d(currentTime);
 
-        String checkInId = mDatabase.child("users").child(uid).child("check-in").push().getKey();
-        mDatabase.child("users").child(uid).child("check-in").child(checkInId).setValue(currentTime);
+        //mDatabase.child("users").child(uid).child("check-in").child("response").setValue(currentTime);
+        mDatabase.child("users").child(user.getChildUid()).child("checkIn").child("checkInRequest").setValue(currentDateTimeString);
+        mDatabase.child("users").child(user.getChildUid()).child("checkIn").child("checkInStatus").setValue("Waiting For Response");
 
-        geofire = new GeoFire(mDatabase.child("check_in_location"));
-        geofire.setLocation(checkInId, new GeoLocation(latitude, longitude));
+        mDatabase.child("users").child(uid).child("checkIn").child("checkInRequest").setValue(currentDateTimeString);
+        mDatabase.child("users").child(uid).child("checkIn").child("checkInStatus").setValue("Waiting For Response");
 
-        Toast.makeText(this, "Successfully Checked In!", Toast.LENGTH_LONG).show();
+//        geofire = new GeoFire(mDatabase.child("check_in_location"));
+//        geofire.setLocation(checkInId, new GeoLocation(latitude, longitude));
+
+        Toast.makeText(this, "Requested Checked In!", Toast.LENGTH_LONG).show();
     }
 }

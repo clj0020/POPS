@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -249,7 +250,7 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
                 break;
             case R.id.neighborBtn:
                 TinyDB neighborTinyDB = new TinyDB(getApplicationContext());
-                FirebaseUser firebaseNeighbor = FirebaseAuth.getInstance().getCurrentUser();
+                final FirebaseUser firebaseNeighbor = FirebaseAuth.getInstance().getCurrentUser();
 
 
 
@@ -262,8 +263,13 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                         if (dataSnapshot != null) {
                             EmergencyContact parent = dataSnapshot.getValue(EmergencyContact.class);
-                            user.setType("Parent");
+                            user.setType("Neighbor");
                             user.setChildUid(parent.getPopperUid());
+
+                            user.setParentUid(firebaseNeighbor.getUid());
+                            mDatabase.child("users").child(parent.getPopperUid()).child("parentUid").setValue(firebaseNeighbor.getUid());
+
+
                         }
                     }
 

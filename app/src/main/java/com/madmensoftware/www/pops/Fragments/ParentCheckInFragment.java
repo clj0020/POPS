@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
@@ -27,15 +28,21 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Helpers.AndroidPermissions;
 import com.madmensoftware.www.pops.Helpers.GPSTracker;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
+import com.madmensoftware.www.pops.Models.CheckIn;
 import com.madmensoftware.www.pops.Models.Job;
+import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 import com.orhanobut.logger.Logger;
 
+import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
@@ -43,18 +50,28 @@ import java.util.UUID;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.facebook.GraphRequest.TAG;
+
 /**
  * A simple {@link Fragment} subclass.
  */
 public class ParentCheckInFragment extends Fragment implements GPSTracker.UpdateLocationListener, OnMapReadyCallback {
 
-    @BindView(R.id.popper_check_in_button) Button mCheckInButton;
+    @BindView(R.id.parent_check_in_button) Button mCheckInButton;
+    @BindView(R.id.parent_next_check_in_time) TextView mcheckinTimeTextView;
+    @BindView(R.id.parent_last_check_in_label) TextView mlastCheckinTimeTextView;
+    @BindView(R.id.parent_check_in_status_label) TextView mStatusLabel;
+
+
 
     private GPSTracker gpsTracker;
     private MapView mMapView;
     private GeoFire geofire;
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
+    private DatabaseReference mCheckInRef;
+
+    private ValueEventListener mCheckInValueEventListener;
 
     private ParentCheckInCallbacks mCallbacks;
 
@@ -106,9 +123,14 @@ public class ParentCheckInFragment extends Fragment implements GPSTracker.Update
         auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
+        mCheckInRef = FirebaseDatabase.getInstance().getReference().child("users").child(auth.getCurrentUser().getUid());
+
         gpsTracker = new GPSTracker(getActivity());
         gpsTracker.changeUpdateInterval(400000);
         gpsTracker.setLocationListener(this);
+
+
+
 
         mCheckInButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -119,6 +141,14 @@ public class ParentCheckInFragment extends Fragment implements GPSTracker.Update
                 double latitude = gpsTracker.getLatitude();
                 double longitude = gpsTracker.getLongitude();
 
+                Date currentDate = Calendar.getInstance().getTime();
+                long currentTime = currentDate.getTime();
+
+                String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+
+
+                mcheckinTimeTextView.setText(currentDateTimeString);
+
                 mCallbacks.onCheckIn(latitude, longitude);
 
                 Log.i("ParentCheckIn", "CheckInBtn: UserUID=" + uid);
@@ -128,7 +158,7 @@ public class ParentCheckInFragment extends Fragment implements GPSTracker.Update
         });
 
 
-        mMapView = (MapView) view.findViewById(R.id.popper_check_in_last_location);
+        mMapView = (MapView) view.findViewById(R.id.parent_check_in_last_location);
 
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume(); // needed to get the map to display immediately
@@ -208,12 +238,45 @@ public class ParentCheckInFragment extends Fragment implements GPSTracker.Update
     public void onStart() {
         super.onStart();
         gpsTracker.onStart();
+        ValueEventListener mListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                if (dataSnapshot.getValue() != null) {
+                    User mUser = dataSnapshot.getValue(User.class);
+                    CheckIn checkIn = mUser.getCheckIn();
+                    String uid = mUser.getUid();
+                    mlastCheckinTimeTextView.setText((mUser.getCheckIn().getLastCheckIn()));
+                    mStatusLabel.setText(mUser.getCheckIn().getCheckInStatus());
+                    mcheckinTimeTextView.setText(mUser.getCheckIn().getCheckInRequest());
+                    Logger.d(" ParentCheckInFragment created" + mUser.getCheckIn().getCheckInRequest());
+                    Logger.d(" ParentCheckInFragment created" + mUser.getCheckIn().getCheckInResponse());
+                    Logger.d(" ParentCheckInFragment created" + mUser.getCheckIn().getCheckInStatus());
+                }
+                //mDatabase.child("users").child(uid).child("checkIn").setValue(checkIn);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+                // ...
+            }
+        };
+        mCheckInRef.addValueEventListener(mListener);
+
+        mCheckInValueEventListener = mListener;
     }
 
     @Override
     public void onStop() {
         super.onStop();
         gpsTracker.onStop();
+
+        if (mCheckInValueEventListener != null) {
+            mCheckInRef.removeEventListener(mCheckInValueEventListener);
+        }
     }
 
     @Override

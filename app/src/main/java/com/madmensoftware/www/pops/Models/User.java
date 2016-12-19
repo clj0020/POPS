@@ -50,16 +50,22 @@ public class User {
     String stripeApiPublishableKey;
     boolean paymentAdded;
     double bankStatement;
+    String checkInId;
 
-
+    CheckIn checkIn;
     public User() {
         //goalDate = new Date();
+        checkIn = new CheckIn();
     }
 
-    public void setBankStatemnt(double bs){
+    public void setCheckIn(CheckIn chIn){checkIn = chIn;}
+    public CheckIn getCheckIn(){return checkIn;}
+
+    public void setBankStatemnt(double bs) {
         bankStatement = bankStatement + bs;
     }
-    public double getBankStatement(){
+
+    public double getBankStatement() {
         return bankStatement;
     }
 
@@ -178,7 +184,7 @@ public class User {
         // Calculate difference in milliseconds
         long diff = Math.abs(milis2 - milis1);
 
-        return (int)(diff / (24 * 60 * 60 * 1000));
+        return (int) (diff / (24 * 60 * 60 * 1000));
     }
 
     public String getEmail() {
@@ -306,7 +312,6 @@ public class User {
     }
 
 
-
     public boolean getPaymentAdded() {
         return paymentAdded;
     }
@@ -314,6 +319,15 @@ public class User {
     public void setPaymentAdded(boolean pa) {
         this.paymentAdded = pa;
     }
+
+    public void setCheckInId(String id) {
+        checkInId = id;
+    }
+
+    public String getCheckInId() {
+        return checkInId;
+    }
+
 
 
 
