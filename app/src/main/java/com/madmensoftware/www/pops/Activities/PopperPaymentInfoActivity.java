@@ -321,14 +321,16 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
     }
 
     public void cashOutFinished(String result) {
-
-        mUser.setBankStatemnt(0);
-
-        mDatabase.child("users").child(auth.getCurrentUser().getUid()).setValue(mUser);
-
-        Toast.makeText(getApplicationContext(), "Success!!", Toast.LENGTH_LONG).show();
-
-        startActivity(new Intent(PopperPaymentInfoActivity.this, PopperActivity.class));
+        if (result.equals("100")) {
+            mUser.setBankStatemnt(0);
+            mDatabase.child("users").child(auth.getCurrentUser().getUid()).child("bankStatement").setValue(0);
+            Toast.makeText(getApplicationContext(), "Success!!", Toast.LENGTH_LONG).show();
+            startActivity(new Intent(PopperPaymentInfoActivity.this, PopperActivity.class));
+        }
+        else {
+            Toast.makeText(getApplicationContext(), "Something went wrong! Try again!", Toast.LENGTH_LONG).show();
+            startActivity(new Intent(PopperPaymentInfoActivity.this, PopperActivity.class));
+        }
     }
 
     private class CreateAccountTask extends AsyncTask<Map<String, Object>, Integer, Account> {
@@ -452,6 +454,7 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
 ////                e.printStackTrace();
 ////            }
 
+            String returnValue;
 
             // TODO: Change to production api key
             com.stripe.Stripe.apiKey = "sk_test_I9UFP4mZBd3kq6W7w9zDenGq ";
@@ -467,19 +470,20 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
 
 
                 Transfer.create(transferParams);
+                returnValue = "100";
             } catch (AuthenticationException e) {
-                e.printStackTrace();
+                returnValue = e.getMessage();
             } catch (InvalidRequestException e) {
-                e.printStackTrace();
+                returnValue = e.getMessage();
             } catch (APIConnectionException e) {
-                e.printStackTrace();
+                returnValue = e.getMessage();
             } catch (CardException e) {
-                e.printStackTrace();
+                returnValue = e.getMessage();
             } catch (APIException e) {
-                e.printStackTrace();
+                returnValue = e.getMessage();
             }
 
-            return "";
+            return returnValue;
         }
 
         // This is called each time you call publishProgress()

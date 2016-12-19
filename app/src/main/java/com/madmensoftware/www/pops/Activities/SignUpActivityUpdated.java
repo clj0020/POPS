@@ -53,6 +53,7 @@ public class SignUpActivityUpdated extends AppCompatActivity implements GoogleAp
     @BindView(R.id.sign_up_button) Button emailSignUpButton;
     @BindView(R.id.signup_email) EditText emailEditText;
     @BindView(R.id.signup_password) EditText passwordEditText;
+    @BindView(R.id.signup_password_confirm) EditText passwordConfirmationEditText;
     @BindView(R.id.google_sign_up_button) SignInButton googleSignUpButton;
     @BindView(R.id.facebook_sign_up_button) LoginButton facebookSignUpButton;
 
@@ -158,24 +159,23 @@ public class SignUpActivityUpdated extends AppCompatActivity implements GoogleAp
             public void onClick(View v) {
                 String email = emailEditText.getText().toString().trim();
                 String password = passwordEditText.getText().toString().trim();
-                signUpWithEmail(email, password);
+                String passwordConfirm = passwordConfirmationEditText.getText().toString().trim();
+                signUpWithEmail(email, password, passwordConfirm);
             }
         });
     }
 
-    public void signUpWithEmail(String email, String password) {
-        if (TextUtils.isEmpty(email)) {
+    public void signUpWithEmail(String email, String password, String passwordConfirm) {
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(passwordConfirm)) {
             Toast.makeText(getApplicationContext(), "Enter email address!", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        if (TextUtils.isEmpty(password)) {
-            Toast.makeText(getApplicationContext(), "Enter password!", Toast.LENGTH_SHORT).show();
+        else if (password.length() < 6) {
+            Toast.makeText(getApplicationContext(), "Password too short, enter minimum 6 characters!", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        if (password.length() < 6) {
-            Toast.makeText(getApplicationContext(), "Password too short, enter minimum 6 characters!", Toast.LENGTH_SHORT).show();
+        else if (!password.equals(passwordConfirm)) {
+            Toast.makeText(getApplicationContext(), "Passwords must match!", Toast.LENGTH_SHORT).show();
             return;
         }
         else {
@@ -184,7 +184,6 @@ public class SignUpActivityUpdated extends AppCompatActivity implements GoogleAp
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
-                            Toast.makeText(getApplicationContext(), "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
 
                             // If sign in fails, display a message to the user. If sign in succeeds
                             // the auth state listener will be notified and logic to handle the

@@ -49,13 +49,6 @@
                 android:layout_marginBottom="15dp"
                 facebook:com_facebook_login_text="Sign Up with Facebook"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="or"
-                android:textColor="@color/black"/>
-
             <com.google.android.gms.common.SignInButton
                 android:id="@+id/google_sign_up_button"
                 android:layout_width="match_parent"
@@ -71,15 +64,6 @@
                 android:textColor="@color/black"
                 android:text="or"
                 android:layout_marginBottom="20dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:text="Sign Up with Email"/>
 
             <EditText
                 android:id="@+id/signup_email"
@@ -102,6 +86,20 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
                 android:hint="@string/hint_password"
+                android:inputType="textPassword"
+                android:background="@drawable/rounded_edittext"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/black"
+                android:padding="10dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp" />
+
+            <EditText
+                android:id="@+id/signup_password_confirm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:hint="Confirm Password"
                 android:inputType="textPassword"
                 android:background="@drawable/rounded_edittext"
                 android:textColor="@android:color/black"

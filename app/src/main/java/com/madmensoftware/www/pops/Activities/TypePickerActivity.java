@@ -46,7 +46,6 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
         PopperSignUpInfoDialog.PopperSignUpInfoDialogCallbacks, NeighborSignUpInfoDialog.NeighborSignUpInfoDialogCallbacks {
 
     @BindView(R.id.popperBtn) Button mPopperBtn;
-    @BindView(R.id.parentBtn) Button mParentBtn;
     @BindView(R.id.neighborBtn) Button mNeighborBtn;
     @BindView(R.id.typePickerCancelButton) Button mCancelButton;
 
@@ -89,7 +88,6 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
         // [END build_client]
 
         mPopperBtn.setOnClickListener(this);
-        mParentBtn.setOnClickListener(this);
         mNeighborBtn.setOnClickListener(this);
         mCancelButton.setOnClickListener(this);
 
@@ -184,70 +182,6 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
 //                mDatabase.child("users").child(firebaseUser.getUid()).setValue(popper);
 //                showRadiusDialog(popper);
                 showPopperSignUpInfoDialog(popper);
-                break;
-            case R.id.parentBtn:
-                TinyDB parentTinyDB = new TinyDB(getApplicationContext());
-                FirebaseUser firebaseParent = FirebaseAuth.getInstance().getCurrentUser();
-                final User parent = new User();
-                parent.setType("Parent");
-                //parent.setUid(firebaseParent.getUid());
-
-                for (UserInfo profile : firebaseParent.getProviderData()) {
-                    // Id of the provider (ex: google.com)
-                    String providerId = profile.getProviderId();
-
-                    // UID specific to the provider
-                    String uid = profile.getUid();
-
-                    String name = profile.getDisplayName();
-                    String email = profile.getEmail();
-
-                    parent.setName(name);
-                    parent.setEmail(email);
-//                    if (providerId.equals("facebook.com")) {
-//                        GraphRequest request = GraphRequest.newMeRequest(
-//                                (AccessToken) tinyDB.getObject("FacebookToken", AccessToken.class),
-//                                new GraphRequest.GraphJSONObjectCallback() {
-//                                    @Override
-//                                    public void onCompleted(
-//                                            JSONObject object,
-//                                            GraphResponse response) {
-//                                        try {
-//                                            String name = object.getString("name");
-//                                            String email = object.getString("email");
-//                                            int age = object.getJSONObject("age_range").getInt("min");
-//
-//                                            popper.setName(name);
-//                                            popper.setEmail(email);
-//                                            popper.setAge(age);
-//
-//                                            Logger.i(name);
-//                                            Logger.i(email);
-//                                            Logger.i(age + "");
-//                                        }
-//                                        catch (JSONException e) {
-//                                            e.printStackTrace();
-//                                        }
-//                                    }
-//                                });
-//                        Bundle parameters = new Bundle();
-//                        parameters.putString("fields", "id,name,link,email,age_range");
-//                        request.setParameters(parameters);
-//                        request.executeAsync();
-//                    }
-                };
-
-
-                // mDatabase.child("users").child(firebaseParent.getUid()).setValue(parent);
-
-//                if (FacebookIsProvider) {
-//                    startActivity(new Intent(TypePickerActivity.this, MainActivity.class));
-//                }
-//                else {
-//                    startActivity(new Intent(TypePickerActivity.this, MainActivity.class));
-//                }
-
-                showBasicInfoDialog(parent);
                 break;
             case R.id.neighborBtn:
                 TinyDB neighborTinyDB = new TinyDB(getApplicationContext());
