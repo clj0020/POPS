@@ -20,6 +20,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.Job;
+import com.madmensoftware.www.pops.Models.Notification;
 import com.madmensoftware.www.pops.Models.User;
 import com.madmensoftware.www.pops.R;
 import com.orhanobut.logger.Logger;
@@ -175,6 +176,36 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
 
             mJob.setStatus("paid");
 
+            Notification notification = new Notification();
+            notification.setRecieverUid(mJob.getPopperUid());
+            notification.setTitle(mJob.getPosterName() + " has paid you $" + mJob.getSubtotal() + " for the job:" + mJob.getTitle());
+            notification.setDescription("Tap to view");
+            notification.setJobUid(mJob.getUid());
+            notification.setJob(mJob);
+
+            Notification notification2 = new Notification();
+            notification2.setRecieverUid(mJob.getParentUid());
+            notification2.setTitle(mJob.getPosterName() + " has paid " + mJob.getPopperName() + " $" + mJob.getSubtotal() + " for the job:" + mJob.getTitle());
+            notification2.setDescription("Tap to view");
+            notification2.setJobUid(mJob.getUid());
+            notification2.setJob(mJob);
+
+            Notification notification3 = new Notification();
+            notification3.setRecieverUid(mJob.getPosterUid());
+            notification3.setTitle("You have been charged " + mJob.getTotal() + " for the job:" + mJob.getTitle());
+            notification3.setDescription("Tap to view");
+            notification3.setJobUid(mJob.getUid());
+            notification3.setJob(mJob);
+
+            String notificationUid = mDatabase.child("notifications").push().getKey();
+            mDatabase.child("notifications").child(notificationUid).setValue(notification);
+
+            String notificationUid2 = mDatabase.child("notifications").push().getKey();
+            mDatabase.child("notifications").child(notificationUid2).setValue(notification2);
+
+            String notificationUid3 = mDatabase.child("notifications").push().getKey();
+            mDatabase.child("notifications").child(notificationUid3).setValue(notification3);
+
             // Set the status of the job to paid
             mDatabase.child("jobs").child(jobUid).setValue(mJob);
 
@@ -183,6 +214,9 @@ public class NeighborPaymentOverviewActivity extends AppCompatActivity {
 
             mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).setValue(mJob);
             mDatabase.child("job-posters").child(mJob.getPosterUid()).child(mJob.getUid()).child("statusCurrent").setValue("inactive");
+
+            mDatabase.child("job-parents").child(mJob.getParentUid()).child(mJob.getUid()).setValue(mJob);
+            mDatabase.child("job-parents").child(mJob.getParentUid()).child(mJob.getUid()).child("stausCurrent").setValue("inactive");
 
 
             mDatabase.child("users").child(mJob.getPopperUid()).addListenerForSingleValueEvent(new ValueEventListener() {

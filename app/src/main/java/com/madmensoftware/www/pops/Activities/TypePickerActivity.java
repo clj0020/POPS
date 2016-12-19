@@ -264,8 +264,9 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                         if (dataSnapshot != null) {
                             EmergencyContact parent = dataSnapshot.getValue(EmergencyContact.class);
-                            user.setType("Parent");
                             user.setChildUid(parent.getPopperUid());
+                            user.setIsParent(true);
+                            mDatabase.child("users").child(parent.getPopperUid()).child("parentUid").setValue(mAuth.getCurrentUser().getUid());
                         }
                     }
 
@@ -290,12 +291,7 @@ public class TypePickerActivity extends AppCompatActivity implements View.OnClic
                     }
                 });
 
-                //neighbor.setUid(firebaseNeighbor.getUid());
-                //neighbor.setPaymentAdded(true);
-
-                if (user.getType() == null) {
-                    user.setType("Neighbor");
-                }
+                user.setType("Neighbor");
 
                 for (UserInfo profile : firebaseNeighbor.getProviderData()) {
                     // Id of the provider (ex: google.com)

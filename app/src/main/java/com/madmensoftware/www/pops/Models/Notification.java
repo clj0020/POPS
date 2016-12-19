@@ -23,6 +23,7 @@ public class Notification {
     String type;
     String recieverUid;
     Job job;
+    boolean hasViewed;
 
     public String getUid(){
         return Uid;
@@ -105,6 +106,13 @@ public class Notification {
         this.description = description;
     }
 
+    public boolean getHasViewed() {
+        return hasViewed;
+    }
+
+    public void setHasViewed(boolean hasViewed) {
+        this.hasViewed = hasViewed;
+    }
 
 
 

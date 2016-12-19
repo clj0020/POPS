@@ -34,6 +34,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.madmensoftware.www.pops.Fragments.NeighborJobsFragment;
 import com.madmensoftware.www.pops.Fragments.NeighborNotificationsFragment;
 import com.madmensoftware.www.pops.Fragments.ParentCheckInFragment;
+import com.madmensoftware.www.pops.Fragments.ParentChildJobsFragment;
 import com.madmensoftware.www.pops.Helpers.NonSwipeableViewPager;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.User;
@@ -73,32 +74,41 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
         @BindView(R.id.neighbor_viewpager) NonSwipeableViewPager viewPager;
         @BindView(R.id.neighbor_toolbar) Toolbar myToolbar;  
     
-        private FirebaseAuth.AuthStateListener authListener;
-        private FirebaseAuth auth;
+        private FirebaseAuth.AuthStateListener mAuthListener;
+        private FirebaseAuth mAuth;
         private DatabaseReference mDatabase;
         public FirebaseUser mFirebaseUser;
         private CallbackManager mCallbackManager;
-        private User user;
+
         private GeoFire geofire;
-    public String uid;
+        private boolean isParent;
+
+        public User mUser;
+        private DatabaseReference mUserDatabaseReference;
+        private ValueEventListener mUserValueEventListener;
+
+
+        public String uid;
         private int[] tabIcons = {
                 R.mipmap.ic_jobs,
                 R.mipmap.ic_notifications,
-                R.mipmap.ic_check_in
-
+                R.mipmap.ic_check_in,
+                R.mipmap.ic_dashboard
         };
 
         @Override
         public void onStart() {
             super.onStart();
-            auth.addAuthStateListener(authListener);
+            mAuth.addAuthStateListener(mAuthListener);
+
         }
 
-        @Override
+
+    @Override
         public void onStop() {
             super.onStop();
-            if (authListener != null) {
-                auth.removeAuthStateListener(authListener);
+            if (mAuthListener != null) {
+                mAuth.removeAuthStateListener(mAuthListener);
             }
         }
 
@@ -111,58 +121,40 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
             mCallbackManager = CallbackManager.Factory.create();
             
             setSupportActionBar(myToolbar);
-            
-            mDatabase = FirebaseDatabase.getInstance().getReference();
 
-            Bundle b = this.getIntent().getExtras();
-            if (b != null) {
-                user = Parcels.unwrap(b.getParcelable("User"));
-            }
+//            Bundle b = this.getIntent().getExtras();
+//            if (b != null) {
+//                mUser = Parcels.unwrap(b.getParcelable("User"));
+//            }
 
-            auth = FirebaseAuth.getInstance();
-            authListener = new FirebaseAuth.AuthStateListener() {
+            TinyDB tinyDB = new TinyDB(getApplicationContext());
+            mUser = (User) tinyDB.getObject("User", User.class);
+
+            mAuth = FirebaseAuth.getInstance();
+
+            setupViewPager(viewPager, mAuth.getCurrentUser().getUid(), mUser);
+            tabLayout.setupWithViewPager(viewPager);
+            setupTabIcons(getUser());
+//            Bundle b = this.getIntent().getExtras();
+//            if (b != null) {
+//                user = Parcels.unwrap(b.getParcelable("User"));
+//            }
+
+
+            mAuthListener = new FirebaseAuth.AuthStateListener() {
                 @Override
                 public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                     FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                     if (firebaseUser == null) {
-                        Logger.d("Auth", "User is null");
                         startActivity(new Intent(NeighborActivity.this, LoginActivity.class));
                         finish();
-                    }
-                    else {
-                        mFirebaseUser = firebaseUser;
-                        uid = mFirebaseUser.getUid();
-
-                        setupViewPager(viewPager, uid, user);
-                        tabLayout.setupWithViewPager(viewPager);
-                        setupTabIcons(user);
-
-                        // Write a message to the database
-                        FirebaseDatabase database = FirebaseDatabase.getInstance();
-                        final DatabaseReference ref = database.getReference("users/" + uid);
-                        // Read from the database
-                        ref.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if(dataSnapshot.getValue() != null) {
-                                    User mUser = dataSnapshot.getValue(User.class);
-                                    ref.child("paymentAdded").setValue(true);
-                                    user = mUser;
-                                }
-                                else {
-                                    auth.signOut();
-                                }
-                            }
-                            @Override
-                            public void onCancelled(DatabaseError error) {
-
-                            }
-                        });
                     }
                 }
             };
 
-            FirebaseMessaging.getInstance().subscribeToTopic("user_"+ auth.getCurrentUser().getUid());
+
+
+//            FirebaseMessaging.getInstance().subscribeToTopic("user_"+ auth.getCurrentUser().getUid());
         }
 
         @Override
@@ -185,7 +177,7 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
                     // User chose the "Settings" item, show the app settings UI...
                     return true;
                 case R.id.action_log_out:
-                    auth.signOut();
+                    mAuth.signOut();
                     LoginManager.getInstance().logOut();
                     return true;
                 case R.id.action_add_job:
@@ -227,25 +219,6 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
                         startActivity(neighborIntent);
                         return true;
                     }
-                case R.id.action_test_purchase:
-                    tinyDB = new TinyDB(getApplicationContext());
-                    User neighbor = (User) tinyDB.getObject("User", User.class);
-
-                    mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            if(dataSnapshot.exists()) {
-                                User neighbor = dataSnapshot.getValue(User.class);
-                                new CreateChargeTask().execute(neighbor);
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError error) {
-                        }
-
-                    });
-                    return true;
                 default:
                     // If we got here, the user's action was not recognized.
                     // Invoke the superclass to handle it.
@@ -254,12 +227,18 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
         }
 
         private void setupTabIcons(User user) {
-            if(user.getParentUid() == null) {
-                tabLayout.getTabAt(0).setIcon(tabIcons[0]);
-                tabLayout.getTabAt(1).setIcon(tabIcons[1]);
+            if (user != null) {
+                Logger.e("User passed is null!");
             }
             else {
-                tabLayout.getTabAt(2).setIcon(tabIcons[2]);
+                if (user.getChildUid() != null) {
+                    tabLayout.getTabAt(0).setIcon(tabIcons[0]);
+                    tabLayout.getTabAt(1).setIcon(tabIcons[1]);
+                } else {
+                    tabLayout.getTabAt(2).setIcon(tabIcons[2]);
+                    tabLayout.getTabAt(3).setIcon(tabIcons[3]);
+
+                }
             }
 
         }
@@ -269,8 +248,12 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
             adapter.addFragment(NeighborJobsFragment.newInstance(uid), "Jobs");
             adapter.addFragment(NeighborNotificationsFragment.newInstance(uid), "Notifications");
 
-            if(user.getParentUid() != null) {
+            if (user == null) {
+                Logger.e("Oh no! User is null.");
+            }
+            if(user.getChildUid() != null) {
                 adapter.addFragment(ParentCheckInFragment.newInstance(), "Check In");
+                adapter.addFragment(ParentChildJobsFragment.newInstance(uid), "Child Jobs");
             }
             viewPager.setAdapter(adapter);
         }
@@ -363,7 +346,7 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
     }
     @Override
     public void onCheckIn(double latitude, double longitude) {
-        String uid = auth.getCurrentUser().getUid();
+        String uid = mAuth.getCurrentUser().getUid();
         Date currentDate = Calendar.getInstance().getTime();
         long currentTime = currentDate.getTime();
 
@@ -376,5 +359,13 @@ public class NeighborActivity extends AppCompatActivity implements ParentCheckIn
         geofire.setLocation(checkInId, new GeoLocation(latitude, longitude));
 
         Toast.makeText(this, "Successfully Checked In!", Toast.LENGTH_LONG).show();
+    }
+
+    public User getUser() {
+        return this.mUser;
+    }
+
+    public void setUser(User mUser) {
+        this.mUser = mUser;
     }
 }

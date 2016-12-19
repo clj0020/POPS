@@ -50,6 +50,7 @@ public class User {
     String stripeApiPublishableKey;
     boolean paymentAdded;
     double bankStatement;
+    boolean isParent;
 
 
     public User() {
@@ -305,7 +306,13 @@ public class User {
         this.stripeApiPublishableKey = stripeApiPublishableKey;
     }
 
+    public boolean getIsParent() {
+        return isParent;
+    }
 
+    public void setIsParent(boolean parent) {
+        isParent = parent;
+    }
 
     public boolean getPaymentAdded() {
         return paymentAdded;
@@ -314,8 +321,6 @@ public class User {
     public void setPaymentAdded(boolean pa) {
         this.paymentAdded = pa;
     }
-
-
 
     // Helper methods
     private Calendar toCalendar(long timestamp) {

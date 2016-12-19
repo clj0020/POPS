@@ -57,6 +57,43 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/job_detail_parent_request_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/job_detail_parent_job_requested_by_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Job Request"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp" />
+
+                <Button
+                    android:id="@+id/job_detail_parent_decline_request_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Decline"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+
+                <Button
+                    android:id="@+id/job_detail_parent_accept_request_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Accept"
+                    android:layout_alignParentTop="true"
+                    android:layout_toLeftOf="@+id/job_detail_parent_decline_request_btn"
+                    android:layout_toStartOf="@+id/job_detail_parent_decline_request_btn" />
+
+            </RelativeLayout>
+
+
+            <RelativeLayout
                 android:id="@+id/job_detail_popper_request_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -264,53 +264,63 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                             job.setLatitude(latitude);
                             job.setLongitude(longitude);
 
-                            // Write a message to the database
-                            FirebaseDatabase database = FirebaseDatabase.getInstance();
-                            DatabaseReference ref = database.getReference("users/" + auth.getCurrentUser().getUid());
+                            TinyDB tinyDB = new TinyDB(getApplicationContext());
+                            User mUser = (User) tinyDB.getObject("User", User.class);
 
-                            // Read from the database
-                            ref.addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    // This method is called once with the initial value and again
-                                    // whenever data at this location is updated.
-                                    User mUser = dataSnapshot.getValue(User.class);
-                                    TinyDB tinyDB = new TinyDB(getApplicationContext());
-                                    User tdbuser = (User) tinyDB.getObject("User", User.class);
-                                    Logger.d("paymentAdded", "paymentAdded is " + tdbuser.getPaymentAdded());
-                                    Logger.d("paymentAdded", "paymentAdded is " + mUser.getPaymentAdded());
+                            if (mUser.getStripeCustomerId() != null) {
+                                String jobId = mDatabase.child("jobs").push().getKey();
+                                job.setUid(jobId);
+                                mDatabase.child("jobs").child(jobId).setValue(job);
 
-                                    if (mUser.getPaymentAdded() == true || tdbuser.getPaymentAdded() == true) {
+                                mDatabase.child("job-posters").child(uid).child(job.getUid()).setValue(job);
+                                mDatabase.child("job-posters").child(uid).child(job.getUid()).child("statusCurrent").setValue("active");
 
-                                        String jobId = mDatabase.child("jobs").push().getKey();
-                                        job.setUid(jobId);
-                                        mDatabase.child("jobs").child(jobId).setValue(job);
+                                geofire = new GeoFire(mDatabase.child("jobs_location"));
+                                geofire.setLocation(jobId, new GeoLocation(latitude, longitude));
 
-                                        mDatabase.child("job-posters").child(uid).child(job.getUid()).setValue(job);
-                                        mDatabase.child("job-posters").child(uid).child(job.getUid()).child("statusCurrent").setValue("active");
-
-                                        geofire = new GeoFire(mDatabase.child("jobs_location"));
-                                        geofire.setLocation(jobId, new GeoLocation(latitude, longitude));
-
-                                        Toast.makeText(AddJobActivity.this, "Job Added Successfully", Toast.LENGTH_LONG).show();
-                                        startActivity(new Intent(AddJobActivity.this, NeighborActivity.class));
-                                    }
-                                    else {
-                                        tinyDB.putObject("job", job);
-                                        tinyDB.putBoolean("add_job", true);
-                                        tinyDB.putObject("User", mUser);
+                                Toast.makeText(AddJobActivity.this, "Job Added Successfully", Toast.LENGTH_LONG).show();
+                                startActivity(new Intent(AddJobActivity.this, NeighborActivity.class));
+                            }
+                            else {
+                                tinyDB.putObject("job", job);
+                                tinyDB.putBoolean("add_job", true);
+                                tinyDB.putObject("User", mUser);
 
 
-                                        startActivity(new Intent(AddJobActivity.this, AddPaymentInformationActivity.class));
-                                    }
-                                }
+                                startActivity(new Intent(AddJobActivity.this, AddPaymentInformationActivity.class));
 
-                                @Override
-                                public void onCancelled(DatabaseError error) {
-                                    // Failed to read value
+                            }
 
-                                }
-                            });
+//                            // Write a message to the database
+//                            FirebaseDatabase database = FirebaseDatabase.getInstance();
+//                            DatabaseReference ref = database.getReference("users/" + auth.getCurrentUser().getUid());
+//
+//                            // Read from the database
+//                            ref.addValueEventListener(new ValueEventListener() {
+//                                @Override
+//                                public void onDataChange(DataSnapshot dataSnapshot) {
+//                                    // This method is called once with the initial value and again
+//                                    // whenever data at this location is updated.
+//                                    User mUser = dataSnapshot.getValue(User.class);
+//                                    TinyDB tinyDB = new TinyDB(getApplicationContext());
+//                                    User tdbuser = (User) tinyDB.getObject("User", User.class);
+//                                    Logger.d("paymentAdded", "paymentAdded is " + tdbuser.getPaymentAdded());
+//                                    Logger.d("paymentAdded", "paymentAdded is " + mUser.getPaymentAdded());
+//
+//                                    if (mUser.getPaymentAdded() == true || tdbuser.getPaymentAdded() == true) {
+//
+//
+//                                    }
+//                                    else {
+//                                    }
+//                                }
+//
+//                                @Override
+//                                public void onCancelled(DatabaseError error) {
+//                                    // Failed to read value
+//
+//                                }
+//                            });
 
 
                         }
