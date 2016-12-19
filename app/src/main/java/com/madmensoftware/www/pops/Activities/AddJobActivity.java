@@ -206,6 +206,7 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                 Log.i(TAG, "Place: " + place.getName());
                 latitude = place.getLatLng().latitude;
                 longitude = place.getLatLng().longitude;
+                mAddJobLocationButton.setText(place.getName());
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
                 // TODO: Handle the error.
@@ -239,15 +240,18 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                         String description = mJobDescriptionEditText.getText().toString();
                         double budget = convertDollarToDouble(mJobBudgetEditText.getText().toString());
                         int duration = Integer.parseInt(mJobDurationEditText.getText().toString());
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.set(mJobYear, mJobMonth, mJobDay,
-                                mJobHour, mJobMinute, 0);
-                        long startTime = calendar.getTimeInMillis();
 
-                        if (startTime == 0) {
-                            Toast.makeText(this, "Please pick a date and a time.", Toast.LENGTH_LONG).show();
-                        }
-                        else if (latitude == 0 || longitude == 0) {
+
+//                        Calendar calendar = Calendar.getInstance();
+//                        calendar.set(mJobYear, mJobMonth, mJobDay,
+//                                mJobHour, mJobMinute, 0);
+//                        long startTime = calendar.getTimeInMillis();
+//
+//                        if (startTime == 0) {
+//                            Toast.makeText(this, "Please pick a date and a time.", Toast.LENGTH_LONG).show();
+//                        }
+
+                        if (latitude == 0 || longitude == 0) {
                             Toast.makeText(this, "Please choose a location for the job.", Toast.LENGTH_LONG).show();
                         }
                         else {
@@ -255,7 +259,7 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                             job.setPosterUid(uid);
                             job.setPosterName(user.getName());
                             job.setTitle(title);
-                            job.setStartTime(startTime);
+                            //job.setStartTime(startTime);
                             job.setDescription(description);
                             job.setDuration(duration);
                             job.setBudget(budget);
@@ -286,9 +290,7 @@ public class AddJobActivity extends AppCompatActivity implements View.OnClickLis
                                 tinyDB.putBoolean("add_job", true);
                                 tinyDB.putObject("User", mUser);
 
-
                                 startActivity(new Intent(AddJobActivity.this, AddPaymentInformationActivity.class));
-
                             }
 
 //                            // Write a message to the database
