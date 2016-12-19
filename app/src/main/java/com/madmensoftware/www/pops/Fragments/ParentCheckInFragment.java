@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.LocationCallback;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -63,13 +64,17 @@ public class ParentCheckInFragment extends Fragment implements GPSTracker.Update
     @BindView(R.id.parent_check_in_status_label) TextView mStatusLabel;
 
 
-
+    private GoogleMap mGoogleMap;
     private GPSTracker gpsTracker;
     private MapView mMapView;
     private GeoFire geofire;
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
     private DatabaseReference mCheckInRef;
+
+    private String mUid;
+    private GeoFire geoFire;
+
 
     private ValueEventListener mCheckInValueEventListener;
 
@@ -122,7 +127,7 @@ public class ParentCheckInFragment extends Fragment implements GPSTracker.Update
 
         auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
+        mUid = auth.getCurrentUser().getUid();
         mCheckInRef = FirebaseDatabase.getInstance().getReference().child("users").child(auth.getCurrentUser().getUid());
 
         gpsTracker = new GPSTracker(getActivity());
@@ -219,20 +224,35 @@ public class ParentCheckInFragment extends Fragment implements GPSTracker.Update
 
     @Override
     public void onMapReady(GoogleMap map) {
-        // create marker
-        MarkerOptions marker = new MarkerOptions().position(
-                new LatLng(32.610362, -85.472567)).title("Job Location");
-        // Changing marker icon
-        marker.icon(BitmapDescriptorFactory
-                .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+        mGoogleMap = map;
+        geoFire = new GeoFire(mDatabase.child("check_in_location"));
+        geoFire.getLocation(mUid, new LocationCallback() {
+            @Override
+            public void onLocationResult(String key, GeoLocation location) {
+                if (location != null) {
+                    MarkerOptions marker = new MarkerOptions().position(
+                            new LatLng(location.latitude, location.longitude)).title("Job Location");
+                    // Changing marker icon
+                    marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
 
-        // adding marker
-        map.addMarker(marker);
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(32.610362, -85.472567)).zoom(12).build();
-        map.animateCamera(CameraUpdateFactory
-                .newCameraPosition(cameraPosition));
+                    // adding marker
+                    mGoogleMap.addMarker(marker);
+                    CameraPosition cameraPosition = new CameraPosition.Builder().target(new LatLng(location.latitude, location.longitude)).zoom(20).build();
+                    mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                }
+                else {
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // System.err.println("There was an error getting the GeoFire location: " + databaseError);
+            }
+        });
+
     }
+
 
     @Override
     public void onStart() {

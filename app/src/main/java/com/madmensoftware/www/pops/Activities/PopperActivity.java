@@ -1,5 +1,6 @@
 package com.madmensoftware.www.pops.Activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -8,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
@@ -187,14 +189,43 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
         long currentTime = currentDate.getTime();
 
         Logger.d(currentTime);
+        CharSequence accept = "Safe";
+        CharSequence reject = "Danger";
+        CharSequence message = "Send Check In message.";
+        final String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setMessage(message);
+        alertDialogBuilder.setPositiveButton(accept,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        mDatabase.child("users").child(user.getParentUid()).child("checkIn").child("checkInRequest").setValue("Check In Complete");
+                        mDatabase.child("users").child(user.getParentUid()).child("checkIn").child("checkInStatus").setValue("No New Requests");
+                        mDatabase.child("users").child(user.getParentUid()).child("checkIn").child("lastCheckIn").setValue(currentDateTimeString);
+                        //Toast.makeText(this, "Successfully Checked In!", Toast.LENGTH_LONG).show();
 
-//        String checkInId = mDatabase.child("users").child(uid).child("check-in").push().getKey();
-//        mDatabase.child("users").child(uid).child("check-in").child(checkInId).setValue(currentTime);
-//
-//        geofire = new GeoFire(mDatabase.child("check_in_location"));
-//        geofire.setLocation(checkInId, new GeoLocation(latitude, longitude));
+                    }
+                });
 
-        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        alertDialogBuilder.setNegativeButton(reject, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                mDatabase.child("users").child(user.getParentUid()).child("checkIn").child("checkInRequest").setValue("Danger");
+                mDatabase.child("users").child(user.getParentUid()).child("checkIn").child("checkInStatus").setValue("Checked In as Danger");
+                mDatabase.child("users").child(user.getParentUid()).child("checkIn").child("lastCheckIn").setValue(currentDateTimeString);
+                //Toast.makeText(this, "Successfully Checked In!", Toast.LENGTH_LONG).show();
+
+            }
+        });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+        String checkInId = mDatabase.child("users").child(uid).child("check-in").push().getKey();
+        mDatabase.child("users").child(uid).child("check-in").child(checkInId).setValue(checkInId);
+
+        geofire = new GeoFire(mDatabase.child("check_in_location"));
+        geofire.setLocation(uid, new GeoLocation(latitude, longitude));
+
 
         Logger.d(currentTime);
 
@@ -202,16 +233,12 @@ public class PopperActivity extends AppCompatActivity implements PopperDashboard
 
 
         //mDatabase.child("users").child(uid).child("check-in").child("response").setValue(currentTime);
-        mDatabase.child("users").child(user.getParentUid()).child("checkIn").child("checkInRequest").setValue("Check In Complete");
-        mDatabase.child("users").child(user.getParentUid()).child("checkIn").child("checkInStatus").setValue("No New Requests");
-        mDatabase.child("users").child(user.getParentUid()).child("checkIn").child("lastCheckIn").setValue(currentDateTimeString);
 
         mDatabase.child("users").child(uid).child("checkIn").child("checkInRequest").setValue("No Requests");
         mDatabase.child("users").child(uid).child("checkIn").child("checkInResponse").setValue(currentDateTimeString);
         mDatabase.child("users").child(uid).child("checkIn").child("lastCheckIn").setValue(currentDateTimeString);
         mDatabase.child("users").child(uid).child("checkIn").child("checkInStatus").setValue("Check In Complete");
 
-        Toast.makeText(this, "Successfully Checked In!", Toast.LENGTH_LONG).show();
     }
 
     private void setupTabIcons() {

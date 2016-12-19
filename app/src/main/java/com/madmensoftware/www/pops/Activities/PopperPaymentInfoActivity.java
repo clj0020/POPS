@@ -28,6 +28,7 @@ import com.madmensoftware.www.pops.Fragments.ParentCreditCardFormFragment;
 import com.madmensoftware.www.pops.Fragments.ParentImportantInfoFragment;
 import com.madmensoftware.www.pops.Fragments.PopperCreditCardFormFragment;
 import com.madmensoftware.www.pops.Fragments.PopperPaymentInfoFragment;
+import com.madmensoftware.www.pops.Helpers.IPAddressUtils;
 import com.madmensoftware.www.pops.Helpers.TinyDB;
 import com.madmensoftware.www.pops.Models.Job;
 import com.madmensoftware.www.pops.Models.User;
@@ -144,7 +145,8 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
     }
 
     @Override
-    public void onPopperPaymentInfoSubmit(String address, String city, String state, int zipcode, int lastFourSSN, int phone) {
+   // public void onPopperPaymentInfoSubmit(String address, String city, String state, int zipcode, int lastFourSSN, int phone) {
+    public void onPopperPaymentInfoSubmit(String address, String city, String state, int zipcode, String SSN, int phone) {
 
         mUser.setAddress(address);
         mUser.setCity(city);
@@ -163,6 +165,8 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
 
         Map<String, Object> legalEntityParams = new HashMap<String, Object>();
         Map<String, Object> dobParams = new HashMap<String, Object>();
+        Map<String, Object> addressParams = new HashMap<String, Object>();
+        Map<String, Object> termsOfServiceParams = new HashMap<String, Object>();
 
         long birthDay = mUser.getBirthDay();
         Calendar cal = Calendar.getInstance();
@@ -173,13 +177,39 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
         dobParams.put("month", cal.get(Calendar.MONTH));
         dobParams.put("year", cal.get(Calendar.YEAR));
 
+        addressParams.put("city", city);
+        addressParams.put("country", "US");
+        addressParams.put("line1", address);
+        addressParams.put("line2", null);
+        addressParams.put("postal_code", zipcode);
+        addressParams.put("state", state);
+
+        dobParams.put("day", cal.get(Calendar.DAY_OF_MONTH));
+        dobParams.put("month", cal.get(Calendar.MONTH) + 1);
+        dobParams.put("year", cal.get(Calendar.YEAR));
+
+
+        long currentTimeInMillis = Calendar.getInstance().getTime().getTime() / 1000;
+        int currentTimeInSeconds = (int) Math.floor(System.currentTimeMillis() / 1000);
+
+        Logger.d(System.currentTimeMillis());
+        Logger.d(currentTimeInSeconds);
+
+
+        termsOfServiceParams.put("date", currentTimeInSeconds);
+        termsOfServiceParams.put("ip", IPAddressUtils.getIPAddress(true));
+
         legalEntityParams.put("dob", dobParams);
         legalEntityParams.put("first_name", mUser.getFirstName());
         legalEntityParams.put("last_name", mUser.getLastName());
         legalEntityParams.put("phone_number", phone);
-        legalEntityParams.put("ssn_last_4", lastFourSSN);
         legalEntityParams.put("type", "individual");
         accountParams.put("legal_entity", legalEntityParams);
+        legalEntityParams.put("personal_id_number", SSN);
+        legalEntityParams.put("type", "individual");
+        legalEntityParams.put("address", addressParams);
+        accountParams.put("legal_entity", legalEntityParams);
+        accountParams.put("tos_acceptance", termsOfServiceParams);
 
         new CreateAccountTask().execute(accountParams);
 ;
@@ -189,6 +219,8 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
     public void onPopperCreditCardFormSubmit(String cardNumber, String expirationMonth, String expirationYear, String ccv, String postalCode) {
         int expMonth = Integer.parseInt(expirationMonth);
         int expYear = Integer.parseInt(expirationYear);
+
+
 
         Card card = new Card(
                 cardNumber,
@@ -211,12 +243,14 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
 
                                 TinyDB tinyDB = new TinyDB(getApplicationContext());
                                 User popper = (User) tinyDB.getObject("User", User.class);
+
                                 Map<String, Object> accountMap = new HashMap<String, Object>();
                                 accountMap.put("popper", popper);
                                 accountMap.put("token", token);
                                 new UpdatePopperAccountTask().execute(accountMap);
                             }
                             public void onError(Exception error) {
+                                Logger.e(error.getMessage());
                             }
                         });
             }
@@ -238,6 +272,7 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
         }
     }
 
+/*
     public void accountCreationProcessFinish(Account account) {
 
         Logger.d("PopperPaymentInfoActivity", "accountCreationProcessFinish accountId" + account.getId());
@@ -247,6 +282,17 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
         mUser.setStripeAccountId(account.getId());
         mUser.setStripeApiSecretKey(account.getKeys().getSecret());
         mUser.setStripeApiPublishableKey(account.getKeys().getPublishable());
+*/
+
+    public void accountCreationProcessFinish(String accountId, String publishableAPIKey, String secretAPIKey) {
+
+        Logger.d("AccountID" + accountId);
+        Logger.d("AccountPublishable" + publishableAPIKey);
+        Logger.d("AccountSecret" + secretAPIKey);
+
+        mUser.setStripeAccountId(accountId);
+        mUser.setStripeApiSecretKey(secretAPIKey);
+        mUser.setStripeApiPublishableKey(publishableAPIKey);
 
 
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -283,7 +329,8 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 Map<String, Object> accountMap = new HashMap<String, Object>();
-                accountMap.put("popper", mUser);
+//                accountMap.put("popper", mUser);
+                accountMap.put("popper", popper);
                 new PopperCashOutTask().execute(accountMap);
             }
         });
@@ -329,6 +376,7 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
             } catch (APIException e) {
                 e.printStackTrace();
             }
+
             return account;
         }
 
@@ -339,7 +387,8 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
 
         // This is called when doInBackground() is finished
         protected void onPostExecute(Account result) {
-            accountCreationProcessFinish(result);
+            Logger.d(result.getId());
+            accountCreationProcessFinish(result.getId(), result.getKeys().getPublishable(), result.getKeys().getSecret());
             super.onPostExecute(result);
         }
     }
@@ -351,7 +400,13 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
             User popper = (User) accountMap.get("popper");
             Token cardToken = (Token) accountMap.get("token");
 
-            com.stripe.Stripe.apiKey = popper.getStripeApiSecretKey();
+            //com.stripe.Stripe.apiKey = popper.getStripeApiSecretKey();
+
+            Logger.d(popper.getName());
+            Logger.d(cardToken.getCard());
+            Logger.d(popper.getStripeAccountId());
+
+            com.stripe.Stripe.apiKey = SECRET_TEST_KEY;
 
             ExternalAccount externalAccount = new ExternalAccount();
 
@@ -370,15 +425,16 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
                 Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground externalAccountID is " + externalAccount.getId());
 
             } catch (AuthenticationException e) {
-                Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground AuthenticationException:" + e.getMessage());
+                Logger.d("AddUserDetails: " + "updateParentAccountTask doInBackground AuthenticationException:" + e.getMessage());
             } catch (InvalidRequestException e) {
-                Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground InvalidRequestException:" + e.getMessage());
+                Logger.d("AddUserDetails: " + "updateParentAccountTask doInBackground InvalidRequestException:" + e.getMessage());
+                Logger.d("AddUserDetails: " + "updateParentAccountTask doInBackground InvalidRequestException:" + e.getMessage());
             } catch (APIConnectionException e) {
-                Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground APIConnectionException:" + e.getMessage());
+                Logger.d("AddUserDetails: " + "updateParentAccountTask doInBackground APIConnectionException:" + e.getMessage());
             } catch (CardException e) {
-                Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground CardException:" + e.getMessage());
+                Logger.d("AddUserDetails: " + "updateParentAccountTask doInBackground CardException:" + e.getMessage());
             } catch (APIException e) {
-                Logger.d("AddUserDetails: ", "updateParentAccountTask doInBackground APIException:" + e.getMessage());
+                Logger.d("AddUserDetails: " + "updateParentAccountTask doInBackground APIException:" + e.getMessage());
             }
 
             return externalAccount;
@@ -421,21 +477,18 @@ public class PopperPaymentInfoActivity extends AppCompatActivity implements Popp
 
 
             // TODO: Change to production api key
-            Stripe.apiKey = "sk_test_I9UFP4mZBd3kq6W7w9zDenGq";
-            RequestOptions requestOptions = RequestOptions.builder().setStripeAccount(popper.getStripeAccountId()).build();
+            com.stripe.Stripe.apiKey = "sk_test_I9UFP4mZBd3kq6W7w9zDenGq ";
+
             try {
                 Map<String, Object> transferParams = new HashMap<String, Object>();
 
                 int total = (int) Math.round(popper.getBankStatement() * 100);
                 transferParams.put("amount", total); // Amount in cents
                 transferParams.put("currency", "usd");
-                transferParams.put("destination", "default_for_currency");
-                transferParams.put("method", "instant");
+                transferParams.put("destination", popper.getStripeAccountId());
 
 
-                Transfer.create(transferParams, requestOptions);
-
-
+                Transfer.create(transferParams);
             } catch (AuthenticationException e) {
                 e.printStackTrace();
             } catch (InvalidRequestException e) {
